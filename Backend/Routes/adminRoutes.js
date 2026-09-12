@@ -237,12 +237,11 @@ router.post(
       // Candidate must pass
       if (!result.passed) {
         return res.status(400).json({
-          message:
-            "Certificate cannot be generated for a failed result."
+          message: "Certificate cannot be generated for a failed result."
         });
       }
 
-      // If certificate already exists, return it
+      // Certificate already exists
       if (result.certificateId) {
         const existingCertificate = await Certificate.findOne({
           certificateId: result.certificateId
@@ -253,7 +252,7 @@ router.post(
         }
       }
 
-      // Generate unique certificate ID
+      // Generate unique Certificate ID
       let certificateId;
       let exists = true;
 
@@ -274,17 +273,19 @@ router.post(
 
       const percentage = Number(result.percentage || 0);
 
-      // Create certificate
+      // IMPORTANT:
+      // Certificate schema expects resultId as MongoDB ObjectId
+      // and status as "valid" or "revoked".
       const certificate = await Certificate.create({
-        certificateId,
-        resultId: result.resultId,
+        certificateId: certificateId,
+        resultId: result._id,
         candidateName: result.candidateName,
         email: result.email,
         testTitle: result.testTitle,
         issueDate: new Date(),
-        percentage,
+        percentage: percentage,
         grade: gradeFromPercentage(percentage),
-        status: "active",
+        status: "valid",
         signatoryName:
           process.env.CERTIFICATE_SIGNATORY_NAME ||
           "Growtech Axon",
@@ -298,11 +299,11 @@ router.post(
 
       await result.save();
 
-      res.status(201).json(certificate);
+      return res.status(201).json(certificate);
     } catch (err) {
       console.error("Generate certificate error:", err);
 
-      res.status(500).json({
+      return res.status(500).json({
         message: "Unable to generate certificate.",
         error: err.message
       });
@@ -410,8 +411,7 @@ router.post("/tests", adminAuth, async (req, res) => {
       !questions.length
     ) {
       return res.status(400).json({
-        message:
-          "Title and at least one question are required."
+        message: "Title and at least one question are required."
       });
     }
 
