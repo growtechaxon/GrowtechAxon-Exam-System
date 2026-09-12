@@ -1,5 +1,5 @@
 <!doctype html>
-<html>
+<html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -51,10 +51,50 @@
 .modal-box{
   max-width:900px;
   width:94%;
+  max-height:90vh;
+  overflow-y:auto;
 }
 
 .download-btn{
   cursor:pointer;
+}
+
+.field{
+  margin-bottom:15px;
+}
+
+.field label{
+  display:block;
+  color:#cbd5e1;
+  margin-bottom:7px;
+  font-size:14px;
+}
+
+.field input,
+.field select{
+  width:100%;
+  box-sizing:border-box;
+  padding:12px;
+  border-radius:10px;
+  border:1px solid #ffffff15;
+  background:#020b1b;
+  color:#fff;
+  outline:none;
+}
+
+.field input:focus,
+.field select:focus{
+  border-color:#f5c76b;
+}
+
+.edit-title{
+  margin:0 0 18px;
+}
+
+.edit-note{
+  color:#94a3b8;
+  font-size:13px;
+  margin-bottom:18px;
 }
 
 @media(max-width:700px){
@@ -251,10 +291,10 @@ async function api(url, options = {}){
 
   const headers = {
     ...(options.headers || {}),
-    "Authorization": "Bearer " + token
+    "Authorization":"Bearer " + token
   };
 
-  return fetch(url, {
+  return fetch(url,{
     ...options,
     headers
   });
@@ -276,7 +316,7 @@ async function downloadPDF(url, filename){
       return;
     }
 
-    const response = await fetch(url, {
+    const response = await fetch(url,{
       method:"GET",
       headers:{
         "Authorization":"Bearer " + token
@@ -299,8 +339,11 @@ async function downloadPDF(url, filename){
       let message = "PDF download failed.";
 
       try{
+
         const data = await response.json();
+
         message = data.message || message;
+
       }catch(e){}
 
       alert(message);
@@ -330,9 +373,9 @@ async function downloadPDF(url, filename){
 
     link.remove();
 
-    setTimeout(() => {
+    setTimeout(()=>{
       URL.revokeObjectURL(blobUrl);
-    }, 1000);
+    },1000);
 
   }catch(err){
 
@@ -344,6 +387,7 @@ async function downloadPDF(url, filename){
     );
 
   }
+
 }
 
 
@@ -353,12 +397,16 @@ async function downloadPDF(url, filename){
 
 function downloadResult(resultId){
 
-  const safeId = encodeURIComponent(resultId);
-
   downloadPDF(
-    "/api/admin/results/" + safeId + "/pdf",
-    "GrowtechAxon-Result-" + resultId + ".pdf"
+    "/api/admin/results/" +
+    encodeURIComponent(resultId) +
+    "/pdf",
+
+    "GrowtechAxon-Result-" +
+    resultId +
+    ".pdf"
   );
+
 }
 
 
@@ -375,15 +423,16 @@ function downloadCertificate(certificateId){
     return;
   }
 
-  const safeId =
-    encodeURIComponent(certificateId);
-
   downloadPDF(
-    "/api/admin/certificates/" + safeId + "/pdf",
+    "/api/admin/certificates/" +
+    encodeURIComponent(certificateId) +
+    "/pdf",
+
     "GrowtechAxon-Certificate-" +
     certificateId +
     ".pdf"
   );
+
 }
 
 
@@ -416,7 +465,9 @@ async function load(){
     let data;
 
     try{
+
       data = await r.json();
+
     }catch(err){
 
       throw new Error(
@@ -442,16 +493,22 @@ async function load(){
         <tr>
 
           <td>
+
             <b>${esc(x.candidateName)}</b>
+
             <br>
+
             <span class="muted">
               ${esc(x.email)}
             </span>
+
           </td>
+
 
           <td>
             ${esc(x.testTitle)}
           </td>
+
 
           <td>
 
@@ -464,6 +521,7 @@ async function load(){
             </span>
 
           </td>
+
 
           <td>
 
@@ -482,6 +540,7 @@ async function load(){
             </span>
 
           </td>
+
 
           <td>
 
@@ -506,6 +565,7 @@ async function load(){
             }
 
           </td>
+
 
           <td>
 
@@ -607,11 +667,12 @@ async function view(id){
       return;
     }
 
-
     let d;
 
     try{
+
       d = await r.json();
+
     }catch(err){
 
       throw new Error(
@@ -619,7 +680,6 @@ async function view(id){
       );
 
     }
-
 
     if(!r.ok){
 
@@ -630,335 +690,10 @@ async function view(id){
 
     }
 
+    const result = d.result;
+    const certificate = d.certificate;
 
-    const result =
-      d.result;
-
-    const certificate =
-      d.certificate;
-
-
-    let certificateHtml = "";
-
-
-    /* =================================================
-       CERTIFICATE FOUND
-    ================================================= */
-
-    if(certificate){
-
-      certificateHtml = `
-
-        <div class="detail-box">
-
-          <small>Certificate ID</small>
-
-          <strong class="certificate-id">
-            ${esc(certificate.certificateId)}
-          </strong>
-
-        </div>
-
-
-        <div class="detail-box">
-
-          <small>Certificate Status</small>
-
-          <strong class="${
-            certificate.status === "valid" ||
-            certificate.status === "active"
-            ? "status-pass"
-            : "status-fail"
-          }">
-
-            ${esc(
-              certificate.status ||
-              "Unknown"
-            )}
-
-          </strong>
-
-        </div>
-
-
-        <div class="detail-box">
-
-          <small>Issue Date</small>
-
-          <strong>
-            ${
-              certificate.issueDate
-              ? new Date(
-                  certificate.issueDate
-                ).toLocaleDateString()
-              : "—"
-            }
-          </strong>
-
-        </div>
-
-
-        <div class="detail-box">
-
-          <small>Grade</small>
-
-          <strong>
-            ${esc(
-              certificate.grade ||
-              "—"
-            )}
-          </strong>
-
-        </div>
-
-      `;
-
-    }
-
-
-    /* =================================================
-       CERTIFICATE NOT FOUND
-    ================================================= */
-
-    else{
-
-      certificateHtml = `
-
-        <div class="detail-box">
-
-          <small>Certificate ID</small>
-
-          <strong class="status-fail">
-            ${
-              result.passed
-              ? "Certificate not generated"
-              : "Not eligible — candidate did not pass"
-            }
-          </strong>
-
-        </div>
-
-      `;
-
-    }
-
-
-    /* =================================================
-       RESULT DETAILS
-    ================================================= */
-
-    let html = `
-
-      <div class="result-detail">
-
-
-        <div class="detail-box">
-
-          <small>Candidate Name</small>
-
-          <strong>
-            ${esc(result.candidateName)}
-          </strong>
-
-        </div>
-
-
-        <div class="detail-box">
-
-          <small>Email</small>
-
-          <strong>
-            ${esc(result.email)}
-          </strong>
-
-        </div>
-
-
-        <div class="detail-box">
-
-          <small>Phone</small>
-
-          <strong>
-            ${esc(result.phone || "—")}
-          </strong>
-
-        </div>
-
-
-        <div class="detail-box">
-
-          <small>Result ID</small>
-
-          <strong>
-            ${esc(result.resultId)}
-          </strong>
-
-        </div>
-
-
-        <div class="detail-box">
-
-          <small>Test</small>
-
-          <strong>
-            ${esc(result.testTitle)}
-          </strong>
-
-        </div>
-
-
-        <div class="detail-box">
-
-          <small>Score</small>
-
-          <strong>
-            ${result.score}/${result.totalQuestions}
-          </strong>
-
-        </div>
-
-
-        <div class="detail-box">
-
-          <small>Percentage</small>
-
-          <strong>
-            ${result.percentage}%
-          </strong>
-
-        </div>
-
-
-        <div class="detail-box">
-
-          <small>Status</small>
-
-          <strong class="${
-            result.passed
-            ? "status-pass"
-            : "status-fail"
-          }">
-
-            ${
-              result.passed
-              ? "PASSED"
-              : "NOT PASSED"
-            }
-
-          </strong>
-
-        </div>
-
-
-        <div class="detail-box">
-
-          <small>Submission Type</small>
-
-          <strong>
-            ${esc(
-              result.submissionType ||
-              "—"
-            )}
-          </strong>
-
-        </div>
-
-
-        <div class="detail-box">
-
-          <small>Submitted At</small>
-
-          <strong>
-
-            ${
-              result.submittedAt
-
-              ? new Date(
-                  result.submittedAt
-                ).toLocaleString()
-
-              : "—"
-            }
-
-          </strong>
-
-        </div>
-
-
-        ${certificateHtml}
-
-
-      </div>
-
-
-      <div class="actions">
-
-
-        <!-- RESULT PDF -->
-
-        <button
-          class="btn btn-primary download-btn"
-          onclick="downloadResult('${escAttr(result.resultId)}')"
-        >
-          Download Result PDF
-        </button>
-
-
-        ${
-          certificate
-
-          ? `
-
-            <!-- CERTIFICATE PDF -->
-
-            <button
-              class="btn btn-gold download-btn"
-              onclick="downloadCertificate('${escAttr(certificate.certificateId)}')"
-            >
-              Download Certificate
-            </button>
-
-
-            <!-- EDIT CERTIFICATE -->
-
-            <button
-              class="btn btn-ghost"
-              onclick='editCert(${JSON.stringify(certificate).replace(/'/g,"&#39;")})'
-            >
-              Edit Certificate
-            </button>
-
-
-            <!-- WHATSAPP -->
-
-            <button
-              class="btn btn-ghost"
-              onclick="openWhatsApp(
-                '${escAttr(result.candidateName)}',
-                '${escAttr(certificate.certificateId)}'
-              )"
-            >
-              Open WhatsApp
-            </button>
-
-          `
-
-          : ""
-
-        }
-
-
-      </div>
-
-    `;
-
-
-    document.getElementById("detail")
-      .innerHTML = html;
-
-
-    document.getElementById("modal")
-      .classList.add("show");
+    renderResult(result,certificate);
 
   }
 
@@ -977,254 +712,394 @@ async function view(id){
 
 
 /* =====================================================
-   WHATSAPP
+   RENDER RESULT
 ===================================================== */
 
-function openWhatsApp(name, certificateId){
+function renderResult(result,certificate){
 
-  const text =
-    "GrowtechAxon result/certificate ready for " +
-    name +
-    ". Certificate ID: " +
-    certificateId;
-
-  const url =
-    "https://wa.me/?text=" +
-    encodeURIComponent(text);
-
-  window.open(
-    url,
-    "_blank",
-    "noopener,noreferrer"
-  );
-}
+  let certificateHtml = "";
 
 
-/* =====================================================
-   EDIT CERTIFICATE
-===================================================== */
+  /* =================================================
+     CERTIFICATE FOUND
+  ================================================= */
 
-function editCert(c){
+  if(certificate){
 
-  document.getElementById("detail")
-    .innerHTML = `
+    certificateHtml = `
 
-      <h2>Edit Certificate</h2>
-
-
-      <div
-        class="detail-box"
-        style="margin-bottom:15px"
-      >
+      <div class="detail-box">
 
         <small>Certificate ID</small>
 
         <strong class="certificate-id">
-          ${esc(c.certificateId)}
+          ${esc(certificate.certificateId)}
         </strong>
 
       </div>
 
 
-      <div class="field">
+      <div class="detail-box">
 
-        <label>
-          Candidate Name
-        </label>
+        <small>Certificate Status</small>
 
-        <input
-          id="ec_name"
-          value="${escAttr(c.candidateName)}"
-        >
+        <strong class="${
+          certificate.status === "valid" ||
+          certificate.status === "active"
+          ? "status-pass"
+          : "status-fail"
+        }">
 
-      </div>
+          ${esc(
+            certificate.status ||
+            "Unknown"
+          )}
 
-
-      <div class="field">
-
-        <label>
-          Test Title
-        </label>
-
-        <input
-          id="ec_test"
-          value="${escAttr(c.testTitle)}"
-        >
+        </strong>
 
       </div>
 
 
-      <div class="field">
+      <div class="detail-box">
 
-        <label>
-          Percentage
-        </label>
+        <small>Issue Date</small>
 
-        <input
-          id="ec_pct"
-          type="number"
-          min="0"
-          max="100"
-          value="${c.percentage ?? 0}"
-        >
+        <strong>
 
-      </div>
+          ${
+            certificate.issueDate
 
+            ? new Date(
+                certificate.issueDate
+              ).toLocaleDateString()
 
-      <div class="field">
+            : "—"
+          }
 
-        <label>
-          Grade
-        </label>
-
-        <input
-          id="ec_grade"
-          value="${escAttr(c.grade || "")}"
-        >
+        </strong>
 
       </div>
 
 
-      <div class="field">
+      <div class="detail-box">
 
-        <label>
-          Status
-        </label>
+        <small>Grade</small>
 
-        <select id="ec_status">
+        <strong>
 
-          <option
-            value="valid"
-            ${
-              c.status === "valid" ||
-              c.status === "active"
-              ? "selected"
-              : ""
-            }
-          >
-            Valid
-          </option>
+          ${esc(
+            certificate.grade ||
+            "—"
+          )}
 
-          <option
-            value="revoked"
-            ${
-              c.status === "revoked"
-              ? "selected"
-              : ""
-            }
-          >
-            Revoked
-          </option>
-
-        </select>
-
-      </div>
-
-
-      <div class="field">
-
-        <label>
-          Signatory Name
-        </label>
-
-        <input
-          id="ec_sign"
-          value="${escAttr(c.signatoryName || "")}"
-        >
-
-      </div>
-
-
-      <div class="field">
-
-        <label>
-          Designation
-        </label>
-
-        <input
-          id="ec_desig"
-          value="${escAttr(c.signatoryDesignation || "")}"
-        >
-
-      </div>
-
-
-      <div class="actions">
-
-        <button
-          class="btn btn-gold"
-          onclick="saveCert('${escAttr(c.certificateId)}')"
-        >
-          Save Changes
-        </button>
-
-
-        <button
-          class="btn btn-ghost"
-          onclick="closeModal()"
-        >
-          Cancel
-        </button>
+        </strong>
 
       </div>
 
     `;
 
+  }
+
+
+  /* =================================================
+     CERTIFICATE NOT FOUND
+  ================================================= */
+
+  else{
+
+    certificateHtml = `
+
+      <div class="detail-box">
+
+        <small>Certificate</small>
+
+        ${
+          result.passed
+
+          ? `
+
+            <strong class="status-fail">
+              Certificate not generated
+            </strong>
+
+            <br><br>
+
+            <button
+              id="generateCertificateBtn"
+              class="btn btn-primary"
+              type="button"
+              onclick="generateCertificate(
+                '${escAttr(result.resultId)}',
+                this
+              )"
+            >
+              Generate Certificate
+            </button>
+
+          `
+
+          : `
+
+            <strong class="status-fail">
+              Not eligible — candidate did not pass
+            </strong>
+
+          `
+        }
+
+      </div>
+
+    `;
+
+  }
+
+
+  /* =================================================
+     RESULT DETAILS
+  ================================================= */
+
+  const html = `
+
+    <div class="result-detail">
+
+
+      <div class="detail-box">
+
+        <small>Candidate Name</small>
+
+        <strong>
+          ${esc(result.candidateName)}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-box">
+
+        <small>Email</small>
+
+        <strong>
+          ${esc(result.email)}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-box">
+
+        <small>Phone</small>
+
+        <strong>
+          ${esc(result.phone || "—")}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-box">
+
+        <small>Result ID</small>
+
+        <strong>
+          ${esc(result.resultId)}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-box">
+
+        <small>Test</small>
+
+        <strong>
+          ${esc(result.testTitle)}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-box">
+
+        <small>Score</small>
+
+        <strong>
+          ${result.score}/${result.totalQuestions}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-box">
+
+        <small>Percentage</small>
+
+        <strong>
+          ${result.percentage}%
+        </strong>
+
+      </div>
+
+
+      <div class="detail-box">
+
+        <small>Status</small>
+
+        <strong class="${
+          result.passed
+          ? "status-pass"
+          : "status-fail"
+        }">
+
+          ${
+            result.passed
+            ? "PASSED"
+            : "NOT PASSED"
+          }
+
+        </strong>
+
+      </div>
+
+
+      <div class="detail-box">
+
+        <small>Submission Type</small>
+
+        <strong>
+          ${esc(result.submissionType || "—")}
+        </strong>
+
+      </div>
+
+
+      <div class="detail-box">
+
+        <small>Submitted At</small>
+
+        <strong>
+
+          ${
+            result.submittedAt
+
+            ? new Date(
+                result.submittedAt
+              ).toLocaleString()
+
+            : "—"
+          }
+
+        </strong>
+
+      </div>
+
+
+      ${certificateHtml}
+
+
+    </div>
+
+
+    <div class="actions">
+
+
+      <button
+        class="btn btn-primary download-btn"
+        type="button"
+        onclick="downloadResult(
+          '${escAttr(result.resultId)}'
+        )"
+      >
+        Download Result PDF
+      </button>
+
+
+      ${
+        certificate
+
+        ? `
+
+          <button
+            class="btn btn-gold download-btn"
+            type="button"
+            onclick="downloadCertificate(
+              '${escAttr(certificate.certificateId)}'
+            )"
+          >
+            Download Certificate
+          </button>
+
+
+          <button
+            class="btn btn-ghost"
+            type="button"
+            onclick="editCertById(
+              '${escAttr(certificate.certificateId)}'
+            )"
+          >
+            Edit Certificate
+          </button>
+
+
+          <button
+            class="btn btn-ghost"
+            type="button"
+            onclick="openWhatsApp(
+              '${escAttr(result.candidateName)}',
+              '${escAttr(certificate.certificateId)}'
+            )"
+          >
+            Open WhatsApp
+          </button>
+
+        `
+
+        : ""
+
+      }
+
+
+    </div>
+
+  `;
+
+
+  document.getElementById("detail")
+    .innerHTML = html;
+
+
+  document.getElementById("modal")
+    .classList.add("show");
+
 }
 
 
 /* =====================================================
-   SAVE CERTIFICATE
+   GENERATE CERTIFICATE
 ===================================================== */
 
-async function saveCert(id){
+async function generateCertificate(resultId,button){
+
+  if(!resultId){
+
+    alert("Result ID missing.");
+
+    return;
+  }
 
   try{
 
-    const body = {
+    if(button){
 
-      candidateName:
-        document.getElementById("ec_name").value.trim(),
-
-      testTitle:
-        document.getElementById("ec_test").value.trim(),
-
-      percentage:
-        Number(
-          document.getElementById("ec_pct").value
-        ),
-
-      grade:
-        document.getElementById("ec_grade").value.trim(),
-
-      status:
-        document.getElementById("ec_status").value,
-
-      signatoryName:
-        document.getElementById("ec_sign").value.trim(),
-
-      signatoryDesignation:
-        document
-          .getElementById("ec_desig")
-          .value
-          .trim()
-
-    };
+      button.disabled = true;
+      button.innerText = "Generating...";
+    }
 
 
     const r = await api(
-      "/api/admin/certificates/" +
-      encodeURIComponent(id),
+      "/api/admin/certificates/generate/" +
+      encodeURIComponent(resultId),
       {
-
-        method:"PUT",
-
-        headers:{
-          "Content-Type":"application/json"
-        },
-
-        body:JSON.stringify(body)
-
+        method:"POST"
       }
     );
 
@@ -1237,12 +1112,511 @@ async function saveCert(id){
     }
 
 
-    const d = await r.json();
+    let data;
+
+    try{
+
+      data = await r.json();
+
+    }catch(err){
+
+      throw new Error(
+        "Server returned an invalid response."
+      );
+
+    }
 
 
     if(!r.ok){
 
-      return alert(
+      throw new Error(
+        data.message ||
+        "Certificate generation failed."
+      );
+
+    }
+
+
+    alert(
+      "Certificate generated successfully!\n\n" +
+      "Certificate ID: " +
+      data.certificateId
+    );
+
+
+    await load();
+
+    await view(resultId);
+
+  }
+
+  catch(err){
+
+    console.error(
+      "Generate certificate error:",
+      err
+    );
+
+    alert(
+      err.message ||
+      "Unable to generate certificate."
+    );
+
+
+    if(button){
+
+      button.disabled = false;
+      button.innerText =
+        "Generate Certificate";
+
+    }
+
+  }
+
+}
+
+
+/* =====================================================
+   GET CERTIFICATE FOR EDIT
+===================================================== */
+
+async function editCertById(certificateId){
+
+  if(!certificateId){
+
+    alert("Certificate ID missing.");
+
+    return;
+  }
+
+  try{
+
+    const r = await api(
+      "/api/admin/results"
+    );
+
+    if(r.status === 401){
+
+      logout();
+
+      return;
+    }
+
+    const results = await r.json();
+
+    if(!r.ok){
+
+      throw new Error(
+        results.message ||
+        "Unable to load certificate."
+      );
+
+    }
+
+
+    const result = results.find(
+      x => x.certificateId === certificateId
+    );
+
+
+    if(!result){
+
+      alert(
+        "Certificate result record not found."
+      );
+
+      return;
+    }
+
+
+    const detailResponse = await api(
+      "/api/admin/results/" +
+      encodeURIComponent(result.resultId)
+    );
+
+
+    const detailData =
+      await detailResponse.json();
+
+
+    if(!detailResponse.ok){
+
+      throw new Error(
+        detailData.message ||
+        "Unable to load certificate details."
+      );
+
+    }
+
+
+    if(!detailData.certificate){
+
+      alert(
+        "Certificate not found."
+      );
+
+      return;
+    }
+
+
+    editCert(detailData.certificate);
+
+  }
+
+  catch(err){
+
+    console.error(
+      "Edit certificate error:",
+      err
+    );
+
+    alert(
+      err.message ||
+      "Unable to open certificate editor."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   EDIT CERTIFICATE
+===================================================== */
+
+function editCert(c){
+
+  const detail =
+    document.getElementById("detail");
+
+
+  detail.innerHTML = `
+
+    <h2 class="edit-title">
+      Edit Certificate
+    </h2>
+
+
+    <div class="edit-note">
+      Update certificate information and click
+      Save Changes.
+    </div>
+
+
+    <div
+      class="detail-box"
+      style="margin-bottom:18px"
+    >
+
+      <small>Certificate ID</small>
+
+      <strong class="certificate-id">
+        ${esc(c.certificateId)}
+      </strong>
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="ec_name">
+        Candidate Name
+      </label>
+
+      <input
+        id="ec_name"
+        type="text"
+        value="${escAttr(c.candidateName || "")}"
+      >
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="ec_test">
+        Test Title
+      </label>
+
+      <input
+        id="ec_test"
+        type="text"
+        value="${escAttr(c.testTitle || "")}"
+      >
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="ec_pct">
+        Percentage
+      </label>
+
+      <input
+        id="ec_pct"
+        type="number"
+        min="0"
+        max="100"
+        step="0.01"
+        value="${Number(c.percentage || 0)}"
+      >
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="ec_grade">
+        Grade
+      </label>
+
+      <input
+        id="ec_grade"
+        type="text"
+        value="${escAttr(c.grade || "")}"
+      >
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="ec_status">
+        Status
+      </label>
+
+      <select id="ec_status">
+
+        <option
+          value="active"
+          ${
+            c.status === "active" ||
+            c.status === "valid"
+            ? "selected"
+            : ""
+          }
+        >
+          Active
+        </option>
+
+        <option
+          value="revoked"
+          ${
+            c.status === "revoked"
+            ? "selected"
+            : ""
+          }
+        >
+          Revoked
+        </option>
+
+      </select>
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="ec_sign">
+        Signatory Name
+      </label>
+
+      <input
+        id="ec_sign"
+        type="text"
+        value="${escAttr(
+          c.signatoryName || ""
+        )}"
+      >
+
+    </div>
+
+
+    <div class="field">
+
+      <label for="ec_desig">
+        Designation
+      </label>
+
+      <input
+        id="ec_desig"
+        type="text"
+        value="${escAttr(
+          c.signatoryDesignation || ""
+        )}"
+      >
+
+    </div>
+
+
+    <div class="actions">
+
+      <button
+        class="btn btn-gold"
+        type="button"
+        onclick="saveCert(
+          '${escAttr(c.certificateId)}'
+        )"
+      >
+        Save Changes
+      </button>
+
+
+      <button
+        class="btn btn-ghost"
+        type="button"
+        onclick="closeModal()"
+      >
+        Cancel
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+
+/* =====================================================
+   SAVE CERTIFICATE
+===================================================== */
+
+async function saveCert(id){
+
+  try{
+
+    const name =
+      document
+        .getElementById("ec_name")
+        .value
+        .trim();
+
+
+    const testTitle =
+      document
+        .getElementById("ec_test")
+        .value
+        .trim();
+
+
+    const percentage =
+      Number(
+        document
+          .getElementById("ec_pct")
+          .value
+      );
+
+
+    const grade =
+      document
+        .getElementById("ec_grade")
+        .value
+        .trim();
+
+
+    const status =
+      document
+        .getElementById("ec_status")
+        .value;
+
+
+    const signatoryName =
+      document
+        .getElementById("ec_sign")
+        .value
+        .trim();
+
+
+    const signatoryDesignation =
+      document
+        .getElementById("ec_desig")
+        .value
+        .trim();
+
+
+    if(!name){
+
+      alert("Candidate name is required.");
+
+      return;
+    }
+
+
+    if(!testTitle){
+
+      alert("Test title is required.");
+
+      return;
+    }
+
+
+    if(
+      Number.isNaN(percentage) ||
+      percentage < 0 ||
+      percentage > 100
+    ){
+
+      alert(
+        "Percentage must be between 0 and 100."
+      );
+
+      return;
+    }
+
+
+    const body = {
+
+      candidateName:name,
+
+      testTitle:testTitle,
+
+      percentage:percentage,
+
+      grade:grade,
+
+      status:status,
+
+      signatoryName:signatoryName,
+
+      signatoryDesignation:
+        signatoryDesignation
+
+    };
+
+
+    const r = await api(
+      "/api/admin/certificates/" +
+      encodeURIComponent(id),
+      {
+        method:"PUT",
+
+        headers:{
+          "Content-Type":
+            "application/json"
+        },
+
+        body:
+          JSON.stringify(body)
+      }
+    );
+
+
+    if(r.status === 401){
+
+      logout();
+
+      return;
+    }
+
+
+    const d =
+      await r.json();
+
+
+    if(!r.ok){
+
+      throw new Error(
         d.message ||
         "Certificate update failed."
       );
@@ -1266,13 +1640,20 @@ async function saveCert(id){
 
       await view(resultId);
 
+    }else{
+
+      closeModal();
+
     }
 
   }
 
   catch(err){
 
-    console.error(err);
+    console.error(
+      "Save certificate error:",
+      err
+    );
 
     alert(
       err.message ||
@@ -1293,10 +1674,21 @@ async function findResultByCert(id){
   try{
 
     const r =
-      await api("/api/admin/results");
+      await api(
+        "/api/admin/results"
+      );
+
+
+    if(r.status === 401){
+
+      logout();
+
+      return "";
+    }
 
 
     if(!r.ok){
+
       return "";
     }
 
@@ -1307,7 +1699,8 @@ async function findResultByCert(id){
 
     const found =
       data.find(
-        x => x.certificateId === id
+        x =>
+          x.certificateId === id
       );
 
 
@@ -1329,6 +1722,36 @@ async function findResultByCert(id){
 
 
 /* =====================================================
+   WHATSAPP
+===================================================== */
+
+function openWhatsApp(
+  name,
+  certificateId
+){
+
+  const text =
+    "GrowtechAxon result/certificate ready for " +
+    name +
+    ". Certificate ID: " +
+    certificateId;
+
+
+  const url =
+    "https://wa.me/?text=" +
+    encodeURIComponent(text);
+
+
+  window.open(
+    url,
+    "_blank",
+    "noopener,noreferrer"
+  );
+
+}
+
+
+/* =====================================================
    CLOSE MODAL
 ===================================================== */
 
@@ -1336,7 +1759,8 @@ function closeModal(){
 
   document
     .getElementById("modal")
-    .classList.remove("show");
+    .classList
+    .remove("show");
 
 }
 
