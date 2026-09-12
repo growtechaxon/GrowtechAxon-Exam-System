@@ -1,0 +1,1397 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+<title>Admin Dashboard | GrowtechAxon</title>
+
+<link rel="stylesheet" href="/assets/style.css">
+
+<style>
+.result-detail{
+  display:grid;
+  grid-template-columns:repeat(2,minmax(0,1fr));
+  gap:12px;
+  margin:20px 0;
+}
+
+.detail-box{
+  background:#020b1b;
+  border:1px solid #ffffff12;
+  border-radius:12px;
+  padding:14px;
+}
+
+.detail-box small{
+  display:block;
+  color:#94a3b8;
+  margin-bottom:5px;
+}
+
+.detail-box strong{
+  color:#fff;
+  word-break:break-word;
+}
+
+.certificate-id{
+  font-size:18px;
+  color:#f5c76b !important;
+  letter-spacing:.5px;
+}
+
+.status-pass{
+  color:#4ade80 !important;
+}
+
+.status-fail{
+  color:#f87171 !important;
+}
+
+.modal-box{
+  max-width:900px;
+  width:94%;
+}
+
+.download-btn{
+  cursor:pointer;
+}
+
+@media(max-width:700px){
+  .result-detail{
+    grid-template-columns:1fr;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<div class="admin-wrap">
+
+<aside class="sidebar">
+
+<a class="brand" href="/">
+<img src="/assets/growtechaxon-logo.png" alt="GrowtechAxon">
+<span>GROWTECHAXON</span>
+</a>
+
+<nav class="side-nav" style="margin-top:25px">
+
+<a class="side-link active" href="/admin/dashboard.html">
+Results
+</a>
+
+<a class="side-link" href="/admin/tests.html">
+Tests
+</a>
+
+<a class="side-link" href="/certificate.html">
+Certificate Portal
+</a>
+
+<a class="side-link" href="/verify.html">
+Verify
+</a>
+
+<a class="side-link" href="#" onclick="logout();return false;">
+Logout
+</a>
+
+</nav>
+
+</aside>
+
+
+<main class="main">
+
+<div class="nav">
+
+<div>
+<div class="eyebrow">Admin Console</div>
+<h1>Examination Results</h1>
+</div>
+
+<button class="btn btn-ghost" onclick="load()">
+Refresh
+</button>
+
+</div>
+
+
+<div class="stat-grid" style="margin:20px 0">
+
+<div class="stat">
+<span class="muted">Total</span>
+<br>
+<b id="total">0</b>
+</div>
+
+<div class="stat">
+<span class="muted">Passed</span>
+<br>
+<b id="passed">0</b>
+</div>
+
+<div class="stat">
+<span class="muted">Certificates</span>
+<br>
+<b id="certs">0</b>
+</div>
+
+<div class="stat">
+<span class="muted">Today</span>
+<br>
+<b id="today">0</b>
+</div>
+
+</div>
+
+
+<div class="card">
+
+<div class="actions">
+
+<input
+id="search"
+placeholder="Search candidate, email, test or result ID"
+style="flex:1;min-width:230px;padding:12px;border-radius:10px;border:1px solid #ffffff15;background:#020b1b;color:#fff"
+>
+
+<button class="btn btn-primary" onclick="load()">
+Search
+</button>
+
+</div>
+
+
+<div class="table-wrap">
+
+<table class="table">
+
+<thead>
+
+<tr>
+<th>Candidate</th>
+<th>Test</th>
+<th>Score</th>
+<th>Status</th>
+<th>Certificate ID</th>
+<th>Action</th>
+</tr>
+
+</thead>
+
+<tbody id="rows"></tbody>
+
+</table>
+
+</div>
+
+</div>
+
+</main>
+
+</div>
+
+
+<!-- =========================
+     VIEW MODAL
+========================= -->
+
+<div id="modal" class="modal">
+
+<div class="modal-box">
+
+<div class="nav">
+
+<div>
+<div class="eyebrow">Result Details</div>
+<h2>Candidate Record</h2>
+</div>
+
+<button class="btn btn-ghost" onclick="closeModal()">
+Close
+</button>
+
+</div>
+
+<div id="detail"></div>
+
+</div>
+
+</div>
+
+
+<script>
+
+/* =====================================================
+   ADMIN TOKEN
+===================================================== */
+
+let token = localStorage.getItem("growtechAdminToken");
+
+if(!token){
+  location.href="/admin/login.html";
+}
+
+
+/* =====================================================
+   API HELPER
+===================================================== */
+
+async function api(url, options = {}){
+
+  token = localStorage.getItem("growtechAdminToken");
+
+  if(!token){
+    logout();
+    throw new Error("Admin login required.");
+  }
+
+  const headers = {
+    ...(options.headers || {}),
+    "Authorization": "Bearer " + token
+  };
+
+  return fetch(url, {
+    ...options,
+    headers
+  });
+}
+
+
+/* =====================================================
+   DOWNLOAD PROTECTED PDF
+===================================================== */
+
+async function downloadPDF(url, filename){
+
+  try{
+
+    token = localStorage.getItem("growtechAdminToken");
+
+    if(!token){
+      logout();
+      return;
+    }
+
+    const response = await fetch(url, {
+      method:"GET",
+      headers:{
+        "Authorization":"Bearer " + token
+      }
+    });
+
+    if(response.status === 401){
+
+      localStorage.removeItem("growtechAdminToken");
+
+      alert("Admin session expired. Please login again.");
+
+      location.href="/admin/login.html";
+
+      return;
+    }
+
+    if(!response.ok){
+
+      let message = "PDF download failed.";
+
+      try{
+        const data = await response.json();
+        message = data.message || message;
+      }catch(e){}
+
+      alert(message);
+
+      return;
+    }
+
+    const blob = await response.blob();
+
+    if(!blob || blob.size === 0){
+
+      alert("PDF file is empty.");
+
+      return;
+    }
+
+    const blobUrl = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+
+    link.href = blobUrl;
+    link.download = filename;
+
+    document.body.appendChild(link);
+
+    link.click();
+
+    link.remove();
+
+    setTimeout(() => {
+      URL.revokeObjectURL(blobUrl);
+    }, 1000);
+
+  }catch(err){
+
+    console.error("PDF download error:",err);
+
+    alert(
+      err.message ||
+      "Unable to download PDF."
+    );
+
+  }
+}
+
+
+/* =====================================================
+   DOWNLOAD RESULT
+===================================================== */
+
+function downloadResult(resultId){
+
+  const safeId = encodeURIComponent(resultId);
+
+  downloadPDF(
+    "/api/admin/results/" + safeId + "/pdf",
+    "GrowtechAxon-Result-" + resultId + ".pdf"
+  );
+}
+
+
+/* =====================================================
+   DOWNLOAD CERTIFICATE
+===================================================== */
+
+function downloadCertificate(certificateId){
+
+  if(!certificateId){
+
+    alert("Certificate ID is not available.");
+
+    return;
+  }
+
+  const safeId =
+    encodeURIComponent(certificateId);
+
+  downloadPDF(
+    "/api/admin/certificates/" + safeId + "/pdf",
+    "GrowtechAxon-Certificate-" +
+    certificateId +
+    ".pdf"
+  );
+}
+
+
+/* =====================================================
+   LOAD RESULTS
+===================================================== */
+
+async function load(){
+
+  try{
+
+    const q =
+      document
+        .getElementById("search")
+        .value
+        .trim();
+
+    const r = await api(
+      "/api/admin/results?q=" +
+      encodeURIComponent(q)
+    );
+
+    if(r.status === 401){
+
+      logout();
+
+      return;
+    }
+
+    let data;
+
+    try{
+      data = await r.json();
+    }catch(err){
+
+      throw new Error(
+        "Server returned an invalid response."
+      );
+
+    }
+
+    if(!r.ok){
+
+      throw new Error(
+        data.message ||
+        "Unable to load results."
+      );
+
+    }
+
+
+    document.getElementById("rows").innerHTML =
+
+      data.map(x => `
+
+        <tr>
+
+          <td>
+            <b>${esc(x.candidateName)}</b>
+            <br>
+            <span class="muted">
+              ${esc(x.email)}
+            </span>
+          </td>
+
+          <td>
+            ${esc(x.testTitle)}
+          </td>
+
+          <td>
+
+            ${x.score}/${x.totalQuestions}
+
+            <br>
+
+            <span class="muted">
+              ${x.percentage}%
+            </span>
+
+          </td>
+
+          <td>
+
+            <span class="${
+              x.passed
+              ? "status-pass"
+              : "status-fail"
+            }">
+
+              ${
+                x.passed
+                ? "PASSED"
+                : "NOT PASSED"
+              }
+
+            </span>
+
+          </td>
+
+          <td>
+
+            ${
+              x.certificateId
+
+              ? `
+
+                <strong class="certificate-id">
+                  ${esc(x.certificateId)}
+                </strong>
+
+              `
+
+              : `
+
+                <span class="muted">
+                  No Certificate
+                </span>
+
+              `
+            }
+
+          </td>
+
+          <td>
+
+            <button
+              class="btn btn-ghost"
+              onclick="view('${escAttr(x.resultId)}')"
+            >
+              View
+            </button>
+
+          </td>
+
+        </tr>
+
+      `).join("")
+
+      ||
+
+      `
+
+        <tr>
+
+          <td colspan="6">
+            No results found.
+          </td>
+
+        </tr>
+
+      `;
+
+
+    document.getElementById("total")
+      .textContent = data.length;
+
+
+    document.getElementById("passed")
+      .textContent =
+      data.filter(x => x.passed).length;
+
+
+    document.getElementById("certs")
+      .textContent =
+      data.filter(x => x.certificateId).length;
+
+
+    const today =
+      new Date().toDateString();
+
+
+    document.getElementById("today")
+      .textContent =
+
+      data.filter(x => {
+
+        if(!x.submittedAt){
+          return false;
+        }
+
+        return (
+          new Date(x.submittedAt)
+            .toDateString() === today
+        );
+
+      }).length;
+
+  }
+
+  catch(err){
+
+    console.error(err);
+
+    alert(
+      err.message ||
+      "Unable to load results."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   VIEW RESULT
+===================================================== */
+
+async function view(id){
+
+  try{
+
+    const r = await api(
+      "/api/admin/results/" +
+      encodeURIComponent(id)
+    );
+
+    if(r.status === 401){
+
+      logout();
+
+      return;
+    }
+
+
+    let d;
+
+    try{
+      d = await r.json();
+    }catch(err){
+
+      throw new Error(
+        "Server returned an invalid response."
+      );
+
+    }
+
+
+    if(!r.ok){
+
+      return alert(
+        d.message ||
+        "Unable to load result."
+      );
+
+    }
+
+
+    const result =
+      d.result;
+
+    const certificate =
+      d.certificate;
+
+
+    let certificateHtml = "";
+
+
+    /* =================================================
+       CERTIFICATE FOUND
+    ================================================= */
+
+    if(certificate){
+
+      certificateHtml = `
+
+        <div class="detail-box">
+
+          <small>Certificate ID</small>
+
+          <strong class="certificate-id">
+            ${esc(certificate.certificateId)}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <small>Certificate Status</small>
+
+          <strong class="${
+            certificate.status === "valid" ||
+            certificate.status === "active"
+            ? "status-pass"
+            : "status-fail"
+          }">
+
+            ${esc(
+              certificate.status ||
+              "Unknown"
+            )}
+
+          </strong>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <small>Issue Date</small>
+
+          <strong>
+            ${
+              certificate.issueDate
+              ? new Date(
+                  certificate.issueDate
+                ).toLocaleDateString()
+              : "—"
+            }
+          </strong>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <small>Grade</small>
+
+          <strong>
+            ${esc(
+              certificate.grade ||
+              "—"
+            )}
+          </strong>
+
+        </div>
+
+      `;
+
+    }
+
+
+    /* =================================================
+       CERTIFICATE NOT FOUND
+    ================================================= */
+
+    else{
+
+      certificateHtml = `
+
+        <div class="detail-box">
+
+          <small>Certificate ID</small>
+
+          <strong class="status-fail">
+            ${
+              result.passed
+              ? "Certificate not generated"
+              : "Not eligible — candidate did not pass"
+            }
+          </strong>
+
+        </div>
+
+      `;
+
+    }
+
+
+    /* =================================================
+       RESULT DETAILS
+    ================================================= */
+
+    let html = `
+
+      <div class="result-detail">
+
+
+        <div class="detail-box">
+
+          <small>Candidate Name</small>
+
+          <strong>
+            ${esc(result.candidateName)}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <small>Email</small>
+
+          <strong>
+            ${esc(result.email)}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <small>Phone</small>
+
+          <strong>
+            ${esc(result.phone || "—")}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <small>Result ID</small>
+
+          <strong>
+            ${esc(result.resultId)}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <small>Test</small>
+
+          <strong>
+            ${esc(result.testTitle)}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <small>Score</small>
+
+          <strong>
+            ${result.score}/${result.totalQuestions}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <small>Percentage</small>
+
+          <strong>
+            ${result.percentage}%
+          </strong>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <small>Status</small>
+
+          <strong class="${
+            result.passed
+            ? "status-pass"
+            : "status-fail"
+          }">
+
+            ${
+              result.passed
+              ? "PASSED"
+              : "NOT PASSED"
+            }
+
+          </strong>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <small>Submission Type</small>
+
+          <strong>
+            ${esc(
+              result.submissionType ||
+              "—"
+            )}
+          </strong>
+
+        </div>
+
+
+        <div class="detail-box">
+
+          <small>Submitted At</small>
+
+          <strong>
+
+            ${
+              result.submittedAt
+
+              ? new Date(
+                  result.submittedAt
+                ).toLocaleString()
+
+              : "—"
+            }
+
+          </strong>
+
+        </div>
+
+
+        ${certificateHtml}
+
+
+      </div>
+
+
+      <div class="actions">
+
+
+        <!-- RESULT PDF -->
+
+        <button
+          class="btn btn-primary download-btn"
+          onclick="downloadResult('${escAttr(result.resultId)}')"
+        >
+          Download Result PDF
+        </button>
+
+
+        ${
+          certificate
+
+          ? `
+
+            <!-- CERTIFICATE PDF -->
+
+            <button
+              class="btn btn-gold download-btn"
+              onclick="downloadCertificate('${escAttr(certificate.certificateId)}')"
+            >
+              Download Certificate
+            </button>
+
+
+            <!-- EDIT CERTIFICATE -->
+
+            <button
+              class="btn btn-ghost"
+              onclick='editCert(${JSON.stringify(certificate).replace(/'/g,"&#39;")})'
+            >
+              Edit Certificate
+            </button>
+
+
+            <!-- WHATSAPP -->
+
+            <button
+              class="btn btn-ghost"
+              onclick="openWhatsApp(
+                '${escAttr(result.candidateName)}',
+                '${escAttr(certificate.certificateId)}'
+              )"
+            >
+              Open WhatsApp
+            </button>
+
+          `
+
+          : ""
+
+        }
+
+
+      </div>
+
+    `;
+
+
+    document.getElementById("detail")
+      .innerHTML = html;
+
+
+    document.getElementById("modal")
+      .classList.add("show");
+
+  }
+
+  catch(err){
+
+    console.error(err);
+
+    alert(
+      err.message ||
+      "Unable to open result."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   WHATSAPP
+===================================================== */
+
+function openWhatsApp(name, certificateId){
+
+  const text =
+    "GrowtechAxon result/certificate ready for " +
+    name +
+    ". Certificate ID: " +
+    certificateId;
+
+  const url =
+    "https://wa.me/?text=" +
+    encodeURIComponent(text);
+
+  window.open(
+    url,
+    "_blank",
+    "noopener,noreferrer"
+  );
+}
+
+
+/* =====================================================
+   EDIT CERTIFICATE
+===================================================== */
+
+function editCert(c){
+
+  document.getElementById("detail")
+    .innerHTML = `
+
+      <h2>Edit Certificate</h2>
+
+
+      <div
+        class="detail-box"
+        style="margin-bottom:15px"
+      >
+
+        <small>Certificate ID</small>
+
+        <strong class="certificate-id">
+          ${esc(c.certificateId)}
+        </strong>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Candidate Name
+        </label>
+
+        <input
+          id="ec_name"
+          value="${escAttr(c.candidateName)}"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Test Title
+        </label>
+
+        <input
+          id="ec_test"
+          value="${escAttr(c.testTitle)}"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Percentage
+        </label>
+
+        <input
+          id="ec_pct"
+          type="number"
+          min="0"
+          max="100"
+          value="${c.percentage ?? 0}"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Grade
+        </label>
+
+        <input
+          id="ec_grade"
+          value="${escAttr(c.grade || "")}"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Status
+        </label>
+
+        <select id="ec_status">
+
+          <option
+            value="valid"
+            ${
+              c.status === "valid" ||
+              c.status === "active"
+              ? "selected"
+              : ""
+            }
+          >
+            Valid
+          </option>
+
+          <option
+            value="revoked"
+            ${
+              c.status === "revoked"
+              ? "selected"
+              : ""
+            }
+          >
+            Revoked
+          </option>
+
+        </select>
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Signatory Name
+        </label>
+
+        <input
+          id="ec_sign"
+          value="${escAttr(c.signatoryName || "")}"
+        >
+
+      </div>
+
+
+      <div class="field">
+
+        <label>
+          Designation
+        </label>
+
+        <input
+          id="ec_desig"
+          value="${escAttr(c.signatoryDesignation || "")}"
+        >
+
+      </div>
+
+
+      <div class="actions">
+
+        <button
+          class="btn btn-gold"
+          onclick="saveCert('${escAttr(c.certificateId)}')"
+        >
+          Save Changes
+        </button>
+
+
+        <button
+          class="btn btn-ghost"
+          onclick="closeModal()"
+        >
+          Cancel
+        </button>
+
+      </div>
+
+    `;
+
+}
+
+
+/* =====================================================
+   SAVE CERTIFICATE
+===================================================== */
+
+async function saveCert(id){
+
+  try{
+
+    const body = {
+
+      candidateName:
+        document.getElementById("ec_name").value.trim(),
+
+      testTitle:
+        document.getElementById("ec_test").value.trim(),
+
+      percentage:
+        Number(
+          document.getElementById("ec_pct").value
+        ),
+
+      grade:
+        document.getElementById("ec_grade").value.trim(),
+
+      status:
+        document.getElementById("ec_status").value,
+
+      signatoryName:
+        document.getElementById("ec_sign").value.trim(),
+
+      signatoryDesignation:
+        document
+          .getElementById("ec_desig")
+          .value
+          .trim()
+
+    };
+
+
+    const r = await api(
+      "/api/admin/certificates/" +
+      encodeURIComponent(id),
+      {
+
+        method:"PUT",
+
+        headers:{
+          "Content-Type":"application/json"
+        },
+
+        body:JSON.stringify(body)
+
+      }
+    );
+
+
+    if(r.status === 401){
+
+      logout();
+
+      return;
+    }
+
+
+    const d = await r.json();
+
+
+    if(!r.ok){
+
+      return alert(
+        d.message ||
+        "Certificate update failed."
+      );
+
+    }
+
+
+    alert(
+      "Certificate updated successfully."
+    );
+
+
+    await load();
+
+
+    const resultId =
+      await findResultByCert(id);
+
+
+    if(resultId){
+
+      await view(resultId);
+
+    }
+
+  }
+
+  catch(err){
+
+    console.error(err);
+
+    alert(
+      err.message ||
+      "Certificate update failed."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
+   FIND RESULT BY CERTIFICATE
+===================================================== */
+
+async function findResultByCert(id){
+
+  try{
+
+    const r =
+      await api("/api/admin/results");
+
+
+    if(!r.ok){
+      return "";
+    }
+
+
+    const data =
+      await r.json();
+
+
+    const found =
+      data.find(
+        x => x.certificateId === id
+      );
+
+
+    return found
+      ? found.resultId
+      : "";
+
+  }
+
+  catch(err){
+
+    console.error(err);
+
+    return "";
+
+  }
+
+}
+
+
+/* =====================================================
+   CLOSE MODAL
+===================================================== */
+
+function closeModal(){
+
+  document
+    .getElementById("modal")
+    .classList.remove("show");
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+function logout(){
+
+  localStorage.removeItem(
+    "growtechAdminToken"
+  );
+
+  location.href =
+    "/admin/login.html";
+
+}
+
+
+/* =====================================================
+   ESCAPE HTML
+===================================================== */
+
+function esc(s){
+
+  return String(s ?? "")
+    .replace(
+      /[&<>"']/g,
+      m => ({
+        "&":"&amp;",
+        "<":"&lt;",
+        ">":"&gt;",
+        '"':"&quot;",
+        "'":"&#039;"
+      }[m])
+    );
+
+}
+
+
+function escAttr(s){
+
+  return esc(s);
+
+}
+
+
+/* =====================================================
+   START
+===================================================== */
+
+load();
+
+</script>
+
+</body>
+</html>

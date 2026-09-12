@@ -1,0 +1,648 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Certificate Portal | GrowtechAxon</title>
+
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+
+<body>
+
+  <!-- =========================
+       HEADER
+  ========================== -->
+
+  <header class="topbar">
+    <div class="container nav">
+
+      <a class="brand" href="/">
+        <img
+          src="/assets/growtechaxon-logo.png"
+          alt="GrowtechAxon Logo"
+        >
+        <span>GROWTECHAXON</span>
+      </a>
+
+      <a class="btn btn-ghost" href="/verify.html">
+        Verify Certificate
+      </a>
+
+    </div>
+  </header>
+
+
+  <!-- =========================
+       MAIN
+  ========================== -->
+
+  <main class="container certificate-page">
+
+    <section class="certificate-hero">
+
+      <div class="eyebrow">
+        OFFICIAL CERTIFICATE PORTAL
+      </div>
+
+      <h1>
+        Generate Your
+        <span>Certificate</span>
+      </h1>
+
+      <p>
+        Verify your examination details and securely access
+        your official GrowtechAxon certificate.
+      </p>
+
+    </section>
+
+
+    <!-- =========================
+         CERTIFICATE CARD
+    ========================== -->
+
+    <section class="card certificate-card">
+
+      <div class="certificate-icon">
+        🏆
+      </div>
+
+      <div class="form-header">
+
+        <div>
+          <h2>Certificate Verification</h2>
+
+          <p class="muted">
+            Enter the Certificate ID and the email address
+            used during your examination.
+          </p>
+        </div>
+
+        <div class="secure-badge">
+          <span>✓</span>
+          Official Verification
+        </div>
+
+      </div>
+
+      <div class="form-divider"></div>
+
+
+      <!-- Certificate ID -->
+
+      <div class="field">
+
+        <label for="cid">
+          Certificate ID
+          <span class="required">*</span>
+        </label>
+
+        <div class="input-wrap">
+          <span class="input-icon">▣</span>
+
+          <input
+            id="cid"
+            type="text"
+            placeholder="GTAX-CERT-XXXXXXXX"
+            autocomplete="off"
+          >
+        </div>
+
+        <small class="field-help">
+          Enter the Certificate ID exactly as shown on your certificate.
+        </small>
+
+      </div>
+
+
+      <!-- Email -->
+
+      <div class="field">
+
+        <label for="email">
+          Email Address
+          <span class="required">*</span>
+        </label>
+
+        <div class="input-wrap">
+          <span class="input-icon">✉</span>
+
+          <input
+            id="email"
+            type="email"
+            placeholder="you@example.com"
+            autocomplete="email"
+          >
+        </div>
+
+      </div>
+
+
+      <!-- Message -->
+
+      <div
+        id="msg"
+        class="certificate-message"
+        role="status"
+        aria-live="polite"
+      ></div>
+
+
+      <!-- Action -->
+
+      <div class="form-actions">
+
+        <button
+          id="verify"
+          type="button"
+          class="btn btn-primary certificate-btn"
+        >
+          <span id="verifyIcon">✓</span>
+          <span id="verifyText">Verify & Continue</span>
+        </button>
+
+      </div>
+
+
+      <div class="secure-note">
+        <span>🔒</span>
+
+        <div>
+          <strong>Secure Verification</strong>
+          <p>
+            Your information is checked against the official
+            GrowtechAxon examination database.
+          </p>
+        </div>
+      </div>
+
+
+      <!-- =========================
+           VERIFIED RESULT
+      ========================== -->
+
+      <div
+        id="result"
+        class="certificate-result hidden"
+      >
+
+        <div class="result-top">
+
+          <div class="verified-icon">
+            ✓
+          </div>
+
+          <div>
+            <span class="result-label">
+              CERTIFICATE VERIFIED
+            </span>
+
+            <h3 id="cname">
+              Candidate Name
+            </h3>
+          </div>
+
+        </div>
+
+
+        <div class="result-divider"></div>
+
+
+        <div class="certificate-details">
+
+          <div class="certificate-detail">
+
+            <span class="detail-label">
+              Assessment
+            </span>
+
+            <strong id="ctest">
+              —
+            </strong>
+
+          </div>
+
+
+          <div class="certificate-detail">
+
+            <span class="detail-label">
+              Issue Date
+            </span>
+
+            <strong id="cdate">
+              —
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="result-actions">
+
+          <a
+            id="download"
+            class="btn btn-gold certificate-download"
+            target="_blank"
+            rel="noopener"
+          >
+            <span>↓</span>
+            Download Certificate PDF
+          </a>
+
+        </div>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         INFORMATION CARDS
+    ========================== -->
+
+    <section class="certificate-info-grid">
+
+      <article class="info-card">
+
+        <div class="info-icon">
+          ✓
+        </div>
+
+        <div>
+          <h3>Official Certificate</h3>
+
+          <p>
+            Certificates are generated from verified
+            examination records.
+          </p>
+        </div>
+
+      </article>
+
+
+      <article class="info-card">
+
+        <div class="info-icon">
+          🔐
+        </div>
+
+        <div>
+          <h3>Secure Records</h3>
+
+          <p>
+            Candidate information is matched against
+            the official database.
+          </p>
+        </div>
+
+      </article>
+
+
+      <article class="info-card">
+
+        <div class="info-icon">
+          🌐
+        </div>
+
+        <div>
+          <h3>Easy Verification</h3>
+
+          <p>
+            Anyone can verify a valid GrowtechAxon
+            certificate through the verification portal.
+          </p>
+        </div>
+
+      </article>
+
+    </section>
+
+
+    <!-- =========================
+         VERIFY CTA
+    ========================== -->
+
+    <section class="certificate-cta">
+
+      <div>
+
+        <span class="eyebrow">
+          CERTIFICATE VALIDATION
+        </span>
+
+        <h2>
+          Want to verify a certificate?
+        </h2>
+
+        <p class="muted">
+          Use our public certificate verification portal
+          to check certificate authenticity.
+        </p>
+
+      </div>
+
+      <a
+        href="/verify.html"
+        class="btn btn-ghost"
+      >
+        Verify Certificate →
+      </a>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+
+  <footer class="footer">
+
+    <div class="container footer-inner">
+
+      <div class="footer-brand">
+
+        <strong>GROWTECHAXON</strong>
+
+        <span>
+          Digital Innovation. Smarter Growth.
+        </span>
+
+      </div>
+
+      <div class="footer-links">
+
+        <a href="/">Home</a>
+        <a href="/certificate.html">Certificate</a>
+        <a href="/verify.html">Verify</a>
+
+      </div>
+
+    </div>
+
+    <div class="container footer-bottom">
+
+      <span>
+        © GrowtechAxon. All rights reserved.
+      </span>
+
+      <span>
+        Professional Examination & Certification Platform
+      </span>
+
+    </div>
+
+  </footer>
+
+
+  <!-- =========================
+       JAVASCRIPT
+  ========================== -->
+
+  <script>
+
+    const $ = (id) => document.getElementById(id);
+
+    const verifyButton = $("verify");
+    const verifyText = $("verifyText");
+    const verifyIcon = $("verifyIcon");
+    const message = $("msg");
+    const result = $("result");
+
+
+    function showMessage(text, type) {
+
+      message.textContent = text;
+
+      message.className = "certificate-message";
+
+      if (type === "success") {
+        message.classList.add("message-success");
+      }
+
+      if (type === "error") {
+        message.classList.add("message-error");
+      }
+
+      if (type === "info") {
+        message.classList.add("message-info");
+      }
+    }
+
+
+    function setLoading(loading) {
+
+      verifyButton.disabled = loading;
+
+      if (loading) {
+
+        verifyText.textContent = "Verifying...";
+        verifyIcon.textContent = "⟳";
+        verifyButton.classList.add("loading");
+
+      } else {
+
+        verifyText.textContent = "Verify & Continue";
+        verifyIcon.textContent = "✓";
+        verifyButton.classList.remove("loading");
+
+      }
+
+    }
+
+
+    async function verifyCertificate() {
+
+      const cid = $("cid").value.trim().toUpperCase();
+      const email = $("email").value.trim();
+
+      result.classList.add("hidden");
+
+
+      /* Validation */
+
+      if (!cid) {
+
+        showMessage(
+          "Please enter your Certificate ID.",
+          "error"
+        );
+
+        $("cid").focus();
+
+        return;
+      }
+
+
+      if (!email) {
+
+        showMessage(
+          "Please enter the email address used during the examination.",
+          "error"
+        );
+
+        $("email").focus();
+
+        return;
+      }
+
+
+      const emailPattern =
+        /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+      if (!emailPattern.test(email)) {
+
+        showMessage(
+          "Please enter a valid email address.",
+          "error"
+        );
+
+        $("email").focus();
+
+        return;
+      }
+
+
+      setLoading(true);
+
+      showMessage(
+        "Checking your certificate details...",
+        "info"
+      );
+
+
+      try {
+
+        const url =
+          `/api/certificates/verify` +
+          `?certificateId=${encodeURIComponent(cid)}` +
+          `&email=${encodeURIComponent(email)}`;
+
+
+        const response = await fetch(url);
+
+        let data = {};
+
+        try {
+          data = await response.json();
+        } catch {
+          data = {};
+        }
+
+
+        if (!response.ok || !data.valid) {
+
+          throw new Error(
+            data.message ||
+            "Certificate could not be verified."
+          );
+
+        }
+
+
+        /* =========================
+           DISPLAY VERIFIED DATA
+        ========================== */
+
+        $("cname").textContent =
+          data.certificate.candidateName || "Candidate";
+
+
+        $("ctest").textContent =
+          data.certificate.testTitle || "Assessment";
+
+
+        $("cdate").textContent =
+          `Issued: ${
+            new Date(
+              data.certificate.issueDate
+            ).toLocaleDateString("en-IN")
+          } • Grade: ${
+            data.certificate.grade || "—"
+          }`;
+
+
+        $("download").href =
+          `/api/certificates/${encodeURIComponent(cid)}/pdf` +
+          `?email=${encodeURIComponent(email)}`;
+
+
+        result.classList.remove("hidden");
+
+        showMessage(
+          "✓ Certificate verified successfully.",
+          "success"
+        );
+
+
+        result.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
+
+
+      } catch (error) {
+
+        showMessage(
+          error.message ||
+          "Certificate verification failed.",
+          "error"
+        );
+
+        result.classList.add("hidden");
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    }
+
+
+    verifyButton.addEventListener(
+      "click",
+      verifyCertificate
+    );
+
+
+    $("cid").addEventListener(
+      "input",
+      () => {
+        $("cid").value =
+          $("cid").value.toUpperCase();
+      }
+    );
+
+
+    $("cid").addEventListener(
+      "keydown",
+      (event) => {
+
+        if (event.key === "Enter") {
+          verifyCertificate();
+        }
+
+      }
+    );
+
+
+    $("email").addEventListener(
+      "keydown",
+      (event) => {
+
+        if (event.key === "Enter") {
+          verifyCertificate();
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+</html>

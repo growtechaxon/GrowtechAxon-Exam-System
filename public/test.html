@@ -1,0 +1,1264 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <meta
+    name="description"
+    content="GrowtechAxon Professional Skill Assessment"
+  >
+
+  <title>Take Test | GrowtechAxon</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet"
+  >
+
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+
+
+<body>
+
+  <!-- =====================================================
+       HEADER
+  ====================================================== -->
+
+  <header class="topbar">
+
+    <div class="container nav">
+
+      <a
+        class="brand"
+        href="/"
+        aria-label="GrowtechAxon Home"
+      >
+
+        <img
+          src="/assets/growtechaxon-logo.png"
+          alt="GrowtechAxon Logo"
+        >
+
+        <span>
+          GROWTECH<span class="brand-accent">AXON</span>
+        </span>
+
+      </a>
+
+
+      <div class="test-header-info">
+
+        <span
+          id="testTitle"
+          class="pill"
+        >
+          Test
+        </span>
+
+      </div>
+
+    </div>
+
+  </header>
+
+
+  <!-- =====================================================
+       MAIN
+  ====================================================== -->
+
+  <main class="container">
+
+
+    <!-- ===================================================
+         CANDIDATE DETAILS
+    ==================================================== -->
+
+    <section
+      id="candidateCard"
+      class="card form-card candidate-form-card"
+    >
+
+      <div class="form-header">
+
+        <div class="test-icon">
+          📝
+        </div>
+
+        <div>
+
+          <div class="eyebrow">
+            Candidate Details
+          </div>
+
+          <h1>
+            Start Your Assessment
+          </h1>
+
+          <p class="muted">
+            Enter your details carefully before starting the test.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <div class="form-divider"></div>
+
+
+      <!-- Full Name -->
+
+      <div class="field">
+
+        <label for="name">
+          Full Name <span class="required">*</span>
+        </label>
+
+        <input
+          id="name"
+          type="text"
+          autocomplete="name"
+          placeholder="Enter your full name"
+          maxlength="100"
+          required
+        >
+
+      </div>
+
+
+      <!-- Email -->
+
+      <div class="field">
+
+        <label for="email">
+          Email Address <span class="required">*</span>
+        </label>
+
+        <input
+          id="email"
+          type="email"
+          autocomplete="email"
+          placeholder="you@example.com"
+          maxlength="150"
+          required
+        >
+
+      </div>
+
+
+      <!-- Phone -->
+
+      <div class="field">
+
+        <label for="phone">
+          Phone Number
+          <span class="optional">
+            Optional
+          </span>
+        </label>
+
+        <input
+          id="phone"
+          type="tel"
+          autocomplete="tel"
+          placeholder="Enter your phone number"
+          maxlength="20"
+        >
+
+      </div>
+
+
+      <!-- Important Notice -->
+
+      <div class="notice test-notice">
+
+        <div class="notice-icon">
+          ⏱
+        </div>
+
+        <div>
+
+          <strong>
+            Before you begin
+          </strong>
+
+          <p>
+            Once the test starts, the timer cannot be paused.
+            Your answers will be submitted automatically when the
+            time expires.
+          </p>
+
+          <p>
+            Your result is calculated securely on the server and
+            will not be displayed immediately after submission.
+          </p>
+
+        </div>
+
+      </div>
+
+
+      <p
+        id="err"
+        class="form-error"
+        role="alert"
+        aria-live="polite"
+      ></p>
+
+
+      <div class="actions form-actions">
+
+        <button
+          id="start"
+          class="btn btn-primary btn-large"
+          type="button"
+        >
+          <span>
+            Start Test
+          </span>
+
+          <span class="arrow">
+            →
+          </span>
+
+        </button>
+
+      </div>
+
+
+      <div class="secure-note">
+
+        <span>🔒</span>
+
+        Your information is used only for assessment and result processing.
+
+      </div>
+
+    </section>
+
+
+
+    <!-- ===================================================
+         TEST AREA
+    ==================================================== -->
+
+    <section
+      id="testCard"
+      class="hidden test-area"
+    >
+
+
+      <!-- TEST TOP BAR -->
+
+      <div class="exam-topbar">
+
+        <div>
+
+          <span class="section-kicker">
+            LIVE ASSESSMENT
+          </span>
+
+          <h1 id="examHeading">
+            Assessment
+          </h1>
+
+        </div>
+
+
+        <div class="exam-progress-info">
+
+          <span>
+            Answer the questions below
+          </span>
+
+          <strong id="questionCount">
+            0 Questions
+          </strong>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- TIMER -->
+
+      <div class="timer-container">
+
+        <div class="timer">
+
+          <div class="timer-left">
+
+            <span class="timer-icon">
+              ⏱
+            </span>
+
+            <span>
+              Time Remaining
+            </span>
+
+          </div>
+
+          <span
+            id="timer"
+            class="timer-value"
+          >
+            --:--
+          </span>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- PROGRESS -->
+
+      <div class="exam-progress">
+
+        <div class="progress-header">
+
+          <span>
+            Test Progress
+          </span>
+
+          <strong id="progressText">
+            0%
+          </strong>
+
+        </div>
+
+        <div
+          class="progress"
+          aria-label="Test progress"
+        >
+
+          <div
+            id="progress"
+            style="width:0%"
+          ></div>
+
+        </div>
+
+      </div>
+
+
+
+      <!-- QUESTIONS -->
+
+      <form
+        id="quiz"
+        novalidate
+      ></form>
+
+
+
+      <!-- SUBMIT AREA -->
+
+      <div class="submit-area">
+
+        <div class="submit-warning">
+
+          <span>
+            📌
+          </span>
+
+          <span>
+            Make sure you have answered all the questions before submitting.
+          </span>
+
+        </div>
+
+
+        <button
+          id="submit"
+          class="btn btn-gold btn-large"
+          type="button"
+        >
+
+          <span>
+            Submit Test
+          </span>
+
+          <span class="arrow">
+            →
+          </span>
+
+        </button>
+
+      </div>
+
+
+    </section>
+
+  </main>
+
+
+
+  <!-- =====================================================
+       SCRIPT
+  ====================================================== -->
+
+  <script>
+
+    const testId =
+      new URLSearchParams(location.search).get("test");
+
+
+    let sessionId = null;
+
+    let questions = [];
+
+    let endsAt = 0;
+
+    let startAt = 0;
+
+    let durationMs = 0;
+
+    let timerHandle = null;
+
+    let submitted = false;
+
+
+    /*
+     * Small DOM helper
+     */
+
+    const $ = function (id) {
+      return document.getElementById(id);
+    };
+
+
+    /*
+     * HTML escape helper
+     */
+
+    function esc(value) {
+
+      return String(value).replace(
+        /[&<>"']/g,
+        function (character) {
+
+          return {
+            "&": "&amp;",
+            "<": "&lt;",
+            ">": "&gt;",
+            '"': "&quot;",
+            "'": "&#039;"
+          }[character];
+
+        }
+      );
+
+    }
+
+
+    /*
+     * Show error message
+     */
+
+    function showError(message) {
+
+      $("err").textContent = message;
+
+    }
+
+
+    /*
+     * Test ID validation
+     */
+
+    if (!testId) {
+
+      $("start").disabled = true;
+
+      showError(
+        "Invalid test link. Please return to the exam portal and select a test."
+      );
+
+    }
+
+
+    /*
+     * Start Test
+     */
+
+    $("start").onclick = async function () {
+
+      const name =
+        $("name").value.trim();
+
+      const email =
+        $("email").value.trim();
+
+      const phone =
+        $("phone").value.trim();
+
+
+      showError("");
+
+
+      /*
+       * Basic validation
+       */
+
+      if (!name) {
+
+        showError("Please enter your full name.");
+
+        $("name").focus();
+
+        return;
+
+      }
+
+
+      if (!email) {
+
+        showError("Please enter your email address.");
+
+        $("email").focus();
+
+        return;
+
+      }
+
+
+      /*
+       * Browser email validation
+       */
+
+      if (
+        $("email").validity &&
+        !$("email").validity.valid
+      ) {
+
+        showError(
+          "Please enter a valid email address."
+        );
+
+        $("email").focus();
+
+        return;
+
+      }
+
+
+      /*
+       * Prevent duplicate requests
+       */
+
+      $("start").disabled = true;
+
+      $("start").innerHTML = `
+        <span class="loading-spinner-small"></span>
+        Starting Test...
+      `;
+
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/tests/start",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type": "application/json"
+              },
+
+              body: JSON.stringify({
+                testId,
+                name,
+                email,
+                phone
+              })
+            }
+          );
+
+
+        let data;
+
+        try {
+
+          data = await response.json();
+
+        } catch {
+
+          throw new Error(
+            "Server returned an invalid response."
+          );
+
+        }
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            "Unable to start the test."
+          );
+
+        }
+
+
+        /*
+         * Store server session
+         */
+
+        sessionId =
+          data.sessionId;
+
+
+        /*
+         * Server-controlled expiry
+         */
+
+        endsAt =
+          Number(data.expiresAt);
+
+
+        /*
+         * Local start time
+         */
+
+        startAt =
+          Date.now();
+
+
+        /*
+         * Test duration
+         */
+
+        durationMs =
+          Number(
+            data.test.durationMinutes
+          ) *
+          60 *
+          1000;
+
+
+        /*
+         * Questions
+         */
+
+        questions =
+          Array.isArray(data.test.questions)
+            ? data.test.questions
+            : [];
+
+
+        /*
+         * Update title
+         */
+
+        $("testTitle").textContent =
+          data.test.title ||
+          "Assessment";
+
+
+        $("examHeading").textContent =
+          data.test.title ||
+          "Assessment";
+
+
+        $("questionCount").textContent =
+          `${questions.length} ${
+            questions.length === 1
+              ? "Question"
+              : "Questions"
+          }`;
+
+
+        /*
+         * Render questions
+         */
+
+        renderQuestions();
+
+
+        /*
+         * Switch screen
+         */
+
+        $("candidateCard")
+          .classList
+          .add("hidden");
+
+
+        $("testCard")
+          .classList
+          .remove("hidden");
+
+
+        /*
+         * Start timer
+         */
+
+        startTimer();
+
+
+        /*
+         * Scroll to top
+         */
+
+        window.scrollTo({
+          top: 0,
+          behavior: "smooth"
+        });
+
+      } catch (error) {
+
+        console.error(
+          "Start test error:",
+          error
+        );
+
+
+        showError(
+          error.message ||
+          "Unable to start the test. Please try again."
+        );
+
+
+        $("start").disabled = false;
+
+        $("start").innerHTML = `
+          <span>
+            Start Test
+          </span>
+
+          <span class="arrow">
+            →
+          </span>
+        `;
+
+      }
+
+    };
+
+
+    /*
+     * Render Questions
+     */
+
+    function renderQuestions() {
+
+      const quiz =
+        $("quiz");
+
+
+      if (!questions.length) {
+
+        quiz.innerHTML = `
+          <div class="error-card">
+
+            <div class="error-icon">
+              ⚠
+            </div>
+
+            <h3>
+              No Questions Available
+            </h3>
+
+            <p>
+              This assessment currently has no questions.
+            </p>
+
+          </div>
+        `;
+
+        return;
+
+      }
+
+
+      quiz.innerHTML =
+        questions
+          .map(function (question, index) {
+
+            const questionId =
+              esc(question.id);
+
+
+            const questionText =
+              esc(question.question);
+
+
+            const options =
+              Array.isArray(question.options)
+                ? question.options
+                : [];
+
+
+            return `
+              <article
+                class="question"
+                data-question="${questionId}"
+              >
+
+                <div class="question-header">
+
+                  <span class="question-number">
+                    ${index + 1}
+                  </span>
+
+                  <span class="question-label">
+                    Question ${index + 1}
+                  </span>
+
+                </div>
+
+
+                <h3>
+                  ${questionText}
+                </h3>
+
+
+                <div class="options-list">
+
+                  ${
+                    options
+                      .map(function (option, optionIndex) {
+
+                        return `
+                          <label
+                            class="option"
+                          >
+
+                            <input
+                              type="radio"
+                              name="q_${questionId}"
+                              value="${optionIndex}"
+                            >
+
+                            <span class="option-marker">
+                              ${
+                                String.fromCharCode(
+                                  65 + optionIndex
+                                )
+                              }
+                            </span>
+
+                            <span class="option-text">
+                              ${esc(option)}
+                            </span>
+
+                          </label>
+                        `;
+
+                      })
+                      .join("")
+                  }
+
+                </div>
+
+              </article>
+            `;
+
+          })
+          .join("");
+
+
+      /*
+       * Update progress when answers change
+       */
+
+      quiz
+        .querySelectorAll(
+          'input[type="radio"]'
+        )
+        .forEach(function (input) {
+
+          input.addEventListener(
+            "change",
+            updateQuestionProgress
+          );
+
+        });
+
+
+      updateQuestionProgress();
+
+    }
+
+
+    /*
+     * Question progress
+     */
+
+    function updateQuestionProgress() {
+
+      if (!questions.length) {
+        return;
+      }
+
+
+      let answered = 0;
+
+
+      questions.forEach(
+        function (question) {
+
+          const selected =
+            document.querySelector(
+              `input[name="q_${question.id}"]:checked`
+            );
+
+
+          if (selected) {
+            answered++;
+          }
+
+        }
+      );
+
+
+      const percentage =
+        Math.round(
+          (answered / questions.length) *
+          100
+        );
+
+
+      $("progressText").textContent =
+        `${percentage}%`;
+
+
+      /*
+       * This progress bar represents
+       * answered-question progress.
+       */
+
+      /*
+       * NOTE:
+       * Timer progress is handled separately
+       * below using the same #progress element.
+       */
+
+    }
+
+
+    /*
+     * Start Timer
+     */
+
+    function startTimer() {
+
+      tick();
+
+
+      timerHandle =
+        setInterval(
+          tick,
+          500
+        );
+
+
+      function tick() {
+
+        const left =
+          Math.max(
+            0,
+            endsAt - Date.now()
+          );
+
+
+        const seconds =
+          Math.floor(
+            left / 1000
+          );
+
+
+        const minutes =
+          Math.floor(
+            seconds / 60
+          );
+
+
+        const remainingSeconds =
+          seconds % 60;
+
+
+        $("timer").textContent =
+          `${String(minutes).padStart(2, "0")}:${String(
+            remainingSeconds
+          ).padStart(2, "0")}`;
+
+
+        /*
+         * Timer percentage
+         */
+
+        const elapsed =
+          Date.now() - startAt;
+
+
+        const timerPercentage =
+          durationMs > 0
+            ? Math.max(
+                0,
+                Math.min(
+                  100,
+                  (elapsed / durationMs) * 100
+                )
+              )
+            : 0;
+
+
+        $("progress").style.width =
+          timerPercentage + "%";
+
+
+        /*
+         * Change timer state near expiry
+         */
+
+        const timerBox =
+          document.querySelector(".timer");
+
+
+        if (left <= 60000) {
+
+          timerBox.classList.add(
+            "timer-critical"
+          );
+
+        } else {
+
+          timerBox.classList.remove(
+            "timer-critical"
+          );
+
+        }
+
+
+        /*
+         * Automatic submission
+         */
+
+        if (left <= 0) {
+
+          clearInterval(timerHandle);
+
+          submitTest("auto");
+
+        }
+
+      }
+
+    }
+
+
+    /*
+     * Submit button
+     */
+
+    $("submit").onclick =
+      function () {
+
+        submitTest("manual");
+
+      };
+
+
+    /*
+     * Submit Test
+     */
+
+    async function submitTest(type) {
+
+      if (
+        submitted ||
+        !sessionId
+      ) {
+
+        return;
+
+      }
+
+
+      submitted = true;
+
+
+      /*
+       * Stop timer
+       */
+
+      if (timerHandle) {
+
+        clearInterval(
+          timerHandle
+        );
+
+      }
+
+
+      /*
+       * Disable submit button
+       */
+
+      $("submit").disabled = true;
+
+
+      $("submit").innerHTML =
+        `
+          <span class="loading-spinner-small"></span>
+          Submitting...
+        `;
+
+
+      /*
+       * Collect answers
+       */
+
+      const answers = {};
+
+
+      questions.forEach(
+        function (question) {
+
+          const selected =
+            document.querySelector(
+              `input[name="q_${question.id}"]:checked`
+            );
+
+
+          if (selected) {
+
+            answers[question.id] =
+              Number(
+                selected.value
+              );
+
+          }
+
+        }
+      );
+
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/tests/submit",
+            {
+              method: "POST",
+
+              headers: {
+                "Content-Type": "application/json"
+              },
+
+              body: JSON.stringify({
+                sessionId,
+                answers,
+                submissionType: type
+              })
+            }
+          );
+
+
+        let data;
+
+        try {
+
+          data = await response.json();
+
+        } catch {
+
+          throw new Error(
+            "Server returned an invalid response."
+          );
+
+        }
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            "Unable to submit the test."
+          );
+
+        }
+
+
+        /*
+         * Result is intentionally NOT shown here.
+         */
+
+        location.href =
+          "/submitted.html";
+
+
+      } catch (error) {
+
+        console.error(
+          "Submit test error:",
+          error
+        );
+
+
+        alert(
+          error.message ||
+          "Unable to submit the test."
+        );
+
+
+        submitted = false;
+
+
+        $("submit").disabled = false;
+
+
+        $("submit").innerHTML =
+          `
+            <span>
+              Submit Test
+            </span>
+
+            <span class="arrow">
+              →
+            </span>
+          `;
+
+      }
+
+    }
+
+
+    /*
+     * Warn candidate if they try to leave
+     * during an active assessment.
+     */
+
+    window.addEventListener(
+      "beforeunload",
+      function (event) {
+
+        if (
+          sessionId &&
+          !submitted
+        ) {
+
+          event.preventDefault();
+
+          event.returnValue = "";
+
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+
+</html>
