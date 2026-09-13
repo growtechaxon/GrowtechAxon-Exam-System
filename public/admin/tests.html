@@ -1,13 +1,680 @@
-<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Manage Tests | GrowtechAxon</title><link rel="stylesheet" href="/assets/style.css"></head><body>
-<div class="admin-wrap"><aside class="sidebar"><a class="brand" href="/"><img src="/assets/growtechaxon-logo.png"><span>GROWTECHAXON</span></a><nav class="side-nav" style="margin-top:25px"><a class="side-link" href="/admin/dashboard.html">Results</a><a class="side-link active" href="/admin/tests.html">Tests</a><a class="side-link" href="/verify.html">Verify</a><a class="side-link" href="#" onclick="logout()">Logout</a></nav></aside>
-<main class="main"><div class="nav"><div><div class="eyebrow">Test Management</div><h1>Create / Manage Tests</h1></div><button class="btn btn-gold" onclick="newTest()">+ New Test</button></div><div id="list" class="grid"></div></main></div>
-<div id="modal" class="modal"><div class="modal-box"><div class="nav"><h2 id="mtitle">New Test</h2><button class="btn btn-ghost" onclick="closeM()">Close</button></div><div class="field"><label>Test Title</label><input id="title"></div><div class="field"><label>Description</label><textarea id="desc"></textarea></div><div class="field"><label>Duration (minutes)</label><input id="duration" type="number" value="15"></div><div class="field"><label>Passing Percentage</label><input id="pass" type="number" value="50"></div><div class="field"><label><input id="cert" type="checkbox" checked> Certificate Enabled</label></div><div class="field"><label><input id="active" type="checkbox" checked> Active</label></div><h3>Questions</h3><div id="questions"></div><button class="btn btn-ghost" onclick="addQ()">+ Add Question</button><div class="actions"><button class="btn btn-primary" onclick="save()">Save Test</button></div></div></div>
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Manage Tests | GrowtechAxon</title>
+<link rel="stylesheet" href="/assets/style.css">
+</head>
+
+<body>
+
+<div class="admin-wrap">
+
+  <aside class="sidebar">
+    <a class="brand" href="/">
+      <img src="/assets/growtechaxon-logo.png">
+      <span>GROWTECHAXON</span>
+    </a>
+
+    <nav class="side-nav" style="margin-top:25px">
+      <a class="side-link" href="/admin/dashboard.html">Results</a>
+      <a class="side-link active" href="/admin/tests.html">Tests</a>
+      <a class="side-link" href="/verify.html">Verify</a>
+      <a class="side-link" href="#" onclick="logout()">Logout</a>
+    </nav>
+  </aside>
+
+  <main class="main">
+
+    <div class="nav">
+      <div>
+        <div class="eyebrow">Test Management</div>
+        <h1>Create / Manage Tests</h1>
+      </div>
+
+      <button class="btn btn-gold" onclick="newTest()">
+        + New Test
+      </button>
+    </div>
+
+    <div id="list" class="grid"></div>
+
+  </main>
+</div>
+
+
+<!-- =====================================================
+     TEST MODAL
+===================================================== -->
+
+<div id="modal" class="modal">
+
+  <div class="modal-box">
+
+    <div class="nav">
+      <h2 id="mtitle">New Test</h2>
+      <button class="btn btn-ghost" onclick="closeM()">Close</button>
+    </div>
+
+
+    <!-- BASIC DETAILS -->
+
+    <div class="field">
+      <label>Test Title</label>
+      <input id="title">
+    </div>
+
+    <div class="field">
+      <label>Description</label>
+      <textarea id="desc"></textarea>
+    </div>
+
+    <div class="field">
+      <label>Duration (minutes)</label>
+      <input id="duration" type="number" value="15">
+    </div>
+
+    <div class="field">
+      <label>Passing Percentage</label>
+      <input id="pass" type="number" value="50">
+    </div>
+
+
+    <!-- =================================================
+         EXAM SCHEDULE
+    ================================================== -->
+
+    <h3>Exam Schedule</h3>
+
+    <div class="field">
+      <label>Exam Start Date & Time</label>
+      <input id="startAt" type="datetime-local">
+      <small class="muted">
+        Candidate exam will open from this time.
+      </small>
+    </div>
+
+    <div class="field">
+      <label>Exam End Date & Time</label>
+      <input id="endAt" type="datetime-local">
+      <small class="muted">
+        After this time, new attempts will be blocked and
+        running attempts will end.
+      </small>
+    </div>
+
+
+    <!-- SETTINGS -->
+
+    <div class="field">
+      <label>
+        <input id="cert" type="checkbox" checked>
+        Certificate Enabled
+      </label>
+    </div>
+
+    <div class="field">
+      <label>
+        <input id="active" type="checkbox" checked>
+        Active
+      </label>
+    </div>
+
+
+    <!-- QUESTIONS -->
+
+    <h3>Questions</h3>
+
+    <div id="questions"></div>
+
+    <button class="btn btn-ghost" onclick="addQ()">
+      + Add Question
+    </button>
+
+
+    <!-- SAVE -->
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="save()">
+        Save Test
+      </button>
+    </div>
+
+  </div>
+</div>
+
+
 <script>
-const token=localStorage.getItem('growtechAdminToken');if(!token)location.href='/admin/login.html';let editId=null;const api=(u,o={})=>fetch(u,{...o,headers:{...(o.headers||{}),Authorization:'Bearer '+token}});
-async function load(){const r=await api('/api/admin/tests');if(r.status===401)return logout();const a=await r.json();list.innerHTML=a.map(t=>`<article class="card"><span class="pill">${t.questions.length} questions</span><h3>${esc(t.title)}</h3><p class="muted">${t.durationMinutes} min • Pass ${t.passingPercentage}%</p><p>${t.active?'🟢 Active':'⚪ Inactive'} • ${t.certificateEnabled?'Certificate On':'Certificate Off'}</p><div class="actions"><button class="btn btn-primary" onclick="edit('${t._id}')">Edit</button><button class="btn btn-ghost" onclick="del('${t._id}')">Delete</button></div></article>`).join('')}
-function newTest(){editId=null;mtitle.textContent='New Test';title.value='';desc.value='';duration.value=15;pass.value=50;cert.checked=true;active.checked=true;questions.innerHTML='';addQ();modal.classList.add('show')}
-async function edit(id){const r=await api('/api/admin/tests');const a=await r.json(),t=a.find(x=>x._id===id);editId=id;mtitle.textContent='Edit Test';title.value=t.title;desc.value=t.description||'';duration.value=t.durationMinutes;pass.value=t.passingPercentage;cert.checked=t.certificateEnabled;active.checked=t.active;questions.innerHTML='';t.questions.forEach(q=>addQ(q));modal.classList.add('show')}
-function addQ(q={}){const d=document.createElement('div');d.className='question';d.innerHTML=`<div class="field"><label>Question</label><input class="qq" value="${escAttr(q.question||'')}"></div><div class="field"><label>Options (one per line)</label><textarea class="qo">${(q.options||['Option A','Option B','Option C','Option D']).map(esc).join('\\n')}</textarea></div><div class="field"><label>Correct option number (1-based)</label><input class="qa" type="number" min="1" value="${(Number(q.answer??0)+1)}"></div><button class="btn btn-ghost" onclick="this.parentElement.remove()">Remove</button>`;questions.appendChild(d)}
-async function save(){const qs=[...document.querySelectorAll('#questions .question')].map(x=>{const opts=x.querySelector('.qo').value.split('\\n').map(s=>s.trim()).filter(Boolean);return{question:x.querySelector('.qq').value.trim(),options:opts,answer:Number(x.querySelector('.qa').value)-1}}).filter(q=>q.question&&q.options.length>=2);const body={title:title.value.trim(),description:desc.value.trim(),durationMinutes:Number(duration.value),passingPercentage:Number(pass.value),certificateEnabled:cert.checked,active:active.checked,questions:qs};const r=await api(editId?'/api/admin/tests/'+editId:'/api/admin/tests',{method:editId?'PUT':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});const d=await r.json();if(!r.ok)return alert(d.message);closeM();load()}
-async function del(id){if(!confirm('Delete this test?'))return;await api('/api/admin/tests/'+id,{method:'DELETE'});load()}function closeM(){modal.classList.remove('show')}function logout(){localStorage.removeItem('growtechAdminToken');location.href='/admin/login.html'}function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}function escAttr(s){return esc(s).replace(/"/g,'&quot;')}load();
-</script></body></html>
+
+const token = localStorage.getItem('growtechAdminToken');
+
+if (!token) {
+  location.href = '/admin/login.html';
+}
+
+let editId = null;
+
+const api = (u, o = {}) =>
+  fetch(u, {
+    ...o,
+    headers: {
+      ...(o.headers || {}),
+      Authorization: 'Bearer ' + token
+    }
+  });
+
+
+// =====================================================
+// LOAD TESTS
+// =====================================================
+
+async function load() {
+
+  const r = await api('/api/admin/tests');
+
+  if (r.status === 401) {
+    return logout();
+  }
+
+  const a = await r.json();
+
+  list.innerHTML = a.map(t => {
+
+    const start = t.startAt
+      ? new Date(t.startAt).toLocaleString('en-IN', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        })
+      : 'Immediately';
+
+    const end = t.endAt
+      ? new Date(t.endAt).toLocaleString('en-IN', {
+          dateStyle: 'medium',
+          timeStyle: 'short'
+        })
+      : 'No closing time';
+
+    return `
+      <article class="card">
+
+        <span class="pill">
+          ${t.questions.length} questions
+        </span>
+
+        <h3>${esc(t.title)}</h3>
+
+        <p class="muted">
+          ${t.durationMinutes} min •
+          Pass ${t.passingPercentage}%
+        </p>
+
+        <p>
+          ${t.active ? '🟢 Active' : '⚪ Inactive'}
+          •
+          ${t.certificateEnabled
+            ? 'Certificate On'
+            : 'Certificate Off'}
+        </p>
+
+        <p class="muted">
+          🕐 Opens: ${esc(start)}
+        </p>
+
+        <p class="muted">
+          🛑 Closes: ${esc(end)}
+        </p>
+
+        <div class="actions">
+
+          <button
+            class="btn btn-primary"
+            onclick="edit('${t._id}')">
+            Edit
+          </button>
+
+          <button
+            class="btn btn-ghost"
+            onclick="del('${t._id}')">
+            Delete
+          </button>
+
+        </div>
+
+      </article>
+    `;
+
+  }).join('');
+}
+
+
+// =====================================================
+// NEW TEST
+// =====================================================
+
+function newTest() {
+
+  editId = null;
+
+  mtitle.textContent = 'New Test';
+
+  title.value = '';
+
+  desc.value = '';
+
+  duration.value = 15;
+
+  pass.value = 50;
+
+  startAt.value = '';
+
+  endAt.value = '';
+
+  cert.checked = true;
+
+  active.checked = true;
+
+  questions.innerHTML = '';
+
+  addQ();
+
+  modal.classList.add('show');
+}
+
+
+// =====================================================
+// EDIT TEST
+// =====================================================
+
+async function edit(id) {
+
+  const r = await api('/api/admin/tests');
+
+  if (r.status === 401) {
+    return logout();
+  }
+
+  const a = await r.json();
+
+  const t = a.find(x => x._id === id);
+
+  if (!t) {
+    return alert('Test not found.');
+  }
+
+  editId = id;
+
+  mtitle.textContent = 'Edit Test';
+
+  title.value = t.title;
+
+  desc.value = t.description || '';
+
+  duration.value = t.durationMinutes;
+
+  pass.value = t.passingPercentage;
+
+  cert.checked = t.certificateEnabled;
+
+  active.checked = t.active;
+
+
+  // Convert database UTC time to browser local datetime.
+  startAt.value = t.startAt
+    ? toDatetimeLocal(t.startAt)
+    : '';
+
+  endAt.value = t.endAt
+    ? toDatetimeLocal(t.endAt)
+    : '';
+
+
+  questions.innerHTML = '';
+
+  t.questions.forEach(q => addQ(q));
+
+  modal.classList.add('show');
+}
+
+
+// =====================================================
+// ADD QUESTION
+// =====================================================
+
+function addQ(q = {}) {
+
+  const d = document.createElement('div');
+
+  d.className = 'question';
+
+  d.innerHTML = `
+
+    <div class="field">
+      <label>Question</label>
+
+      <input
+        class="qq"
+        value="${escAttr(q.question || '')}">
+    </div>
+
+
+    <div class="field">
+      <label>Options (one per line)</label>
+
+      <textarea class="qo">${(q.options ||
+        [
+          'Option A',
+          'Option B',
+          'Option C',
+          'Option D'
+        ])
+        .map(esc)
+        .join('\n')}</textarea>
+    </div>
+
+
+    <div class="field">
+      <label>
+        Correct option number (1-based)
+      </label>
+
+      <input
+        class="qa"
+        type="number"
+        min="1"
+        value="${Number(q.answer ?? 0) + 1}">
+    </div>
+
+
+    <button
+      class="btn btn-ghost"
+      onclick="this.parentElement.remove()">
+      Remove
+    </button>
+
+  `;
+
+  questions.appendChild(d);
+}
+
+
+// =====================================================
+// SAVE TEST
+// =====================================================
+
+async function save() {
+
+  // -----------------------------------------------
+  // Validate schedule
+  // -----------------------------------------------
+
+  let startISO = null;
+
+  let endISO = null;
+
+
+  if (startAt.value) {
+    startISO = new Date(startAt.value).toISOString();
+  }
+
+
+  if (endAt.value) {
+    endISO = new Date(endAt.value).toISOString();
+  }
+
+
+  if (startISO && endISO) {
+
+    if (
+      new Date(endISO).getTime() <=
+      new Date(startISO).getTime()
+    ) {
+
+      return alert(
+        'Exam end time must be after start time.'
+      );
+
+    }
+
+  }
+
+
+  // -----------------------------------------------
+  // Questions
+  // -----------------------------------------------
+
+  const qs = [
+    ...document.querySelectorAll(
+      '#questions .question'
+    )
+  ]
+  .map(x => {
+
+    const opts =
+      x.querySelector('.qo')
+        .value
+        .split('\n')
+        .map(s => s.trim())
+        .filter(Boolean);
+
+    return {
+
+      question:
+        x.querySelector('.qq')
+          .value
+          .trim(),
+
+      options: opts,
+
+      answer:
+        Number(
+          x.querySelector('.qa').value
+        ) - 1
+
+    };
+
+  })
+  .filter(q =>
+    q.question &&
+    q.options.length >= 2
+  );
+
+
+  // -----------------------------------------------
+  // Request body
+  // -----------------------------------------------
+
+  const body = {
+
+    title:
+      title.value.trim(),
+
+    description:
+      desc.value.trim(),
+
+    durationMinutes:
+      Number(duration.value),
+
+    passingPercentage:
+      Number(pass.value),
+
+    certificateEnabled:
+      cert.checked,
+
+    active:
+      active.checked,
+
+    startAt:
+      startISO,
+
+    endAt:
+      endISO,
+
+    questions:
+      qs
+
+  };
+
+
+  // -----------------------------------------------
+  // Save
+  // -----------------------------------------------
+
+  const r = await api(
+    editId
+      ? '/api/admin/tests/' + editId
+      : '/api/admin/tests',
+    {
+      method:
+        editId
+          ? 'PUT'
+          : 'POST',
+
+      headers: {
+        'Content-Type':
+          'application/json'
+      },
+
+      body:
+        JSON.stringify(body)
+    }
+  );
+
+
+  const d = await r.json();
+
+
+  if (!r.ok) {
+    return alert(
+      d.message ||
+      'Unable to save test.'
+    );
+  }
+
+
+  closeM();
+
+  load();
+}
+
+
+// =====================================================
+// DELETE
+// =====================================================
+
+async function del(id) {
+
+  if (
+    !confirm(
+      'Delete this test?'
+    )
+  ) {
+    return;
+  }
+
+  await api(
+    '/api/admin/tests/' + id,
+    {
+      method: 'DELETE'
+    }
+  );
+
+  load();
+}
+
+
+// =====================================================
+// CLOSE MODAL
+// =====================================================
+
+function closeM() {
+
+  modal.classList.remove('show');
+
+}
+
+
+// =====================================================
+// LOGOUT
+// =====================================================
+
+function logout() {
+
+  localStorage.removeItem(
+    'growtechAdminToken'
+  );
+
+  location.href =
+    '/admin/login.html';
+
+}
+
+
+// =====================================================
+// ESCAPE HTML
+// =====================================================
+
+function esc(s) {
+
+  return String(s ?? '')
+    .replace(
+      /[&<>"']/g,
+      m => ({
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      }[m])
+    );
+
+}
+
+
+function escAttr(s) {
+
+  return esc(s)
+    .replace(
+      /"/g,
+      '&quot;'
+    );
+
+}
+
+
+// =====================================================
+// DATETIME LOCAL HELPER
+// =====================================================
+
+function toDatetimeLocal(value) {
+
+  const d = new Date(value);
+
+  const pad = n =>
+    String(n).padStart(2, '0');
+
+  return (
+    d.getFullYear() +
+    '-' +
+    pad(d.getMonth() + 1) +
+    '-' +
+    pad(d.getDate()) +
+    'T' +
+    pad(d.getHours()) +
+    ':' +
+    pad(d.getMinutes())
+  );
+
+}
+
+
+// =====================================================
+// START
+// =====================================================
+
+load();
+
+</script>
+
+</body>
+</html>

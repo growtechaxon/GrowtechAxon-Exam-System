@@ -218,12 +218,10 @@ router.post(
     try {
       const id = req.params.resultId;
 
-      // Find result by custom Result ID
       let result = await TestResult.findOne({
         resultId: id
       });
 
-      // Fallback to MongoDB ObjectId
       if (!result && mongoose.Types.ObjectId.isValid(id)) {
         result = await TestResult.findById(id);
       }
@@ -234,14 +232,13 @@ router.post(
         });
       }
 
-      // Candidate must pass
       if (!result.passed) {
         return res.status(400).json({
-          message: "Certificate cannot be generated for a failed result."
+          message:
+            "Certificate cannot be generated for a failed result."
         });
       }
 
-      // Certificate already exists
       if (result.certificateId) {
         const existingCertificate = await Certificate.findOne({
           certificateId: result.certificateId
@@ -252,7 +249,6 @@ router.post(
         }
       }
 
-      // Generate unique Certificate ID
       let certificateId;
       let exists = true;
 
@@ -273,17 +269,14 @@ router.post(
 
       const percentage = Number(result.percentage || 0);
 
-      // IMPORTANT:
-      // Certificate schema expects resultId as MongoDB ObjectId
-      // and status as "valid" or "revoked".
       const certificate = await Certificate.create({
-        certificateId: certificateId,
+        certificateId,
         resultId: result._id,
         candidateName: result.candidateName,
         email: result.email,
         testTitle: result.testTitle,
         issueDate: new Date(),
-        percentage: percentage,
+        percentage,
         grade: gradeFromPercentage(percentage),
         status: "valid",
         signatoryName:
@@ -294,7 +287,6 @@ router.post(
           "Authorized Signatory"
       });
 
-      // Save certificate ID inside result
       result.certificateId = certificate.certificateId;
 
       await result.save();
@@ -402,6 +394,8 @@ router.post("/tests", adminAuth, async (req, res) => {
       passingPercentage,
       certificateEnabled = true,
       active = true,
+      startAt = null,
+      endAt = null,
       questions = []
     } = req.body;
 
@@ -411,28 +405,88 @@ router.post("/tests", adminAuth, async (req, res) => {
       !questions.length
     ) {
       return res.status(400).json({
-        message: "Title and at least one question are required."
+        message:
+          "Title and at least one question are required."
       });
     }
 
     const cleanQuestions = questions.map((q) => ({
       question: String(q.question || "").trim(),
+
       options: Array.isArray(q.options)
-        ? q.options.map(String)
+        ? q.options.map((option) => String(option).trim())
         : [],
+
       answer: Number(q.answer)
     }));
 
+    // =========================
+    // VALIDATE SCHEDULE
+    // =========================
+
+    const parsedStartAt = startAt
+      ? new Date(startAt)
+      : null;
+
+    const parsedEndAt = endAt
+      ? new Date(endAt)
+      : null;
+
+    if (
+      parsedStartAt &&
+      Number.isNaN(parsedStartAt.getTime())
+    ) {
+      return res.status(400).json({
+        message: "Invalid exam start date/time."
+      });
+    }
+
+    if (
+      parsedEndAt &&
+      Number.isNaN(parsedEndAt.getTime())
+    ) {
+      return res.status(400).json({
+        message: "Invalid exam end date/time."
+      });
+    }
+
+    if (
+      parsedStartAt &&
+      parsedEndAt &&
+      parsedEndAt <= parsedStartAt
+    ) {
+      return res.status(400).json({
+        message:
+          "Exam end time must be after start time."
+      });
+    }
+
     const test = await Test.create({
       title: String(title).trim(),
-      description: String(description || "").trim(),
-      durationMinutes: Number(durationMinutes || 15),
-      passingPercentage: Number(
-        passingPercentage ?? 50
-      ),
-      certificateEnabled: Boolean(certificateEnabled),
-      active: Boolean(active),
-      questions: cleanQuestions
+
+      description:
+        String(description || "").trim(),
+
+      durationMinutes:
+        Number(durationMinutes || 15),
+
+      passingPercentage:
+        Number(passingPercentage ?? 50),
+
+      certificateEnabled:
+        Boolean(certificateEnabled),
+
+      active:
+        Boolean(active),
+
+      startAt:
+        parsedStartAt,
+
+      endAt:
+        parsedEndAt,
+
+      questions:
+        cleanQuestions
     });
 
     res.status(201).json(test);
@@ -458,6 +512,8 @@ router.put("/tests/:id", adminAuth, async (req, res) => {
       "passingPercentage",
       "certificateEnabled",
       "active",
+      "startAt",
+      "endAt",
       "questions"
     ];
 
@@ -469,17 +525,102 @@ router.put("/tests/:id", adminAuth, async (req, res) => {
       }
     });
 
+    // =========================
+    // NUMBERS
+    // =========================
+
     if (data.durationMinutes !== undefined) {
-      data.durationMinutes = Number(
-        data.durationMinutes
-      );
+      data.durationMinutes =
+        Number(data.durationMinutes);
     }
 
     if (data.passingPercentage !== undefined) {
-      data.passingPercentage = Number(
-        data.passingPercentage
-      );
+      data.passingPercentage =
+        Number(data.passingPercentage);
     }
+
+    // =========================
+    // SCHEDULE
+    // =========================
+
+    if (data.startAt !== undefined) {
+      data.startAt = data.startAt
+        ? new Date(data.startAt)
+        : null;
+
+      if (
+        data.startAt &&
+        Number.isNaN(data.startAt.getTime())
+      ) {
+        return res.status(400).json({
+          message:
+            "Invalid exam start date/time."
+        });
+      }
+    }
+
+    if (data.endAt !== undefined) {
+      data.endAt = data.endAt
+        ? new Date(data.endAt)
+        : null;
+
+      if (
+        data.endAt &&
+        Number.isNaN(data.endAt.getTime())
+      ) {
+        return res.status(400).json({
+          message:
+            "Invalid exam end date/time."
+        });
+      }
+    }
+
+    // =========================
+    // CHECK START / END ORDER
+    // =========================
+
+    let scheduleStart = data.startAt;
+    let scheduleEnd = data.endAt;
+
+    if (
+      scheduleStart === undefined ||
+      scheduleEnd === undefined
+    ) {
+      const existingTest = await Test.findById(
+        req.params.id
+      );
+
+      if (!existingTest) {
+        return res.status(404).json({
+          message: "Test not found."
+        });
+      }
+
+      if (scheduleStart === undefined) {
+        scheduleStart =
+          existingTest.startAt;
+      }
+
+      if (scheduleEnd === undefined) {
+        scheduleEnd =
+          existingTest.endAt;
+      }
+    }
+
+    if (
+      scheduleStart &&
+      scheduleEnd &&
+      scheduleEnd <= scheduleStart
+    ) {
+      return res.status(400).json({
+        message:
+          "Exam end time must be after start time."
+      });
+    }
+
+    // =========================
+    // UPDATE
+    // =========================
 
     const test = await Test.findByIdAndUpdate(
       req.params.id,
@@ -510,30 +651,40 @@ router.put("/tests/:id", adminAuth, async (req, res) => {
 // =========================
 // DELETE TEST
 // =========================
-router.delete("/tests/:id", adminAuth, async (req, res) => {
-  try {
-    const test = await Test.findByIdAndDelete(
-      req.params.id
-    );
+router.delete(
+  "/tests/:id",
+  adminAuth,
+  async (req, res) => {
+    try {
+      const test =
+        await Test.findByIdAndDelete(
+          req.params.id
+        );
 
-    if (!test) {
-      return res.status(404).json({
-        message: "Test not found."
+      if (!test) {
+        return res.status(404).json({
+          message: "Test not found."
+        });
+      }
+
+      res.json({
+        success: true,
+        message:
+          "Test deleted successfully."
+      });
+    } catch (err) {
+      console.error(
+        "Delete test error:",
+        err
+      );
+
+      res.status(500).json({
+        message:
+          "Unable to delete test.",
+        error: err.message
       });
     }
-
-    res.json({
-      success: true,
-      message: "Test deleted successfully."
-    });
-  } catch (err) {
-    console.error("Delete test error:", err);
-
-    res.status(500).json({
-      message: "Unable to delete test.",
-      error: err.message
-    });
   }
-});
+);
 
 module.exports = router;

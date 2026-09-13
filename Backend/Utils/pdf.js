@@ -3,11 +3,11 @@ const path = require("path");
 const fs = require("fs");
 
 /* =========================================================
-   COMMON HELPERS
+   HELPERS
 ========================================================= */
 
 function safe(value, fallback = "") {
-  if (value === undefined || value === null) {
+  if (value === undefined || value === null || value === "") {
     return fallback;
   }
 
@@ -15,10 +15,7 @@ function safe(value, fallback = "") {
 }
 
 function formatDate(value) {
-  if (!value) {
-    return "";
-
-  }
+  if (!value) return "";
 
   const date = new Date(value);
 
@@ -43,14 +40,6 @@ function formatPercentage(value) {
   return `${Number.isInteger(number) ? number : number.toFixed(1)}%`;
 }
 
-function clamp(value, min, max) {
-  return Math.min(Math.max(value, min), max);
-}
-
-/* =========================================================
-   GRADE
-========================================================= */
-
 function gradeFromPercentage(percentage) {
   const p = Number(percentage) || 0;
 
@@ -64,6 +53,26 @@ function gradeFromPercentage(percentage) {
 }
 
 /* =========================================================
+   COLORS
+========================================================= */
+
+const COLORS = {
+  navyDark: "#020B1D",
+  navy: "#06152D",
+  navyLight: "#071A36",
+
+  gold: "#D6B36A",
+  goldLight: "#F0D99A",
+  goldDark: "#806326",
+
+  white: "#FFFFFF",
+  muted: "#93A4BC",
+  muted2: "#71839C",
+
+  bluePanel: "#0B2747"
+};
+
+/* =========================================================
    RESULT PDF
 ========================================================= */
 
@@ -71,14 +80,16 @@ function buildResultPdf(result, res) {
   const doc = new PDFDocument({
     size: "A4",
     margin: 45,
+
     info: {
-      Title: `Growtech Axon Result - ${safe(result.resultId)}`,
+      Title: `Growtech Axon Result - ${safe(result.resultId, "Result")}`,
       Author: "Growtech Axon",
       Subject: "Assessment Result"
     }
   });
 
   res.setHeader("Content-Type", "application/pdf");
+
   res.setHeader(
     "Content-Disposition",
     `attachment; filename="GrowtechAxon-Result-${safe(
@@ -92,139 +103,215 @@ function buildResultPdf(result, res) {
   const pageWidth = doc.page.width;
   const pageHeight = doc.page.height;
 
-  // Background
-  doc.rect(0, 0, pageWidth, pageHeight).fill("#020b1d");
+  /* Background */
 
-  // Main panel
   doc
-    .roundedRect(28, 28, pageWidth - 56, pageHeight - 56, 16)
-    .fill("#06152d");
+    .rect(0, 0, pageWidth, pageHeight)
+    .fill(COLORS.navyDark);
 
-  // Gold border
+  /* Main panel */
+
   doc
-    .roundedRect(35, 35, pageWidth - 70, pageHeight - 70, 12)
+    .roundedRect(
+      28,
+      28,
+      pageWidth - 56,
+      pageHeight - 56,
+      16
+    )
+    .fill(COLORS.navy);
+
+  /* Gold border */
+
+  doc
+    .roundedRect(
+      35,
+      35,
+      pageWidth - 70,
+      pageHeight - 70,
+      12
+    )
     .lineWidth(1.5)
-    .stroke("#c9a24a");
+    .stroke(COLORS.gold);
 
-  // Header
+  /* Header */
+
   doc
     .font("Helvetica-Bold")
     .fontSize(24)
-    .fillColor("#f5d77a")
-    .text("GROWTECH AXON", 55, 65, {
-      width: pageWidth - 110,
-      align: "center"
-    });
+    .fillColor(COLORS.goldLight)
+    .text(
+      "GROWTECH AXON",
+      55,
+      65,
+      {
+        width: pageWidth - 110,
+        align: "center"
+      }
+    );
 
   doc
     .font("Helvetica")
     .fontSize(9)
-    .fillColor("#9fb0c8")
-    .text("DIGITAL INNOVATION • SMARTER GROWTH", 55, 94, {
-      width: pageWidth - 110,
-      align: "center",
-      characterSpacing: 1.2
-    });
+    .fillColor(COLORS.muted)
+    .text(
+      "DIGITAL INNOVATION • SMARTER GROWTH",
+      55,
+      94,
+      {
+        width: pageWidth - 110,
+        align: "center",
+        characterSpacing: 1.2
+      }
+    );
 
   doc
     .moveTo(85, 120)
     .lineTo(pageWidth - 85, 120)
     .lineWidth(1)
-    .stroke("#8b6c2f");
+    .stroke(COLORS.goldDark);
 
-  // Result heading
+  /* Heading */
+
   doc
     .font("Helvetica-Bold")
     .fontSize(25)
-    .fillColor("#ffffff")
-    .text("ASSESSMENT RESULT", 55, 150, {
-      width: pageWidth - 110,
-      align: "center"
-    });
+    .fillColor(COLORS.white)
+    .text(
+      "ASSESSMENT RESULT",
+      55,
+      150,
+      {
+        width: pageWidth - 110,
+        align: "center"
+      }
+    );
 
-  // Candidate
+  /* Candidate */
+
   doc
     .font("Helvetica")
     .fontSize(10)
-    .fillColor("#9fb0c8")
+    .fillColor(COLORS.muted)
     .text("CANDIDATE", 70, 205);
 
   doc
     .font("Helvetica-Bold")
     .fontSize(21)
-    .fillColor("#ffffff")
-    .text(safe(result.candidateName, "Candidate"), 70, 222, {
-      width: pageWidth - 140
-    });
+    .fillColor(COLORS.white)
+    .text(
+      safe(result.candidateName, "Candidate"),
+      70,
+      222,
+      {
+        width: pageWidth - 140
+      }
+    );
 
-  // Test
+  /* Test */
+
   doc
     .font("Helvetica")
     .fontSize(10)
-    .fillColor("#9fb0c8")
+    .fillColor(COLORS.muted)
     .text("ASSESSMENT", 70, 265);
 
   doc
     .font("Helvetica-Bold")
     .fontSize(15)
-    .fillColor("#f5d77a")
-    .text(safe(result.testTitle, "Assessment"), 70, 282, {
-      width: pageWidth - 140
-    });
+    .fillColor(COLORS.goldLight)
+    .text(
+      safe(result.testTitle, "Assessment"),
+      70,
+      282,
+      {
+        width: pageWidth - 140
+      }
+    );
 
-  // Score card
+  /* Score */
+
   const scoreY = 330;
 
   doc
-    .roundedRect(70, scoreY, pageWidth - 140, 95, 14)
-    .fill("#081d3c");
+    .roundedRect(
+      70,
+      scoreY,
+      pageWidth - 140,
+      95,
+      14
+    )
+    .fill("#081D3C");
 
   doc
-    .roundedRect(70, scoreY, pageWidth - 140, 95, 14)
+    .roundedRect(
+      70,
+      scoreY,
+      pageWidth - 140,
+      95,
+      14
+    )
     .lineWidth(1)
-    .stroke("#6f5727");
+    .stroke(COLORS.goldDark);
 
   const percentage = Number(result.percentage) || 0;
 
   doc
     .font("Helvetica")
     .fontSize(9)
-    .fillColor("#9fb0c8")
+    .fillColor(COLORS.muted)
     .text("FINAL SCORE", 95, scoreY + 20);
 
   doc
     .font("Helvetica-Bold")
     .fontSize(30)
-    .fillColor("#f5d77a")
-    .text(formatPercentage(percentage), 95, scoreY + 38);
+    .fillColor(COLORS.goldLight)
+    .text(
+      formatPercentage(percentage),
+      95,
+      scoreY + 38
+    );
 
   doc
     .font("Helvetica")
     .fontSize(9)
-    .fillColor("#9fb0c8")
+    .fillColor(COLORS.muted)
     .text("GRADE", 300, scoreY + 20);
 
   doc
     .font("Helvetica-Bold")
     .fontSize(30)
-    .fillColor("#ffffff")
-    .text(safe(result.grade, gradeFromPercentage(percentage)), 300, scoreY + 38);
+    .fillColor(COLORS.white)
+    .text(
+      safe(
+        result.grade,
+        gradeFromPercentage(percentage)
+      ),
+      300,
+      scoreY + 38
+    );
 
   doc
     .font("Helvetica")
     .fontSize(9)
-    .fillColor("#9fb0c8")
+    .fillColor(COLORS.muted)
     .text("RESULT ID", 470, scoreY + 20);
 
   doc
     .font("Helvetica-Bold")
     .fontSize(11)
-    .fillColor("#ffffff")
-    .text(safe(result.resultId, "N/A"), 470, scoreY + 42, {
-      width: 190
-    });
+    .fillColor(COLORS.white)
+    .text(
+      safe(result.resultId, "N/A"),
+      470,
+      scoreY + 42,
+      {
+        width: 190
+      }
+    );
 
-  // Statistics
+  /* Statistics */
+
   const statsY = 455;
 
   const stats = [
@@ -239,21 +326,22 @@ function buildResultPdf(result, res) {
     doc
       .font("Helvetica")
       .fontSize(8)
-      .fillColor("#8fa1ba")
+      .fillColor(COLORS.muted)
       .text(item[0], x, statsY);
 
     doc
       .font("Helvetica-Bold")
       .fontSize(16)
-      .fillColor("#ffffff")
+      .fillColor(COLORS.white)
       .text(String(item[1]), x, statsY + 15);
   });
 
-  // Submitted date
+  /* Footer */
+
   doc
     .font("Helvetica")
     .fontSize(8)
-    .fillColor("#8fa1ba")
+    .fillColor(COLORS.muted2)
     .text(
       `Submitted: ${formatDate(result.submittedAt)}`,
       70,
@@ -263,128 +351,210 @@ function buildResultPdf(result, res) {
   doc
     .font("Helvetica")
     .fontSize(8)
-    .fillColor("#8fa1ba")
-    .text("GROWTECH AXON • OFFICIAL ASSESSMENT RECORD", 70, pageHeight - 47);
+    .fillColor(COLORS.muted2)
+    .text(
+      "GROWTECH AXON • OFFICIAL ASSESSMENT RECORD",
+      70,
+      pageHeight - 47
+    );
 
   doc.end();
 }
 
 /* =========================================================
-   PREMIUM CERTIFICATE HELPERS
+   CERTIFICATE BACKGROUND
+========================================================= */
+
+function drawCertificateBackground(doc) {
+  const w = doc.page.width;
+  const h = doc.page.height;
+
+  /* Full background */
+
+  doc
+    .rect(0, 0, w, h)
+    .fill(COLORS.navyDark);
+
+  /* Main certificate */
+
+  doc
+    .roundedRect(
+      18,
+      18,
+      w - 36,
+      h - 36,
+      15
+    )
+    .fill(COLORS.navy);
+
+  /* Inner panel */
+
+  doc
+    .roundedRect(
+      38,
+      38,
+      w - 76,
+      h - 76,
+      10
+    )
+    .fill(COLORS.navyLight);
+}
+
+/* =========================================================
+   PREMIUM BORDER
 ========================================================= */
 
 function drawPremiumBorder(doc) {
   const w = doc.page.width;
   const h = doc.page.height;
 
-  // Outer gold line
+  /* Outer */
+
   doc
-    .roundedRect(18, 18, w - 36, h - 36, 15)
+    .roundedRect(
+      17,
+      17,
+      w - 34,
+      h - 34,
+      15
+    )
     .lineWidth(2)
-    .stroke("#c9a24a");
+    .stroke(COLORS.gold);
 
-  // Inner gold line
-  doc
-    .roundedRect(27, 27, w - 54, h - 54, 11)
-    .lineWidth(0.7)
-    .stroke("#73591f");
+  /* Middle */
 
-  // Fine highlight line
   doc
-    .roundedRect(33, 33, w - 66, h - 66, 8)
+    .roundedRect(
+      27,
+      27,
+      w - 54,
+      h - 54,
+      11
+    )
+    .lineWidth(0.8)
+    .stroke(COLORS.goldDark);
+
+  /* Inner */
+
+  doc
+    .roundedRect(
+      34,
+      34,
+      w - 68,
+      h - 68,
+      8
+    )
     .lineWidth(0.35)
-    .stroke("#d8bd70");
+    .stroke(COLORS.goldLight);
 }
+
+/* =========================================================
+   CORNER DESIGN
+========================================================= */
 
 function drawCornerDecoration(doc) {
   const w = doc.page.width;
   const h = doc.page.height;
 
-  // Top-left
-  doc
-    .moveTo(35, 105)
-    .lineTo(35, 55)
-    .bezierCurveTo(35, 43, 43, 35, 55, 35)
-    .lineTo(105, 35)
-    .lineWidth(2)
-    .stroke("#c9a24a");
+  const gold = COLORS.gold;
 
-  // Top-right
-  doc
-    .moveTo(w - 35, 105)
-    .lineTo(w - 35, 55)
-    .bezierCurveTo(w - 35, 43, w - 43, 35, w - 55, 35)
-    .lineTo(w - 105, 35)
-    .lineWidth(2)
-    .stroke("#c9a24a");
+  /* Top Left */
 
-  // Bottom-left
   doc
-    .moveTo(35, h - 105)
-    .lineTo(35, h - 55)
-    .bezierCurveTo(35, h - 43, 43, h - 35, 55, h - 35)
-    .lineTo(105, h - 35)
+    .moveTo(38, 105)
+    .lineTo(38, 55)
+    .bezierCurveTo(
+      38,
+      43,
+      45,
+      38,
+      57,
+      38
+    )
+    .lineTo(107, 38)
     .lineWidth(2)
-    .stroke("#c9a24a");
+    .stroke(gold);
 
-  // Bottom-right
+  /* Top Right */
+
   doc
-    .moveTo(w - 35, h - 105)
-    .lineTo(w - 35, h - 55)
-    .bezierCurveTo(w - 35, h - 43, w - 43, h - 35, w - 55, h - 35)
-    .lineTo(w - 105, h - 35)
+    .moveTo(w - 38, 105)
+    .lineTo(w - 38, 55)
+    .bezierCurveTo(
+      w - 38,
+      43,
+      w - 45,
+      38,
+      w - 57,
+      38
+    )
+    .lineTo(w - 107, 38)
     .lineWidth(2)
-    .stroke("#c9a24a");
+    .stroke(gold);
+
+  /* Bottom Left */
+
+  doc
+    .moveTo(38, h - 105)
+    .lineTo(38, h - 55)
+    .bezierCurveTo(
+      38,
+      h - 43,
+      45,
+      h - 38,
+      57,
+      h - 38
+    )
+    .lineTo(107, h - 38)
+    .lineWidth(2)
+    .stroke(gold);
+
+  /* Bottom Right */
+
+  doc
+    .moveTo(w - 38, h - 105)
+    .lineTo(w - 38, h - 55)
+    .bezierCurveTo(
+      w - 38,
+      h - 43,
+      w - 45,
+      h - 38,
+      w - 57,
+      h - 38
+    )
+    .lineTo(w - 107, h - 38)
+    .lineWidth(2)
+    .stroke(gold);
 }
+
+/* =========================================================
+   SUBTLE BACKGROUND PATTERN
+========================================================= */
 
 function drawBackgroundTexture(doc) {
   const w = doc.page.width;
   const h = doc.page.height;
 
-  // Subtle diagonal lines
   doc.save();
 
   doc.opacity(0.035);
 
-  for (let x = -h; x < w + h; x += 28) {
+  for (let x = -h; x < w + h; x += 30) {
     doc
       .moveTo(x, 0)
       .lineTo(x + h, h)
       .lineWidth(0.5)
-      .stroke("#d9b85c");
+      .stroke(COLORS.goldLight);
   }
 
   doc.opacity(1);
+
   doc.restore();
 }
 
-function drawTopAccent(doc) {
-  const w = doc.page.width;
-
-  doc
-    .moveTo(120, 145)
-    .lineTo(w - 120, 145)
-    .lineWidth(0.6)
-    .stroke("#806326");
-
-  doc
-    .moveTo(285, 145)
-    .lineTo(w - 285, 145)
-    .lineWidth(1.6)
-    .stroke("#c9a24a");
-
-  // Small center diamond
-  const cx = w / 2;
-  const cy = 145;
-
-  doc
-    .moveTo(cx, cy - 5)
-    .lineTo(cx + 5, cy)
-    .lineTo(cx, cy + 5)
-    .lineTo(cx - 5, cy)
-    .closePath()
-    .fill("#c9a24a");
-}
+/* =========================================================
+   LOGO
+========================================================= */
 
 function drawLogo(doc) {
   const logoPath = path.join(
@@ -392,38 +562,49 @@ function drawLogo(doc) {
     "../../public/assets/growtechaxon-logo.png"
   );
 
-  if (!fs.existsSync(logoPath)) {
-    // Fallback text if logo is missing
-    doc
-      .font("Helvetica-Bold")
-      .fontSize(18)
-      .fillColor("#f5d77a")
-      .text("GROWTECH AXON", 55, 52);
+  if (fs.existsSync(logoPath)) {
+    try {
+      doc.image(
+        logoPath,
+        55,
+        47,
+        {
+          fit: [155, 60],
+          align: "left",
+          valign: "center"
+        }
+      );
 
-    return;
+      return;
+    } catch (error) {
+      console.warn(
+        "Logo could not be loaded:",
+        error.message
+      );
+    }
   }
 
-  try {
-    doc.image(logoPath, 52, 45, {
-      fit: [150, 70],
-      align: "left",
-      valign: "center"
-    });
-  } catch (error) {
-    console.warn("Unable to load Growtech Axon logo:", error.message);
+  /* Fallback */
 
-    doc
-      .font("Helvetica-Bold")
-      .fontSize(18)
-      .fillColor("#f5d77a")
-      .text("GROWTECH AXON", 55, 52);
-  }
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(18)
+    .fillColor(COLORS.goldLight)
+    .text(
+      "GROWTECH AXON",
+      55,
+      58
+    );
 }
 
-function drawTopRightId(doc, certificate) {
+/* =========================================================
+   CERTIFICATE ID TOP
+========================================================= */
+
+function drawTopCertificateId(doc, certificate) {
   const w = doc.page.width;
 
-  const id = safe(
+  const certificateId = safe(
     certificate.certificateId,
     certificate._id || "N/A"
   );
@@ -431,68 +612,94 @@ function drawTopRightId(doc, certificate) {
   doc
     .font("Helvetica")
     .fontSize(7)
-    .fillColor("#8193ad")
-    .text("CERTIFICATE ID", w - 260, 55, {
-      width: 205,
-      align: "right",
-      characterSpacing: 1
-    });
+    .fillColor(COLORS.muted)
+    .text(
+      "CERTIFICATE ID",
+      w - 265,
+      55,
+      {
+        width: 205,
+        align: "right",
+        characterSpacing: 1
+      }
+    );
 
   doc
     .font("Helvetica-Bold")
     .fontSize(9)
-    .fillColor("#f5d77a")
-    .text(id, w - 260, 68, {
-      width: 205,
-      align: "right"
-    });
+    .fillColor(COLORS.goldLight)
+    .text(
+      certificateId,
+      w - 265,
+      69,
+      {
+        width: 205,
+        align: "right"
+      }
+    );
 }
+
+/* =========================================================
+   TITLE
+========================================================= */
 
 function drawCertificateHeading(doc) {
   const w = doc.page.width;
 
   doc
     .font("Helvetica")
-    .fontSize(9)
-    .fillColor("#a8b5c7")
-    .text("GROWTECH AXON", 50, 122, {
-      width: w - 100,
-      align: "center",
-      characterSpacing: 3
-    });
+    .fontSize(8)
+    .fillColor(COLORS.muted)
+    .text(
+      "LEARN  •  IMPROVE  •  GROW",
+      50,
+      112,
+      {
+        width: w - 100,
+        align: "center",
+        characterSpacing: 2
+      }
+    );
 
   doc
     .font("Helvetica-Bold")
     .fontSize(31)
-    .fillColor("#ffffff")
-    .text("CERTIFICATE", 50, 158, {
-      width: w - 100,
-      align: "center"
-    });
+    .fillColor(COLORS.white)
+    .text(
+      "CERTIFICATE OF ACHIEVEMENT",
+      50,
+      140,
+      {
+        width: w - 100,
+        align: "center"
+      }
+    );
 
   doc
-    .font("Helvetica")
-    .fontSize(12)
-    .fillColor("#f5d77a")
-    .text("OF ACHIEVEMENT", 50, 195, {
-      width: w - 100,
-      align: "center",
-      characterSpacing: 3
-    });
+    .moveTo(270, 181)
+    .lineTo(w - 270, 181)
+    .lineWidth(1)
+    .stroke(COLORS.gold);
+
+  /* Diamond */
+
+  const cx = w / 2;
+
+  doc
+    .moveTo(cx, 176)
+    .lineTo(cx + 5, 181)
+    .lineTo(cx, 186)
+    .lineTo(cx - 5, 181)
+    .closePath()
+    .fill(COLORS.goldLight);
 }
+
+/* =========================================================
+   CANDIDATE
+========================================================= */
 
 function drawCandidateSection(doc, certificate) {
   const w = doc.page.width;
-
-  doc
-    .font("Helvetica")
-    .fontSize(9)
-    .fillColor("#9aabc1")
-    .text("THIS CERTIFICATE IS PROUDLY PRESENTED TO", 70, 235, {
-      width: w - 140,
-      align: "center",
-      characterSpacing: 1.4
-    });
 
   const candidateName = safe(
     certificate.candidateName,
@@ -500,39 +707,72 @@ function drawCandidateSection(doc, certificate) {
   );
 
   doc
-    .font("Helvetica-Bold")
-    .fontSize(30)
-    .fillColor("#ffffff")
-    .text(candidateName, 70, 258, {
-      width: w - 140,
-      align: "center",
-      lineGap: 3
-    });
+    .font("Helvetica")
+    .fontSize(8)
+    .fillColor(COLORS.muted)
+    .text(
+      "THIS CERTIFICATE IS PROUDLY PRESENTED TO",
+      70,
+      202,
+      {
+        width: w - 140,
+        align: "center",
+        characterSpacing: 1.3
+      }
+    );
 
   doc
-    .moveTo(300, 302)
-    .lineTo(w - 300, 302)
+    .font("Helvetica-Bold")
+    .fontSize(29)
+    .fillColor(COLORS.white)
+    .text(
+      candidateName,
+      70,
+      222,
+      {
+        width: w - 140,
+        align: "center"
+      }
+    );
+
+  /* Name line */
+
+  doc
+    .moveTo(315, 265)
+    .lineTo(w - 315, 265)
     .lineWidth(1)
-    .stroke("#c9a24a");
+    .stroke(COLORS.gold);
+
+  /* Assessment label */
 
   doc
     .font("Helvetica")
-    .fontSize(9)
-    .fillColor("#9aabc1")
-    .text("FOR SUCCESSFULLY COMPLETING THE ASSESSMENT", 70, 316, {
-      width: w - 140,
-      align: "center",
-      characterSpacing: 1
-    });
+    .fontSize(8)
+    .fillColor(COLORS.muted)
+    .text(
+      "FOR SUCCESSFULLY COMPLETING THE ASSESSMENT",
+      70,
+      279,
+      {
+        width: w - 140,
+        align: "center",
+        characterSpacing: 1
+      }
+    );
+
+  /* Test title */
 
   doc
     .font("Helvetica-Bold")
-    .fontSize(17)
-    .fillColor("#f5d77a")
+    .fontSize(16)
+    .fillColor(COLORS.goldLight)
     .text(
-      safe(certificate.testTitle, "Assessment"),
+      safe(
+        certificate.testTitle,
+        "Assessment"
+      ),
       100,
-      339,
+      299,
       {
         width: w - 200,
         align: "center"
@@ -540,159 +780,197 @@ function drawCandidateSection(doc, certificate) {
     );
 }
 
+/* =========================================================
+   SCORE + GRADE
+========================================================= */
+
 function drawScoreBadge(doc, certificate) {
   const w = doc.page.width;
 
-  const percentage = Number(certificate.percentage) || 0;
+  const percentage =
+    Number(certificate.percentage) || 0;
+
   const grade = safe(
     certificate.grade,
     gradeFromPercentage(percentage)
   );
 
   const cx = w / 2;
-  const cy = 410;
-  const radius = 47;
+  const cy = 357;
 
-  // Outer circle
-  doc
-    .circle(cx, cy, radius)
-    .fill("#071a36");
+  /* Outer */
 
   doc
-    .circle(cx, cy, radius)
-    .lineWidth(2)
-    .stroke("#c9a24a");
+    .circle(cx, cy, 38)
+    .fill(COLORS.navy);
 
-  // Inner circle
   doc
-    .circle(cx, cy, radius - 7)
-    .lineWidth(0.5)
-    .stroke("#73591f");
+    .circle(cx, cy, 38)
+    .lineWidth(1.8)
+    .stroke(COLORS.gold);
+
+  /* Inner */
+
+  doc
+    .circle(cx, cy, 31)
+    .lineWidth(0.6)
+    .stroke(COLORS.goldDark);
+
+  /* Score */
 
   doc
     .font("Helvetica")
+    .fontSize(6.5)
+    .fillColor(COLORS.muted)
+    .text(
+      "SCORE",
+      cx - 30,
+      cy - 20,
+      {
+        width: 60,
+        align: "center",
+        characterSpacing: 1.5
+      }
+    );
+
+  doc
+    .font("Helvetica-Bold")
+    .fontSize(18)
+    .fillColor(COLORS.white)
+    .text(
+      formatPercentage(percentage),
+      cx - 40,
+      cy - 5,
+      {
+        width: 80,
+        align: "center"
+      }
+    );
+
+  doc
+    .font("Helvetica-Bold")
     .fontSize(7)
-    .fillColor("#93a4bc")
-    .text("SCORE", cx - 30, cy - 24, {
-      width: 60,
-      align: "center",
-      characterSpacing: 1.5
-    });
-
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(20)
-    .fillColor("#ffffff")
-    .text(formatPercentage(percentage), cx - 40, cy - 8, {
-      width: 80,
-      align: "center"
-    });
-
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(8)
-    .fillColor("#f5d77a")
-    .text(`GRADE ${grade}`, cx - 40, cy + 17, {
-      width: 80,
-      align: "center",
-      characterSpacing: 1
-    });
+    .fillColor(COLORS.goldLight)
+    .text(
+      `GRADE ${grade}`,
+      cx - 40,
+      cy + 16,
+      {
+        width: 80,
+        align: "center",
+        characterSpacing: 0.8
+      }
+    );
 }
 
-function drawDigitalSignature(doc, certificate) {
+/* =========================================================
+   SIGNATURE
+========================================================= */
+
+function drawSignature(doc, certificate) {
+  const signaturePath = path.join(
+    __dirname,
+    "../../public/assets/signature.png"
+  );
+
+  const x = 75;
+  const y = 445;
+
+  /* Signature image */
+
+  if (fs.existsSync(signaturePath)) {
+    try {
+      doc.image(
+        signaturePath,
+        x + 25,
+        y - 5,
+        {
+          fit: [125, 42],
+          align: "center",
+          valign: "center"
+        }
+      );
+    } catch (error) {
+      console.warn(
+        "Signature could not be loaded:",
+        error.message
+      );
+    }
+  }
+
+  /* Signature line */
+
+  doc
+    .moveTo(x, y + 38)
+    .lineTo(x + 175, y + 38)
+    .lineWidth(0.7)
+    .stroke(COLORS.goldDark);
+
   const name = safe(
     certificate.signatoryName,
-    process.env.CERTIFICATE_SIGNATORY_NAME || "Authorized Signatory"
+    "Ram"
   );
 
   const designation = safe(
     certificate.signatoryDesignation,
-    process.env.CERTIFICATE_SIGNATORY_DESIGNATION ||
-      "Authorized Signatory"
+    "Founder & CEO"
   );
-
-  const x = 95;
-  const y = 472;
-
-  // Signature line
-  doc
-    .moveTo(x, y + 34)
-    .lineTo(x + 180, y + 34)
-    .lineWidth(0.7)
-    .stroke("#78602a");
-
-  // Digital signature-style curves
-  doc.save();
-
-  doc
-    .moveTo(x + 15, y + 22)
-    .bezierCurveTo(
-      x + 35,
-      y - 2,
-      x + 45,
-      y + 45,
-      x + 65,
-      y + 13
-    )
-    .bezierCurveTo(
-      x + 82,
-      y - 7,
-      x + 91,
-      y + 43,
-      x + 112,
-      y + 15
-    )
-    .bezierCurveTo(
-      x + 128,
-      y - 2,
-      x + 145,
-      y + 35,
-      x + 162,
-      y + 9
-    )
-    .lineWidth(1.4)
-    .stroke("#f0d37a");
-
-  doc.restore();
 
   doc
     .font("Helvetica-Bold")
-    .fontSize(10)
-    .fillColor("#ffffff")
-    .text(name, x, y + 42, {
-      width: 180,
-      align: "center"
-    });
+    .fontSize(9)
+    .fillColor(COLORS.white)
+    .text(
+      name,
+      x,
+      y + 46,
+      {
+        width: 175,
+        align: "center"
+      }
+    );
 
   doc
     .font("Helvetica")
-    .fontSize(7)
-    .fillColor("#8e9eb4")
-    .text(designation, x, y + 57, {
-      width: 180,
-      align: "center",
-      characterSpacing: 0.7
-    });
+    .fontSize(6.5)
+    .fillColor(COLORS.muted)
+    .text(
+      designation,
+      x,
+      y + 59,
+      {
+        width: 175,
+        align: "center"
+      }
+    );
 }
+
+/* =========================================================
+   OFFICIAL SEAL
+========================================================= */
 
 function drawOfficialSeal(doc) {
   const cx = 420;
-  const cy = 506;
+  const cy = 475;
 
-  // Outer seal
-  doc
-    .circle(cx, cy, 34)
-    .lineWidth(1.5)
-    .stroke("#c9a24a");
+  /* Outer */
 
   doc
-    .circle(cx, cy, 28)
-    .lineWidth(0.6)
-    .stroke("#806326");
+    .circle(cx, cy, 31)
+    .lineWidth(1.6)
+    .stroke(COLORS.gold);
 
-  // Star / AXON symbol
+  /* Inner */
+
   doc
-    .moveTo(cx, cy - 13)
+    .circle(cx, cy, 25)
+    .lineWidth(0.7)
+    .stroke(COLORS.goldDark);
+
+  /* Star */
+
+  doc
+    .moveTo(cx, cy - 14)
     .lineTo(cx + 4, cy - 4)
     .lineTo(cx + 14, cy - 4)
     .lineTo(cx + 6, cy + 2)
@@ -703,115 +981,176 @@ function drawOfficialSeal(doc) {
     .lineTo(cx - 14, cy - 4)
     .lineTo(cx - 4, cy - 4)
     .closePath()
-    .fill("#c9a24a");
+    .fill(COLORS.gold);
 
   doc
     .font("Helvetica-Bold")
-    .fontSize(6)
-    .fillColor("#f5d77a")
-    .text("GROWTECH", cx - 27, cy - 26, {
-      width: 54,
-      align: "center",
-      characterSpacing: 0.8
-    });
+    .fontSize(5.5)
+    .fillColor(COLORS.goldLight)
+    .text(
+      "GROWTECH",
+      cx - 25,
+      cy - 24,
+      {
+        width: 50,
+        align: "center",
+        characterSpacing: 0.6
+      }
+    );
 
   doc
     .font("Helvetica-Bold")
-    .fontSize(6)
-    .fillColor("#f5d77a")
-    .text("AXON", cx - 27, cy + 18, {
-      width: 54,
-      align: "center",
-      characterSpacing: 1
-    });
+    .fontSize(5.5)
+    .fillColor(COLORS.goldLight)
+    .text(
+      "AXON",
+      cx - 25,
+      cy + 17,
+      {
+        width: 50,
+        align: "center",
+        characterSpacing: 1
+      }
+    );
 }
+
+/* =========================================================
+   DATE + CERTIFICATE ID
+========================================================= */
 
 function drawCertificateMeta(doc, certificate) {
   const w = doc.page.width;
 
-  const x = w - 275;
-  const y = 468;
+  const x = w - 270;
+  const y = 439;
 
   const certificateId = safe(
     certificate.certificateId,
     certificate._id || "N/A"
   );
 
-  const issueDate = formatDate(certificate.issueDate);
+  const issueDate =
+    formatDate(certificate.issueDate);
+
+  /* Date */
 
   doc
     .font("Helvetica")
-    .fontSize(7)
-    .fillColor("#7f91aa")
-    .text("DATE OF ISSUE", x, y, {
-      width: 190,
-      characterSpacing: 1
-    });
+    .fontSize(6.5)
+    .fillColor(COLORS.muted)
+    .text(
+      "DATE OF ISSUE",
+      x,
+      y,
+      {
+        width: 190,
+        characterSpacing: 1
+      }
+    );
 
   doc
     .font("Helvetica-Bold")
-    .fontSize(10)
-    .fillColor("#ffffff")
-    .text(issueDate || "N/A", x, y + 13, {
-      width: 190
-    });
+    .fontSize(9)
+    .fillColor(COLORS.white)
+    .text(
+      issueDate || "N/A",
+      x,
+      y + 12,
+      {
+        width: 190
+      }
+    );
+
+  /* Certificate ID */
 
   doc
     .font("Helvetica")
-    .fontSize(7)
-    .fillColor("#7f91aa")
-    .text("CERTIFICATE ID", x, y + 37, {
-      width: 190,
-      characterSpacing: 1
-    });
+    .fontSize(6.5)
+    .fillColor(COLORS.muted)
+    .text(
+      "CERTIFICATE ID",
+      x,
+      y + 32,
+      {
+        width: 190,
+        characterSpacing: 1
+      }
+    );
 
   doc
     .font("Helvetica-Bold")
     .fontSize(8)
-    .fillColor("#f5d77a")
-    .text(certificateId, x, y + 50, {
-      width: 190
-    });
+    .fillColor(COLORS.goldLight)
+    .text(
+      certificateId,
+      x,
+      y + 44,
+      {
+        width: 190
+      }
+    );
 
-  // Verified mark
-  doc
-    .roundedRect(x, y + 73, 98, 19, 9)
-    .fill("#0b2747");
+  /* Verified badge */
 
   doc
-    .roundedRect(x, y + 73, 98, 19, 9)
-    .lineWidth(0.7)
-    .stroke("#806326");
+    .roundedRect(
+      x,
+      y + 66,
+      115,
+      18,
+      9
+    )
+    .fill(COLORS.bluePanel);
+
+  doc
+    .roundedRect(
+      x,
+      y + 66,
+      115,
+      18,
+      9
+    )
+    .lineWidth(0.6)
+    .stroke(COLORS.goldDark);
 
   doc
     .font("Helvetica-Bold")
-    .fontSize(6.5)
-    .fillColor("#f5d77a")
-    .text("AUTHENTIC CERTIFICATE", x + 8, y + 80, {
-      width: 82,
-      align: "center",
-      characterSpacing: 0.4
-    });
+    .fontSize(6)
+    .fillColor(COLORS.goldLight)
+    .text(
+      "AUTHENTIC CERTIFICATE",
+      x + 8,
+      y + 72,
+      {
+        width: 99,
+        align: "center",
+        characterSpacing: 0.3
+      }
+    );
 }
+
+/* =========================================================
+   FOOTER
+========================================================= */
 
 function drawCertificateFooter(doc) {
   const w = doc.page.width;
   const h = doc.page.height;
 
   doc
-    .moveTo(90, h - 67)
-    .lineTo(w - 90, h - 67)
+    .moveTo(95, h - 63)
+    .lineTo(w - 95, h - 63)
     .lineWidth(0.5)
-    .stroke("#73591f");
+    .stroke(COLORS.goldDark);
 
   doc
     .font("Helvetica")
     .fontSize(6.5)
-    .fillColor("#71839c")
+    .fillColor(COLORS.muted2)
     .text(
       "This certificate can be verified through the official Growtech Axon verification portal.",
       70,
-      h - 55,
+      h - 51,
       {
         width: w - 140,
         align: "center"
@@ -821,42 +1160,55 @@ function drawCertificateFooter(doc) {
   doc
     .font("Helvetica-Bold")
     .fontSize(6)
-    .fillColor("#8c9ab0")
+    .fillColor(COLORS.muted)
     .text(
-      "GROWTECH AXON • CERTIFICATE AUTHENTICITY & VERIFICATION",
+      "SKILLS TODAY, SUCCESS TOMORROW",
       70,
-      h - 40,
+      h - 37,
       {
         width: w - 140,
         align: "center",
-        characterSpacing: 0.7
+        characterSpacing: 1
       }
     );
 }
 
 /* =========================================================
-   PREMIUM CERTIFICATE PDF
+   CERTIFICATE PDF
 ========================================================= */
 
 function buildCertificatePdf(certificate, res) {
+
   const certificateId = safe(
     certificate.certificateId,
     certificate._id || "certificate"
   );
 
+  /*
+      IMPORTANT
+
+      A4 Landscape:
+      842 x 595 points
+  */
+
   const doc = new PDFDocument({
     size: "A4",
     layout: "landscape",
     margin: 0,
+
     info: {
       Title: `Growtech Axon Certificate - ${certificateId}`,
       Author: "Growtech Axon",
       Subject: "Certificate of Achievement",
-      Keywords: "Growtech Axon, Certificate, Achievement, Verification"
+      Keywords:
+        "Growtech Axon, Certificate, Achievement, Verification"
     }
   });
 
-  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader(
+    "Content-Type",
+    "application/pdf"
+  );
 
   res.setHeader(
     "Content-Disposition",
@@ -865,68 +1217,80 @@ function buildCertificatePdf(certificate, res) {
 
   doc.pipe(res);
 
-  const w = doc.page.width;
-  const h = doc.page.height;
+  /* Background */
 
-  /* -------------------------------------------------------
-     BACKGROUND
-  ------------------------------------------------------- */
+  drawCertificateBackground(doc);
 
-  doc.rect(0, 0, w, h).fill("#020b1d");
-
-  // Large central panel
-  doc
-    .roundedRect(22, 22, w - 44, h - 44, 16)
-    .fill("#06152d");
-
-  // Slight inner panel
-  doc
-    .roundedRect(39, 39, w - 78, h - 78, 10)
-    .fill("#071a36");
+  /* Texture */
 
   drawBackgroundTexture(doc);
+
+  /* Borders */
+
   drawPremiumBorder(doc);
+
+  /* Corners */
+
   drawCornerDecoration(doc);
 
-  /* -------------------------------------------------------
-     HEADER
-  ------------------------------------------------------- */
+  /* Logo */
 
   drawLogo(doc);
-  drawTopRightId(doc, certificate);
 
-  /* -------------------------------------------------------
-     MAIN CONTENT
-  ------------------------------------------------------- */
+  /* Certificate ID */
+
+  drawTopCertificateId(
+    doc,
+    certificate
+  );
+
+  /* Heading */
 
   drawCertificateHeading(doc);
-  drawTopAccent(doc);
-  drawCandidateSection(doc, certificate);
-  drawScoreBadge(doc, certificate);
 
-  /* -------------------------------------------------------
-     BOTTOM CONTENT
-  ------------------------------------------------------- */
+  /* Candidate */
 
-  drawDigitalSignature(doc, certificate);
+  drawCandidateSection(
+    doc,
+    certificate
+  );
+
+  /* Score */
+
+  drawScoreBadge(
+    doc,
+    certificate
+  );
+
+  /* Signature */
+
+  drawSignature(
+    doc,
+    certificate
+  );
+
+  /* Seal */
+
   drawOfficialSeal(doc);
-  drawCertificateMeta(doc, certificate);
 
-  /* -------------------------------------------------------
-     FOOTER
-  ------------------------------------------------------- */
+  /* Meta */
+
+  drawCertificateMeta(
+    doc,
+    certificate
+  );
+
+  /* Footer */
 
   drawCertificateFooter(doc);
 
-  /* -------------------------------------------------------
-     END
-  ------------------------------------------------------- */
+  /* Finish */
 
   doc.end();
 }
 
 /* =========================================================
-   EXPORTS
+   EXPORT
 ========================================================= */
 
 module.exports = {

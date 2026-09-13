@@ -36,13 +36,32 @@ function certificateId() {
 }
 
 // =====================================================
-// GET ACTIVE TESTS
+// GET AVAILABLE TESTS
 // =====================================================
 router.get("/tests", async (req, res) => {
   try {
-    const tests = await Test.find({ active: true })
+    const now = new Date();
+
+    const tests = await Test.find({
+      active: true,
+
+      $and: [
+        {
+          $or: [
+            { startAt: null },
+            { startAt: { $lte: now } }
+          ]
+        },
+        {
+          $or: [
+            { endAt: null },
+            { endAt: { $gt: now } }
+          ]
+        }
+      ]
+    })
       .select(
-        "title description durationMinutes passingPercentage certificateEnabled questions"
+        "title description durationMinutes passingPercentage certificateEnabled questions startAt endAt"
       )
       .sort({ createdAt: -1 });
 
@@ -54,7 +73,9 @@ router.get("/tests", async (req, res) => {
         durationMinutes: t.durationMinutes,
         passingPercentage: t.passingPercentage,
         certificateEnabled: t.certificateEnabled,
-        questionCount: t.questions.length
+        questionCount: t.questions.length,
+        startAt: t.startAt,
+        endAt: t.endAt
       }))
     );
   } catch (err) {
@@ -102,12 +123,49 @@ router.post("/tests/start", async (req, res) => {
       });
     }
 
+    // =================================================
+    // CHECK SCHEDULE
+    // =================================================
+    const now = new Date();
+
+    if (test.startAt && now < test.startAt) {
+      return res.status(403).json({
+        message: `Test will open at ${test.startAt.toLocaleString(
+          "en-IN",
+          {
+            timeZone: "Asia/Kolkata"
+          }
+        )}.`
+      });
+    }
+
+    if (test.endAt && now >= test.endAt) {
+      return res.status(403).json({
+        message: "Test is closed."
+      });
+    }
+
+    // =================================================
+    // CREATE SESSION
+    // =================================================
     const sessionId = crypto.randomBytes(20).toString("hex");
 
     const startedAt = Date.now();
 
-    const expiresAt =
-      startedAt + Number(test.durationMinutes || 15) * 60 * 1000;
+    const durationEnd =
+      startedAt +
+      Number(test.durationMinutes || 15) * 60 * 1000;
+
+    // If exam has a fixed closing time,
+    // session cannot continue beyond that time.
+    let expiresAt = durationEnd;
+
+    if (test.endAt) {
+      expiresAt = Math.min(
+        durationEnd,
+        test.endAt.getTime()
+      );
+    }
 
     sessions.set(sessionId, {
       testId: String(test._id),
@@ -132,7 +190,7 @@ router.post("/tests/start", async (req, res) => {
       sessions.delete(sessionId);
     }, Math.max(
       60000,
-      Number(test.durationMinutes || 15) * 60 * 1000 + 3600000
+      expiresAt - startedAt + 3600000
     ));
 
     res.json({
@@ -327,7 +385,6 @@ router.post("/tests/submit", async (req, res) => {
       try {
         let newCertificateId = certificateId();
 
-        // Extremely unlikely collision protection.
         let existing = await Certificate.findOne({
           certificateId: newCertificateId
         }).select("_id");
@@ -357,7 +414,8 @@ router.post("/tests/submit", async (req, res) => {
 
           issueDate: new Date(),
 
-          status: "active",
+          // Certificate.js enum is: valid / revoked
+          status: "valid",
 
           signatoryName:
             process.env.CERTIFICATE_SIGNATORY_NAME ||
@@ -386,7 +444,6 @@ router.post("/tests/submit", async (req, res) => {
           certificateError
         );
 
-        // Result remains saved even if certificate creation fails.
         generatedCertificate = null;
       }
     }
@@ -404,8 +461,6 @@ router.post("/tests/submit", async (req, res) => {
 
       resultId: result.resultId,
 
-      // These are useful internally but frontend
-      // should not display them as score/result.
       certificateGenerated:
         Boolean(generatedCertificate),
 

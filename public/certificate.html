@@ -1,1594 +1,1026 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-  <title>Certificate | GrowtechAxon</title>
+<title>Certificate | GrowtechAxon</title>
 
-  <link rel="stylesheet" href="/assets/style.css">
+<style>
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
 
-  <style>
-    * {
-      box-sizing: border-box;
-    }
+:root {
+    --navy: #061426;
+    --navy2: #0a1d36;
+    --gold: #d6b36a;
+    --gold-light: #f0d99a;
+    --white: #ffffff;
+    --muted: #9eabc0;
+}
 
+html,
+body {
+    width: 100%;
+    min-height: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    background: #e8ebf2;
+}
+
+/* =========================
+   PORTAL
+========================= */
+
+.portal {
+    min-height: 100vh;
+    padding: 30px;
+}
+
+.portal-header {
+    max-width: 1000px;
+    margin: auto;
+    text-align: center;
+    margin-bottom: 25px;
+}
+
+.portal-header h1 {
+    color: #07172d;
+    font-size: 30px;
+    margin-bottom: 8px;
+}
+
+.portal-header p {
+    color: #667085;
+}
+
+.verify-box {
+    max-width: 600px;
+    margin: 0 auto 30px;
+    background: white;
+    padding: 22px;
+    border-radius: 15px;
+    box-shadow: 0 10px 35px rgba(0,0,0,.08);
+    display: flex;
+    gap: 10px;
+}
+
+.verify-box input {
+    flex: 1;
+    height: 48px;
+    padding: 0 15px;
+    border: 1px solid #d5d9e2;
+    border-radius: 8px;
+    outline: none;
+    font-size: 15px;
+}
+
+.verify-box button,
+.print-button {
+    border: 0;
+    border-radius: 8px;
+    background: #0b5cff;
+    color: white;
+    padding: 0 22px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.message {
+    max-width: 600px;
+    margin: -15px auto 20px;
+    text-align: center;
+    font-weight: 600;
+}
+
+/* =========================
+   CERTIFICATE WRAPPER
+========================= */
+
+.certificate-area {
+    display: flex;
+    justify-content: center;
+    padding: 20px 0 50px;
+}
+
+/*
+    A4 LANDSCAPE
+    297mm × 210mm
+*/
+
+.certificate {
+    position: relative;
+
+    width: 297mm;
+    height: 210mm;
+
+    background:
+        radial-gradient(
+            circle at 50% 50%,
+            rgba(40, 85, 135, .20),
+            transparent 45%
+        ),
+        linear-gradient(
+            135deg,
+            #061426,
+            #0a1d36
+        );
+
+    color: white;
+
+    overflow: hidden;
+
+    box-shadow: 0 20px 60px rgba(0,0,0,.25);
+
+    border: 1.5mm solid #07101e;
+}
+
+/* =========================
+   GOLD BORDERS
+========================= */
+
+.border-outer {
+    position: absolute;
+    inset: 4mm;
+
+    border: 1px solid var(--gold);
+    pointer-events: none;
+}
+
+.border-middle {
+    position: absolute;
+    inset: 6mm;
+
+    border: 2px solid rgba(214,179,106,.65);
+    pointer-events: none;
+}
+
+.border-inner {
+    position: absolute;
+    inset: 8mm;
+
+    border: 1px solid var(--gold);
+    pointer-events: none;
+}
+
+/* Decorative corner lines */
+
+.corner {
+    position: absolute;
+    width: 20mm;
+    height: 20mm;
+    border-color: var(--gold);
+    border-style: solid;
+    opacity: .8;
+}
+
+.corner.tl {
+    top: 10mm;
+    left: 10mm;
+    border-width: 2px 0 0 2px;
+}
+
+.corner.tr {
+    top: 10mm;
+    right: 10mm;
+    border-width: 2px 2px 0 0;
+}
+
+.corner.bl {
+    bottom: 10mm;
+    left: 10mm;
+    border-width: 0 0 2px 2px;
+}
+
+.corner.br {
+    bottom: 10mm;
+    right: 10mm;
+    border-width: 0 2px 2px 0;
+}
+
+/* =========================
+   CONTENT
+========================= */
+
+.certificate-content {
+    position: absolute;
+    inset: 13mm 16mm;
+
+    display: flex;
+    flex-direction: column;
+}
+
+/* Header */
+
+.cert-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.logo {
+    width: 38mm;
+    height: auto;
+    max-height: 20mm;
+    object-fit: contain;
+}
+
+.cert-id-top {
+    text-align: right;
+    font-size: 7px;
+    letter-spacing: 1px;
+    color: var(--muted);
+    text-transform: uppercase;
+}
+
+.cert-id-top strong {
+    display: block;
+    color: var(--gold-light);
+    margin-top: 3px;
+    font-size: 8px;
+}
+
+/* Main title */
+
+.heading {
+    text-align: center;
+    margin-top: 7mm;
+}
+
+.brand-small {
+    color: var(--gold);
+    letter-spacing: 5px;
+    font-size: 9px;
+    font-weight: 700;
+    margin-bottom: 4px;
+}
+
+.heading-line {
+    width: 150mm;
+    height: 1px;
+    margin: 5px auto 7px;
+
+    background: linear-gradient(
+        90deg,
+        transparent,
+        var(--gold),
+        transparent
+    );
+}
+
+.heading h1 {
+    font-size: 29px;
+    letter-spacing: 4px;
+    font-weight: 800;
+    line-height: 1;
+}
+
+.heading h2 {
+    font-size: 10px;
+    letter-spacing: 5px;
+    color: var(--gold-light);
+    margin-top: 6px;
+}
+
+/* Candidate */
+
+.presented {
+    text-align: center;
+    margin-top: 7mm;
+}
+
+.presented-label {
+    font-size: 7px;
+    color: var(--muted);
+    letter-spacing: 3px;
+    text-transform: uppercase;
+}
+
+.candidate-name {
+    margin-top: 5px;
+
+    font-size: 28px;
+    font-weight: 800;
+
+    color: white;
+
+    text-shadow:
+        0 2px 15px rgba(0,0,0,.3);
+}
+
+.name-line {
+    width: 80mm;
+    height: 1px;
+    margin: 5px auto 0;
+
+    background: var(--gold);
+}
+
+/* Test */
+
+.test-info {
+    text-align: center;
+    margin-top: 5mm;
+}
+
+.test-label {
+    color: var(--muted);
+    font-size: 7px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.test-name {
+    color: var(--gold-light);
+    font-size: 15px;
+    font-weight: 700;
+    margin-top: 5px;
+}
+
+/* Score */
+
+.score-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12mm;
+    margin-top: 6mm;
+}
+
+.score-circle {
+    width: 25mm;
+    height: 25mm;
+
+    border-radius: 50%;
+
+    border: 1.5px solid var(--gold);
+
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow:
+        0 0 0 3px rgba(214,179,106,.08),
+        inset 0 0 20px rgba(214,179,106,.05);
+}
+
+.score-small {
+    font-size: 6px;
+    color: var(--muted);
+    letter-spacing: 2px;
+}
+
+.score-value {
+    font-size: 17px;
+    font-weight: 800;
+    color: white;
+    margin: 2px 0;
+}
+
+.grade {
+    font-size: 6px;
+    color: var(--gold-light);
+    letter-spacing: 1px;
+}
+
+/* =========================
+   BOTTOM
+========================= */
+
+.bottom-area {
+    margin-top: auto;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+
+    align-items: end;
+
+    gap: 15mm;
+}
+
+/* Signature */
+
+.signature-area {
+    text-align: center;
+}
+
+.signature-image {
+    height: 14mm;
+    max-width: 42mm;
+    object-fit: contain;
+
+    filter: brightness(0) invert(1);
+}
+
+.signature-line {
+    width: 45mm;
+    height: 1px;
+    background: var(--gold);
+    margin: 1mm auto 2mm;
+}
+
+.signature-name {
+    font-size: 9px;
+    font-weight: 700;
+}
+
+.signature-role {
+    color: var(--muted);
+    font-size: 6px;
+    margin-top: 2px;
+}
+
+/* Seal */
+
+.seal-area {
+    text-align: center;
+}
+
+.seal {
+    width: 26mm;
+    height: 26mm;
+
+    border-radius: 50%;
+
+    border: 2px solid var(--gold);
+
+    margin: auto;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+
+    box-shadow:
+        0 0 0 3px rgba(214,179,106,.08),
+        inset 0 0 15px rgba(214,179,106,.1);
+}
+
+.seal-star {
+    color: var(--gold-light);
+    font-size: 15px;
+}
+
+.seal-text {
+    font-size: 5px;
+    letter-spacing: 1px;
+    color: var(--gold-light);
+}
+
+.seal-bottom {
+    font-size: 5px;
+    color: var(--muted);
+    letter-spacing: 1px;
+}
+
+/* Date / ID */
+
+.meta-area {
+    text-align: right;
+}
+
+.meta-row {
+    margin-bottom: 5mm;
+}
+
+.meta-label {
+    color: var(--muted);
+    font-size: 6px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.meta-value {
+    color: white;
+    font-size: 8px;
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+.meta-value.gold {
+    color: var(--gold-light);
+}
+
+/* Footer */
+
+.footer {
+    position: absolute;
+
+    left: 18mm;
+    right: 18mm;
+    bottom: 7mm;
+
+    text-align: center;
+
+    color: #718096;
+
+    font-size: 5px;
+    letter-spacing: 1.5px;
+}
+
+.footer span {
+    color: var(--gold);
+}
+
+/* =========================
+   PRINT
+========================= */
+
+@page {
+    size: A4 landscape;
+    margin: 0;
+}
+
+@media print {
+
+    html,
     body {
-      margin: 0;
-      font-family: Arial, Helvetica, sans-serif;
-      background:
-        radial-gradient(circle at top left, #dbeafe 0%, #f7fbff 35%, #eef5fc 100%);
-      color: #09275a;
-    }
+        width: 297mm !important;
+        height: 210mm !important;
 
-    .page {
-      min-height: 100vh;
-      padding: 35px 15px 60px;
+        margin: 0 !important;
+        padding: 0 !important;
+
+        background: #061426 !important;
+
+        overflow: hidden !important;
+
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
 
     .portal {
-      max-width: 1250px;
-      margin: auto;
+        width: 297mm !important;
+        height: 210mm !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
+
+        min-height: 0 !important;
     }
 
-    /* =========================
-       SEARCH CARD
-    ========================== */
-
-    .search-card {
-      max-width: 760px;
-      margin: 0 auto 35px;
-      background: #ffffff;
-      padding: 30px;
-      border-radius: 18px;
-      border: 1px solid #d8e7f8;
-      box-shadow: 0 18px 55px rgba(7, 42, 92, .12);
+    .portal-header,
+    .verify-box,
+    .message,
+    .print-button,
+    .no-print {
+        display: none !important;
     }
 
-    .search-card h1 {
-      margin: 0 0 8px;
-      text-align: center;
-      color: #09275a;
-      font-size: 30px;
+    .certificate-area {
+        width: 297mm !important;
+        height: 210mm !important;
+
+        display: block !important;
+
+        margin: 0 !important;
+        padding: 0 !important;
     }
-
-    .search-card p {
-      margin: 0 0 24px;
-      text-align: center;
-      color: #64748b;
-      font-size: 15px;
-    }
-
-    .form-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 15px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 7px;
-      font-size: 13px;
-      font-weight: 800;
-      color: #173d73;
-    }
-
-    .field input {
-      width: 100%;
-      padding: 14px;
-      border: 1px solid #cbdced;
-      border-radius: 10px;
-      outline: none;
-      font-size: 14px;
-      background: #fff;
-    }
-
-    .field input:focus {
-      border-color: #1683e8;
-      box-shadow: 0 0 0 3px rgba(22, 131, 232, .10);
-    }
-
-    .verify-btn {
-      width: 100%;
-      margin-top: 17px;
-      padding: 14px;
-      border: 0;
-      border-radius: 10px;
-      background: linear-gradient(135deg, #0759c7, #168be8);
-      color: #fff;
-      font-size: 15px;
-      font-weight: 800;
-      cursor: pointer;
-    }
-
-    .verify-btn:disabled {
-      opacity: .65;
-      cursor: not-allowed;
-    }
-
-    .message {
-      margin-top: 14px;
-      text-align: center;
-      font-size: 14px;
-      font-weight: 700;
-    }
-
-    .hidden {
-      display: none !important;
-    }
-
-    /* =========================
-       CERTIFICATE WRAPPER
-    ========================== */
-
-    .certificate-wrap {
-      width: 100%;
-      overflow-x: auto;
-      padding: 5px;
-    }
-
-    /* =========================
-       MAIN CERTIFICATE
-    ========================== */
 
     .certificate {
-      position: relative;
-      width: 1120px;
-      height: 790px;
-      margin: auto;
-      overflow: hidden;
+        width: 297mm !important;
+        height: 210mm !important;
 
-      background:
-        radial-gradient(
-          circle at 50% 48%,
-          rgba(20, 112, 202, .045),
-          transparent 32%
-        ),
-        radial-gradient(
-          circle at 15% 20%,
-          rgba(216, 168, 45, .05),
-          transparent 25%
-        ),
-        linear-gradient(
-          135deg,
-          #ffffff 0%,
-          #fbfdff 55%,
-          #f5f9fd 100%
-        );
+        margin: 0 !important;
 
-      border: 6px solid #0a3772;
+        box-shadow: none !important;
 
-      box-shadow:
-        0 25px 70px rgba(7, 43, 88, .22);
-    }
-
-    /* Gold inner border */
-
-    .certificate::before {
-      content: "";
-      position: absolute;
-      inset: 10px;
-      border: 2px solid #d9a72d;
-      pointer-events: none;
-      z-index: 20;
-    }
-
-    /* Thin blue inner border */
-
-    .certificate::after {
-      content: "";
-      position: absolute;
-      inset: 17px;
-      border: 1px solid #6ea8dc;
-      pointer-events: none;
-      z-index: 20;
-    }
-
-    /* =========================
-       CORNER DESIGN
-    ========================== */
-
-    .corner {
-      position: absolute;
-      width: 230px;
-      height: 150px;
-      z-index: 2;
-    }
-
-    .corner.top-left {
-      top: -6px;
-      left: -6px;
-      background:
-        linear-gradient(
-          135deg,
-          #062f66 0 42%,
-          #168be8 42% 57%,
-          transparent 57%
-        );
-    }
-
-    .corner.top-left::after {
-      content: "";
-      position: absolute;
-      width: 205px;
-      height: 8px;
-      left: -18px;
-      top: 55px;
-      background: #e2b33c;
-      transform: rotate(-34deg);
-    }
-
-    .corner.bottom-right {
-      bottom: -6px;
-      right: -6px;
-      background:
-        linear-gradient(
-          315deg,
-          #062f66 0 42%,
-          #168be8 42% 57%,
-          transparent 57%
-        );
-    }
-
-    .corner.bottom-right::after {
-      content: "";
-      position: absolute;
-      width: 205px;
-      height: 8px;
-      right: -18px;
-      bottom: 55px;
-      background: #e2b33c;
-      transform: rotate(-34deg);
-    }
-
-    /* =========================
-       DECORATIVE WAVES
-    ========================== */
-
-    .wave-left,
-    .wave-right {
-      position: absolute;
-      width: 420px;
-      height: 180px;
-      border-radius: 50%;
-      border-top: 1px solid rgba(217, 167, 45, .20);
-      border-bottom: 1px solid rgba(217, 167, 45, .10);
-      transform: rotate(18deg);
-      z-index: 1;
-    }
-
-    .wave-left {
-      left: -170px;
-      bottom: 115px;
-    }
-
-    .wave-right {
-      right: -170px;
-      bottom: 100px;
-      transform: rotate(-18deg);
-    }
-
-    .wave-left::before,
-    .wave-left::after,
-    .wave-right::before,
-    .wave-right::after {
-      content: "";
-      position: absolute;
-      inset: 12px;
-      border-radius: 50%;
-      border-top: 1px solid rgba(217, 167, 45, .14);
-    }
-
-    .wave-left::after,
-    .wave-right::after {
-      inset: 25px;
-    }
-
-    /* =========================
-       WATERMARK
-    ========================== */
-
-    .watermark {
-      position: absolute;
-      left: 50%;
-      top: 53%;
-      transform: translate(-50%, -50%);
-      width: 430px;
-      height: 430px;
-      border-radius: 50%;
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      background:
-        radial-gradient(
-          circle,
-          rgba(13, 91, 170, .045),
-          rgba(13, 91, 170, .015) 58%,
-          transparent 72%
-        );
-
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    .watermark span {
-      font-size: 185px;
-      font-weight: 900;
-      color: rgba(13, 91, 170, .035);
-    }
-
-    /* =========================
-       HEADER
-    ========================== */
-
-    .cert-header {
-      position: relative;
-      z-index: 5;
-
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-
-      padding: 45px 58px 0;
-    }
-
-    .logo-area img {
-      width: 205px;
-      max-height: 75px;
-      object-fit: contain;
-    }
-
-    .cert-program {
-      text-align: right;
-      padding-top: 8px;
-    }
-
-    .cert-program-title {
-      color: #09275a;
-      font-size: 16px;
-      font-weight: 800;
-      letter-spacing: 3px;
-    }
-
-    .cert-program-line {
-      width: 105px;
-      height: 2px;
-      background: #d9a72d;
-      margin-top: 8px;
-      margin-left: auto;
-    }
-
-    .cert-number {
-      margin-top: 14px;
-    }
-
-    .cert-number small {
-      display: block;
-      color: #54708f;
-      font-size: 10px;
-      margin-bottom: 4px;
-    }
-
-    .cert-number strong {
-      color: #09275a;
-      font-size: 12px;
-      letter-spacing: .8px;
-    }
-
-    /* =========================
-       TITLE
-    ========================== */
-
-    .title-section {
-      position: relative;
-      z-index: 5;
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .title-line {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 18px;
-    }
-
-    .title-line span {
-      width: 105px;
-      height: 2px;
-      background: #d7a62e;
-    }
-
-    .title-section h1 {
-      margin: 0;
-      font-family: Georgia, "Times New Roman", serif;
-      font-size: 58px;
-      letter-spacing: 2px;
-      color: #09275a;
-    }
-
-    .subtitle {
-      margin-top: 3px;
-      font-family: Georgia, "Times New Roman", serif;
-      color: #1683e8;
-      font-size: 27px;
-      font-weight: bold;
-      letter-spacing: 5px;
-    }
-
-    /* =========================
-       CANDIDATE
-    ========================== */
-
-    .presented {
-      position: relative;
-      z-index: 5;
-      text-align: center;
-      margin-top: 20px;
-    }
-
-    .presented-label {
-      font-size: 13px;
-      letter-spacing: 4px;
-      font-weight: 800;
-      color: #173d73;
-    }
-
-    .candidate-name {
-      margin: 7px 0 3px;
-
-      font-family:
-        "Brush Script MT",
-        "Segoe Script",
-        "Lucida Handwriting",
-        cursive;
-
-      font-size: 55px;
-      font-style: italic;
-      font-weight: 500;
-      color: #0b438f;
-    }
-
-    .name-line {
-      width: 470px;
-      height: 2px;
-      background: #d6a72e;
-      margin: auto;
-    }
-
-    /* =========================
-       DESCRIPTION
-    ========================== */
-
-    .description {
-      position: relative;
-      z-index: 5;
-      text-align: center;
-      margin-top: 17px;
-      color: #294b76;
-      font-size: 15px;
-      line-height: 1.5;
-    }
-
-    .test-title {
-      margin-top: 4px;
-      color: #0874d1;
-      font-size: 24px;
-      font-weight: 800;
-    }
-
-    /* =========================
-       STATS
-    ========================== */
-
-    .stats {
-      position: relative;
-      z-index: 5;
-
-      display: flex;
-      justify-content: center;
-      align-items: center;
-
-      margin-top: 20px;
-    }
-
-    .stat {
-      min-width: 185px;
-      padding: 0 28px;
-      text-align: center;
-    }
-
-    .stat + .stat {
-      border-left: 1px solid #d5a72e;
-    }
+        page-break-after: avoid !important;
+        page-break-before: avoid !important;
+        break-after: avoid !important;
+        break-before: avoid !important;
 
-    .stat-label {
-      font-size: 11px;
-      letter-spacing: 2px;
-      font-weight: 800;
-      color: #36577e;
+        transform: none !important;
     }
 
-    .stat-value {
-      margin-top: 5px;
-      color: #0a428c;
-      font-size: 21px;
-      font-weight: 900;
+    * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
     }
+}
 
-    /* =========================
-       SEAL
-    ========================== */
+/* Mobile preview only */
+@media screen and (max-width: 800px) {
 
-    .seal {
-      position: absolute;
-      top: 150px;
-      right: 65px;
-
-      width: 132px;
-      height: 132px;
-
-      border-radius: 50%;
-
-      background:
-        radial-gradient(
-          circle,
-          #0a3772 0 53%,
-          #d9a72d 54% 62%,
-          #0a3772 63% 68%,
-          #d9a72d 69% 100%
-        );
-
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      box-shadow: 0 8px 18px rgba(0, 0, 0, .16);
-
-      z-index: 7;
-    }
-
-    .seal-inner {
-      width: 99px;
-      height: 99px;
-
-      border: 2px solid #f4d77d;
-      border-radius: 50%;
-
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-
-      color: white;
-      text-align: center;
-      font-weight: 900;
-    }
-
-    .seal-inner .top {
-      font-size: 9px;
-      letter-spacing: 2px;
-    }
-
-    .seal-inner .axon {
-      margin-top: 2px;
-      font-size: 20px;
-      letter-spacing: 2px;
-    }
-
-    .seal-inner .certified {
-      margin-top: 4px;
-      font-size: 8px;
-      letter-spacing: 1px;
-    }
-
-    .stars {
-      margin-top: 3px;
-      color: #f4cf67;
-      font-size: 9px;
-      letter-spacing: 2px;
-    }
-
-    /* =========================
-       BOTTOM
-    ========================== */
-
-    .bottom-area {
-      position: absolute;
-      left: 65px;
-      right: 65px;
-      bottom: 57px;
-
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      align-items: end;
-
-      z-index: 8;
-    }
-
-    /* =========================
-       SIGNATURE
-    ========================== */
-
-    .signature-area {
-      text-align: center;
-      justify-self: start;
-      width: 245px;
-    }
-
-    /*
-      IMPORTANT:
-      Sirf "Ram" signature hai.
-      Ye handwritten/script font mein render hoga.
-    */
-
-    .signature {
-      display: inline-block;
-
-      font-family:
-        "Brush Script MT",
-        "Segoe Script",
-        "Lucida Handwriting",
-        cursive;
-
-      font-size: 39px;
-      font-style: italic;
-      font-weight: 500;
-
-      color: #075fbd;
-
-      transform: rotate(-5deg);
-
-      margin-bottom: -3px;
-    }
-
-    .signature-line {
-      width: 220px;
-      height: 1px;
-      margin: auto;
-      background: #d6a72e;
-    }
-
-    .signatory-name {
-      margin-top: 7px;
-      color: #123d71;
-      font-size: 13px;
-      font-weight: 800;
-    }
-
-    .signatory-designation {
-      margin-top: 3px;
-      color: #617995;
-      font-size: 10px;
-    }
-
-    /* =========================
-       CERTIFICATE ID BOX
-    ========================== */
-
-    .id-area {
-      text-align: center;
-      align-self: end;
-    }
-
-    .certificate-id-box {
-      width: 300px;
-      margin: auto;
-
-      padding: 10px 15px;
-
-      border: 1px solid #d9a72d;
-      border-radius: 9px;
-
-      background: rgba(255, 255, 255, .72);
-    }
-
-    .certificate-id-label {
-      color: #54708f;
-      font-size: 9px;
-      letter-spacing: 2px;
-      font-weight: 800;
-    }
-
-    .certificate-id-value {
-      margin-top: 4px;
-      color: #09275a;
-      font-size: 15px;
-      font-weight: 900;
-      letter-spacing: 1px;
-    }
-
-    .verified-note {
-      margin-top: 9px;
-      color: #294b76;
-      font-size: 10px;
-    }
-
-    .verified-note strong {
-      color: #0b438f;
-    }
-
-    /* =========================
-       QR / VERIFICATION
-    ========================== */
-
-    .verify-area {
-      justify-self: end;
-      text-align: center;
-      width: 170px;
-    }
-
-    .qr-box {
-      width: 86px;
-      height: 86px;
-      margin: auto;
-      padding: 7px;
-
-      border: 2px solid #0a5daf;
-      border-radius: 7px;
-
-      background: white;
-    }
-
-    .qr-pattern {
-      width: 100%;
-      height: 100%;
-
-      background:
-        linear-gradient(
-          90deg,
-          #09275a 0 9px,
-          transparent 9px 14px,
-          #09275a 14px 22px,
-          transparent 22px 29px,
-          #09275a 29px 38px,
-          transparent 38px 44px,
-          #09275a 44px 54px,
-          transparent 54px 61px,
-          #09275a 61px 70px
-        ),
-        linear-gradient(
-          #09275a 0 9px,
-          transparent 9px 15px,
-          #09275a 15px 23px,
-          transparent 23px 30px,
-          #09275a 30px 40px,
-          transparent 40px 47px,
-          #09275a 47px 55px,
-          transparent 55px 63px,
-          #09275a 63px 70px
-        );
-
-      opacity: .88;
-    }
-
-    .verify-text {
-      margin-top: 7px;
-      color: #52708f;
-      font-size: 9px;
-      line-height: 1.4;
-    }
-
-    .verify-text strong {
-      display: block;
-      color: #123d71;
-      font-size: 10px;
-    }
-
-    /* =========================
-       FOOTER
-    ========================== */
-
-    .footer-text {
-      position: absolute;
-      bottom: 20px;
-      left: 0;
-      width: 100%;
-
-      text-align: center;
-
-      color: #1b5da0;
-      font-size: 8px;
-      font-weight: 800;
-      letter-spacing: 5px;
-
-      z-index: 10;
-    }
-
-    /* =========================
-       DOWNLOAD
-    ========================== */
-
-    .download-wrap {
-      margin-top: 25px;
-      text-align: center;
+    .portal {
+        padding: 15px;
     }
-
-    .download-btn {
-      display: inline-block;
-
-      padding: 13px 25px;
-
-      background: #09275a;
-      color: white;
-
-      border-radius: 10px;
-
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 800;
-    }
-
-    .download-btn:hover {
-      background: #0759a8;
-    }
-
-    /* =========================
-       MOBILE
-    ========================== */
-
-    @media (max-width: 800px) {
-
-      .form-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .page {
-        padding: 20px 8px;
-      }
 
-      .certificate-wrap {
+    .certificate-area {
         overflow-x: auto;
-      }
-
-      .search-card {
-        padding: 22px;
-      }
-
+        justify-content: flex-start;
     }
 
-  </style>
+    .certificate {
+        flex-shrink: 0;
+        transform-origin: top left;
+    }
+
+    .verify-box {
+        flex-direction: column;
+    }
+
+    .verify-box button {
+        height: 48px;
+    }
+}
+</style>
 </head>
 
 <body>
 
-<div class="page">
+<div class="portal">
 
-  <div class="portal">
+    <!-- This section will NOT print -->
+    <div class="portal-header no-print">
+        <h1>Certificate Portal</h1>
+        <p>Verify your GrowtechAxon certificate</p>
+    </div>
 
-    <!-- =========================
-         VERIFICATION FORM
-    ========================== -->
+    <div class="verify-box no-print">
 
-    <section class="search-card">
-
-      <h1>Certificate Verification</h1>
-
-      <p>
-        Enter your Certificate ID and examination email
-        to view your official certificate.
-      </p>
-
-      <div class="form-grid">
-
-        <div class="field">
-          <label for="certificateId">
-            Certificate ID
-          </label>
-
-          <input
-            id="certificateId"
+        <input
             type="text"
-            placeholder="GTAX-CERT-XXXXXXXX"
+            id="certificateId"
+            placeholder="Enter Certificate ID"
             autocomplete="off"
-          >
-        </div>
+        >
 
-        <div class="field">
-          <label for="email">
-            Examination Email
-          </label>
-
-          <input
-            id="email"
+        <input
             type="email"
-            placeholder="your@email.com"
-            autocomplete="email"
-          >
+            id="email"
+            placeholder="Exam Email"
+            autocomplete="off"
+        >
+
+        <button onclick="verifyCertificate()">
+            Verify
+        </button>
+
+    </div>
+
+    <div id="message" class="message no-print"></div>
+
+    <!-- ================= CERTIFICATE ================= -->
+
+    <div class="certificate-area">
+
+        <div class="certificate" id="certificate">
+
+            <div class="border-outer"></div>
+            <div class="border-middle"></div>
+            <div class="border-inner"></div>
+
+            <div class="corner tl"></div>
+            <div class="corner tr"></div>
+            <div class="corner bl"></div>
+            <div class="corner br"></div>
+
+            <div class="certificate-content">
+
+                <!-- HEADER -->
+
+                <div class="cert-header">
+
+                    <img
+                        src="/assets/growtechaxon-logo.png"
+                        class="logo"
+                        alt="GrowtechAxon"
+                    >
+
+                    <div class="cert-id-top">
+                        Certificate ID
+                        <strong id="topCertificateId">
+                            GTAX-XXXX-XXXX
+                        </strong>
+                    </div>
+
+                </div>
+
+                <!-- TITLE -->
+
+                <div class="heading">
+
+                    <div class="brand-small">
+                        GROWTECH AXON
+                    </div>
+
+                    <div class="heading-line"></div>
+
+                    <h1>
+                        CERTIFICATE
+                    </h1>
+
+                    <h2>
+                        OF ACHIEVEMENT
+                    </h2>
+
+                </div>
+
+                <!-- CANDIDATE -->
+
+                <div class="presented">
+
+                    <div class="presented-label">
+                        This certificate is proudly presented to
+                    </div>
+
+                    <div
+                        class="candidate-name"
+                        id="candidateName"
+                    >
+                        Candidate Name
+                    </div>
+
+                    <div class="name-line"></div>
+
+                </div>
+
+                <!-- TEST -->
+
+                <div class="test-info">
+
+                    <div class="test-label">
+                        For successfully completing the assessment
+                    </div>
+
+                    <div
+                        class="test-name"
+                        id="testName"
+                    >
+                        HTML & CSS Assessment
+                    </div>
+
+                </div>
+
+                <!-- SCORE -->
+
+                <div class="score-section">
+
+                    <div class="score-circle">
+
+                        <div class="score-small">
+                            SCORE
+                        </div>
+
+                        <div
+                            class="score-value"
+                            id="percentage"
+                        >
+                            65%
+                        </div>
+
+                        <div
+                            class="grade"
+                            id="grade"
+                        >
+                            GRADE B
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- BOTTOM -->
+
+                <div class="bottom-area">
+
+                    <!-- SIGNATURE -->
+
+                    <div class="signature-area">
+
+                        <img
+                            src="/assets/signature.png"
+                            class="signature-image"
+                            alt="Ram Signature"
+                        >
+
+                        <div class="signature-line"></div>
+
+                        <div class="signature-name">
+                            Ram
+                        </div>
+
+                        <div class="signature-role">
+                            Founder & CEO
+                        </div>
+
+                    </div>
+
+                    <!-- SEAL -->
+
+                    <div class="seal-area">
+
+                        <div class="seal">
+
+                            <div class="seal-star">
+                                ★
+                            </div>
+
+                            <div class="seal-text">
+                                GROWTECH
+                            </div>
+
+                            <div class="seal-bottom">
+                                AXON
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <!-- META -->
+
+                    <div class="meta-area">
+
+                        <div class="meta-row">
+
+                            <div class="meta-label">
+                                Date of Issue
+                            </div>
+
+                            <div
+                                class="meta-value"
+                                id="issueDate"
+                            >
+                                13 September 2026
+                            </div>
+
+                        </div>
+
+                        <div class="meta-row">
+
+                            <div class="meta-label">
+                                Certificate ID
+                            </div>
+
+                            <div
+                                class="meta-value gold"
+                                id="bottomCertificateId"
+                            >
+                                GTAX-XXXX-XXXX
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div class="footer">
+                GROWTECH AXON • CERTIFICATE AUTHENTICITY CAN BE VERIFIED ONLINE
+                <span>•</span>
+                SKILLS TODAY, SUCCESS TOMORROW
+            </div>
+
         </div>
 
-      </div>
+    </div>
 
-      <button
-        id="verifyBtn"
-        class="verify-btn"
-      >
-        ✓ Verify Certificate
-      </button>
+    <!-- PRINT BUTTON -->
 
-      <div
-        id="message"
-        class="message"
-      ></div>
-
-    </section>
-
-
-    <!-- =========================
-         CERTIFICATE
-    ========================== -->
-
-    <section
-      id="certificateSection"
-      class="certificate-wrap hidden"
+    <div
+        class="no-print"
+        style="text-align:center; margin:20px;"
     >
 
-      <div class="certificate">
-
-        <!-- Decorative corners -->
-
-        <div class="corner top-left"></div>
-        <div class="corner bottom-right"></div>
-
-        <!-- Decorative waves -->
-
-        <div class="wave-left"></div>
-        <div class="wave-right"></div>
-
-        <!-- Watermark -->
-
-        <div class="watermark">
-          <span>GA</span>
-        </div>
-
-
-        <!-- =========================
-             HEADER
-        ========================== -->
-
-        <div class="cert-header">
-
-          <div class="logo-area">
-
-            <img
-              src="/assets/growtechaxon-logo.png"
-              alt="GrowtechAxon"
-            >
-
-          </div>
-
-          <div class="cert-program">
-
-            <div class="cert-program-title">
-              CERTIFICATION
-            </div>
-
-            <div class="cert-program-title">
-              PROGRAM
-            </div>
-
-            <div class="cert-program-line"></div>
-
-            <div class="cert-number">
-
-              <small>
-                CERTIFICATE NO.
-              </small>
-
-              <strong id="certId">
-                —
-              </strong>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- =========================
-             TITLE
-        ========================== -->
-
-        <div class="title-section">
-
-          <div class="title-line">
-
-            <span></span>
-
-            <h1>
-              CERTIFICATE
-            </h1>
-
-            <span></span>
-
-          </div>
-
-          <div class="subtitle">
-            OF ACHIEVEMENT
-          </div>
-
-        </div>
-
-
-        <!-- =========================
-             SEAL
-        ========================== -->
-
-        <div class="seal">
-
-          <div class="seal-inner">
-
-            <div class="top">
-              GROWTECH
-            </div>
-
-            <div class="axon">
-              AXON
-            </div>
-
-            <div class="certified">
-              CERTIFIED
-            </div>
-
-            <div class="stars">
-              ★ ★ ★
-            </div>
-
-            <div style="font-size:7px;margin-top:3px;">
-              OFFICIAL SEAL
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- =========================
-             CANDIDATE
-        ========================== -->
-
-        <div class="presented">
-
-          <div class="presented-label">
-            THIS IS TO CERTIFY THAT
-          </div>
-
-          <div
-            id="candidateName"
-            class="candidate-name"
-          >
-            Candidate Name
-          </div>
-
-          <div class="name-line"></div>
-
-        </div>
-
-
-        <!-- =========================
-             DESCRIPTION
-        ========================== -->
-
-        <div class="description">
-
-          <div>
-            has successfully completed the
-          </div>
-
-          <div
-            id="testTitle"
-            class="test-title"
-          >
-            Professional Skills Assessment
-          </div>
-
-          <div style="margin-top:5px;">
-            and has demonstrated the required knowledge and skills
-          </div>
-
-          <div>
-            in accordance with GrowtechAxon standards.
-          </div>
-
-        </div>
-
-
-        <!-- =========================
-             STATS
-        ========================== -->
-
-        <div class="stats">
-
-          <div class="stat">
-
-            <div class="stat-label">
-              ASSESSMENT
-            </div>
-
-            <div
-              id="assessmentValue"
-              class="stat-value"
-            >
-              Assessment
-            </div>
-
-          </div>
-
-
-          <div class="stat">
-
-            <div class="stat-label">
-              ISSUE DATE
-            </div>
-
-            <div
-              id="issueDate"
-              class="stat-value"
-            >
-              —
-            </div>
-
-          </div>
-
-
-          <div class="stat">
-
-            <div class="stat-label">
-              GRADE
-            </div>
-
-            <div
-              id="grade"
-              class="stat-value"
-            >
-              —
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- =========================
-             BOTTOM AREA
-        ========================== -->
-
-        <div class="bottom-area">
-
-
-          <!-- SIGNATURE -->
-
-          <div class="signature-area">
-
-            <!-- ONLY RAM IS USED AS SIGNATURE -->
-
-            <div
-              id="signature"
-              class="signature"
-            >
-              Ram
-            </div>
-
-            <div class="signature-line"></div>
-
-            <div
-              id="signatoryName"
-              class="signatory-name"
-            >
-              Authorized Signatory
-            </div>
-
-            <div
-              id="signatoryDesignation"
-              class="signatory-designation"
-            >
-              GrowtechAxon
-            </div>
-
-          </div>
-
-
-          <!-- CERTIFICATE ID -->
-
-          <div class="id-area">
-
-            <div class="certificate-id-box">
-
-              <div class="certificate-id-label">
-                CERTIFICATE ID
-              </div>
-
-              <div
-                id="certificateIdDisplay"
-                class="certificate-id-value"
-              >
-                GTAX-CERT-XXXXXXXX
-              </div>
-
-            </div>
-
-            <div class="verified-note">
-              ✓ Verified &amp; Issued by
-              <strong>GrowtechAxon</strong>
-            </div>
-
-          </div>
-
-
-          <!-- VERIFICATION -->
-
-          <div class="verify-area">
-
-            <div class="qr-box">
-              <div class="qr-pattern"></div>
-            </div>
-
-            <div class="verify-text">
-
-              Scan to Verify
-
-              <strong>
-                Certificate Online
-              </strong>
-
-            </div>
-
-          </div>
-
-        </div>
-
-
-        <!-- =========================
-             FOOTER
-        ========================== -->
-
-        <div class="footer-text">
-          BUILDING A SKILLED TOMORROW
-        </div>
-
-      </div>
-
-
-      <!-- =========================
-           DOWNLOAD
-      ========================== -->
-
-      <div class="download-wrap">
-
-        <a
-          id="downloadBtn"
-          class="download-btn"
-          href="#"
+        <button
+            class="print-button"
+            onclick="window.print()"
+            style="height:50px;"
         >
-          ↓ Download Certificate PDF
-        </a>
+            🖨 Print Certificate
+        </button>
 
-      </div>
-
-    </section>
-
-  </div>
+    </div>
 
 </div>
 
 
 <script>
 
-  const $ = (id) =>
-    document.getElementById(id);
-
-
-  /* =========================
-     DATE FORMAT
-  ========================== */
-
-  function formatDate(value) {
-
-    if (!value) {
-      return "—";
-    }
-
-    const date = new Date(value);
-
-    if (isNaN(date.getTime())) {
-      return "—";
-    }
-
-    return date.toLocaleDateString(
-      "en-IN",
-      {
-        day: "2-digit",
-        month: "short",
-        year: "numeric"
-      }
-    );
-  }
-
-
-  /* =========================
-     VERIFY CERTIFICATE
-  ========================== */
-
-  async function verifyCertificate() {
+async function verifyCertificate() {
 
     const certificateId =
-      $("certificateId")
-        .value
-        .trim()
-        .toUpperCase();
+        document.getElementById("certificateId").value.trim();
 
     const email =
-      $("email")
-        .value
-        .trim()
-        .toLowerCase();
+        document.getElementById("email").value.trim();
 
-
-    $("certificateSection")
-      .classList
-      .add("hidden");
-
-    $("message").textContent = "";
-
+    const message =
+        document.getElementById("message");
 
     if (!certificateId) {
 
-      $("message").textContent =
-        "Please enter Certificate ID.";
+        message.textContent =
+            "Please enter Certificate ID.";
 
-      $("message").style.color =
-        "#dc2626";
+        message.style.color = "#d92d20";
 
-      $("certificateId").focus();
-
-      return;
+        return;
     }
-
-
-    if (!email) {
-
-      $("message").textContent =
-        "Please enter your examination email.";
-
-      $("message").style.color =
-        "#dc2626";
-
-      $("email").focus();
-
-      return;
-    }
-
-
-    const button =
-      $("verifyBtn");
-
-    button.disabled = true;
-
-    button.textContent =
-      "Checking Certificate...";
-
 
     try {
 
-      const url =
-        `/api/certificates/verify` +
-        `?certificateId=${encodeURIComponent(certificateId)}` +
-        `&email=${encodeURIComponent(email)}`;
+        message.textContent = "Verifying certificate...";
+        message.style.color = "#475467";
 
+        let url =
+            `/api/certificates/verify?certificateId=${encodeURIComponent(certificateId)}`;
 
-      const response =
-        await fetch(url);
+        if (email) {
+            url += `&email=${encodeURIComponent(email)}`;
+        }
 
+        const response = await fetch(url);
 
-      let data = {};
+        const data = await response.json();
 
-      try {
+        if (!response.ok || !data.certificate) {
 
-        data =
-          await response.json();
+            message.textContent =
+                data.message || "Certificate not found.";
 
-      } catch {
+            message.style.color = "#d92d20";
 
-        data = {};
+            return;
+        }
 
-      }
+        const certificate = data.certificate;
 
+        /* Candidate */
 
-      if (
-        !response.ok ||
-        !data.valid
-      ) {
+        document.getElementById("candidateName").textContent =
+            certificate.candidateName || "Candidate";
 
-        throw new Error(
-          data.message ||
-          "Certificate could not be verified."
-        );
+        /* Test */
 
-      }
+        document.getElementById("testName").textContent =
+            certificate.testTitle || "Assessment";
 
+        /* Percentage */
 
-      const certificate =
-        data.certificate;
+        const percentage =
+            certificate.percentage ?? 0;
 
+        document.getElementById("percentage").textContent =
+            `${percentage}%`;
 
-      /* =========================
-         FILL DATA
-      ========================== */
+        /* Grade */
 
-      $("certId").textContent =
-        certificate.certificateId ||
-        certificateId;
+        document.getElementById("grade").textContent =
+            `GRADE ${certificate.grade || "-"}`;
 
+        /* Certificate ID */
 
-      $("certificateIdDisplay").textContent =
-        certificate.certificateId ||
-        certificateId;
+        document.getElementById("topCertificateId").textContent =
+            certificate.certificateId;
 
+        document.getElementById("bottomCertificateId").textContent =
+            certificate.certificateId;
 
-      $("candidateName").textContent =
-        certificate.candidateName ||
-        "Candidate";
+        /* Date */
 
+        let dateText = "—";
 
-      $("testTitle").textContent =
-        certificate.testTitle ||
-        "Professional Skills Assessment";
+        if (certificate.issueDate) {
 
+            dateText = new Date(
+                certificate.issueDate
+            ).toLocaleDateString(
+                "en-IN",
+                {
+                    day: "2-digit",
+                    month: "long",
+                    year: "numeric"
+                }
+            );
 
-      $("assessmentValue").textContent =
-        certificate.testTitle ||
-        "Assessment";
+        }
 
+        document.getElementById("issueDate").textContent =
+            dateText;
 
-      $("issueDate").textContent =
-        formatDate(
-          certificate.issueDate
-        );
+        message.textContent =
+            "✓ Certificate verified successfully.";
 
-
-      $("grade").textContent =
-        certificate.grade ||
-        "Completed";
-
-
-      /* =========================
-         SIGNATURE
-      ========================== */
-
-      /*
-        IMPORTANT:
-        Signature intentionally remains
-        ONLY "Ram".
-      */
-
-      $("signature").textContent =
-        "Ram";
-
-
-      $("signatoryName").textContent =
-        certificate.signatoryName ||
-        "Authorized Signatory";
-
-
-      $("signatoryDesignation").textContent =
-        certificate.signatoryDesignation ||
-        "GrowtechAxon";
-
-
-      /* =========================
-         PDF DOWNLOAD
-      ========================== */
-
-      $("downloadBtn").href =
-        `/api/certificates/${encodeURIComponent(certificateId)}/pdf` +
-        `?email=${encodeURIComponent(email)}`;
-
-
-      /* =========================
-         SHOW CERTIFICATE
-      ========================== */
-
-      $("certificateSection")
-        .classList
-        .remove("hidden");
-
-
-      $("message").textContent =
-        "✓ Certificate verified successfully.";
-
-      $("message").style.color =
-        "#15803d";
-
-
-      setTimeout(() => {
-
-        $("certificateSection")
-          .scrollIntoView({
-            behavior: "smooth",
-            block: "start"
-          });
-
-      }, 100);
-
+        message.style.color = "#087443";
 
     } catch (error) {
 
-      console.error(
-        "Certificate verification error:",
-        error
-      );
+        console.error(error);
 
-      $("message").textContent =
-        error.message ||
-        "Certificate verification failed.";
+        message.textContent =
+            "Unable to verify certificate. Please try again.";
 
-      $("message").style.color =
-        "#dc2626";
-
-    } finally {
-
-      button.disabled = false;
-
-      button.textContent =
-        "✓ Verify Certificate";
-
+        message.style.color = "#d92d20";
     }
-
-  }
-
-
-  /* =========================
-     EVENTS
-  ========================== */
-
-  $("verifyBtn")
-    .addEventListener(
-      "click",
-      verifyCertificate
-    );
-
-
-  $("certificateId")
-    .addEventListener(
-      "input",
-      () => {
-
-        $("certificateId").value =
-          $("certificateId")
-            .value
-            .toUpperCase();
-
-      }
-    );
-
-
-  $("certificateId")
-    .addEventListener(
-      "keydown",
-      (event) => {
-
-        if (event.key === "Enter") {
-          verifyCertificate();
-        }
-
-      }
-    );
-
-
-  $("email")
-    .addEventListener(
-      "keydown",
-      (event) => {
-
-        if (event.key === "Enter") {
-          verifyCertificate();
-        }
-
-      }
-    );
+}
 
 </script>
 
