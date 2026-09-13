@@ -908,7 +908,7 @@ function drawSignature(doc, certificate) {
 
   const name = safe(
     certificate.signatoryName,
-    "Ram"
+    "Rambharosa"
   );
 
   const designation = safe(
