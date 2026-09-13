@@ -862,7 +862,6 @@ function drawScoreBadge(doc, certificate) {
       }
     );
 }
-
 /* =========================================================
    DIGITAL HANDWRITTEN SIGNATURE
 ========================================================= */
@@ -871,10 +870,8 @@ function drawSignature(doc, certificate) {
   const x = 75;
   const y = 445;
 
-  const name = safe(
-    certificate.signatoryName,
-    "Rambharosa"
-  );
+  /* Exact signature name */
+  const name = "Rambharosa";
 
   const designation = safe(
     certificate.signatoryDesignation,
@@ -882,49 +879,59 @@ function drawSignature(doc, certificate) {
   );
 
   /*
-     Digital signature:
+     Handwritten-style digital signature
+     - Black ink
+     - Slightly tilted
+     - Larger flowing appearance
      - No signature image
-     - Uses Times-Italic
-     - Slightly rotated for handwritten effect
-     - Automatically uses signatoryName
   */
 
   doc.save();
 
+  /* Signature position + natural tilt */
+  doc.translate(x + 87, y + 12);
+  doc.rotate(-8);
+
   /*
-     Translate to signature position first,
-     then rotate slightly counter-clockwise.
+     Use a large italic/script-like font.
+     Black color makes it look like real ink.
   */
-
-  doc.translate(x + 90, y + 18);
-  doc.rotate(-7);
-
   doc
     .font("Times-Italic")
-    .fontSize(27)
-    .fillColor(COLORS.goldLight)
+    .fontSize(31)
+    .fillColor("#f1f1ec")
     .text(
       name,
-      -85,
-      -16,
+      -100,
+      -18,
       {
-        width: 170,
+        width: 200,
         align: "center",
-        lineGap: -2
+        lineGap: -4
       }
     );
 
   doc.restore();
 
-  /* Signature underline */
+  /* Small flowing underline under signature */
+  doc.save();
 
   doc
-    .moveTo(x, y + 38)
-    .lineTo(x + 175, y + 38)
-    .lineWidth(0.7)
-    .stroke(COLORS.goldDark);
+    .moveTo(x + 12, y + 39)
+    .bezierCurveTo(
+      x + 45,
+      y + 43,
+      x + 105,
+      y + 34,
+      x + 170,
+      y + 38
+    )
+    .lineWidth(1)
+    .stroke("#000000");
 
-  /* Signatory name */
+  doc.restore();
+
+  /* Printed signatory name */
 
   doc
     .font("Helvetica-Bold")
@@ -956,7 +963,6 @@ function drawSignature(doc, certificate) {
       }
     );
 }
-
 /* =========================================================
    OFFICIAL SEAL
 ========================================================= */

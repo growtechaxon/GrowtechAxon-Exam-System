@@ -1,1028 +1,1643 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-<title>Certificate | GrowtechAxon</title>
+  <title>Certificate Portal | Growtech Axon</title>
 
-<style>
-* {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-}
-
-:root {
-    --navy: #061426;
-    --navy2: #0a1d36;
-    --gold: #d6b36a;
-    --gold-light: #f0d99a;
-    --white: #ffffff;
-    --muted: #9eabc0;
-}
-
-html,
-body {
-    width: 100%;
-    min-height: 100%;
-    font-family: Arial, Helvetica, sans-serif;
-    background: #e8ebf2;
-}
-
-/* =========================
-   PORTAL
-========================= */
-
-.portal {
-    min-height: 100vh;
-    padding: 30px;
-}
-
-.portal-header {
-    max-width: 1000px;
-    margin: auto;
-    text-align: center;
-    margin-bottom: 25px;
-}
-
-.portal-header h1 {
-    color: #07172d;
-    font-size: 30px;
-    margin-bottom: 8px;
-}
-
-.portal-header p {
-    color: #667085;
-}
-
-.verify-box {
-    max-width: 600px;
-    margin: 0 auto 30px;
-    background: white;
-    padding: 22px;
-    border-radius: 15px;
-    box-shadow: 0 10px 35px rgba(0,0,0,.08);
-    display: flex;
-    gap: 10px;
-}
-
-.verify-box input {
-    flex: 1;
-    height: 48px;
-    padding: 0 15px;
-    border: 1px solid #d5d9e2;
-    border-radius: 8px;
-    outline: none;
-    font-size: 15px;
-}
-
-.verify-box button,
-.print-button {
-    border: 0;
-    border-radius: 8px;
-    background: #0b5cff;
-    color: white;
-    padding: 0 22px;
-    font-weight: 700;
-    cursor: pointer;
-}
-
-.message {
-    max-width: 600px;
-    margin: -15px auto 20px;
-    text-align: center;
-    font-weight: 600;
-}
-
-/* =========================
-   CERTIFICATE WRAPPER
-========================= */
-
-.certificate-area {
-    display: flex;
-    justify-content: center;
-    padding: 20px 0 50px;
-}
-
-/*
-    A4 LANDSCAPE
-    297mm × 210mm
-*/
-
-.certificate {
-    position: relative;
-
-    width: 297mm;
-    height: 210mm;
-
-    background:
-        radial-gradient(
-            circle at 50% 50%,
-            rgba(40, 85, 135, .20),
-            transparent 45%
-        ),
-        linear-gradient(
-            135deg,
-            #061426,
-            #0a1d36
-        );
-
-    color: white;
-
-    overflow: hidden;
-
-    box-shadow: 0 20px 60px rgba(0,0,0,.25);
-
-    border: 1.5mm solid #07101e;
-}
-
-/* =========================
-   GOLD BORDERS
-========================= */
-
-.border-outer {
-    position: absolute;
-    inset: 4mm;
-
-    border: 1px solid var(--gold);
-    pointer-events: none;
-}
-
-.border-middle {
-    position: absolute;
-    inset: 6mm;
-
-    border: 2px solid rgba(214,179,106,.65);
-    pointer-events: none;
-}
-
-.border-inner {
-    position: absolute;
-    inset: 8mm;
-
-    border: 1px solid var(--gold);
-    pointer-events: none;
-}
-
-/* Decorative corner lines */
-
-.corner {
-    position: absolute;
-    width: 20mm;
-    height: 20mm;
-    border-color: var(--gold);
-    border-style: solid;
-    opacity: .8;
-}
-
-.corner.tl {
-    top: 10mm;
-    left: 10mm;
-    border-width: 2px 0 0 2px;
-}
-
-.corner.tr {
-    top: 10mm;
-    right: 10mm;
-    border-width: 2px 2px 0 0;
-}
-
-.corner.bl {
-    bottom: 10mm;
-    left: 10mm;
-    border-width: 0 0 2px 2px;
-}
-
-.corner.br {
-    bottom: 10mm;
-    right: 10mm;
-    border-width: 0 2px 2px 0;
-}
-
-/* =========================
-   CONTENT
-========================= */
-
-.certificate-content {
-    position: absolute;
-    inset: 13mm 16mm;
-
-    display: flex;
-    flex-direction: column;
-}
-
-/* Header */
-
-.cert-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-}
-
-.logo {
-    width: 38mm;
-    height: auto;
-    max-height: 20mm;
-    object-fit: contain;
-}
-
-.cert-id-top {
-    text-align: right;
-    font-size: 7px;
-    letter-spacing: 1px;
-    color: var(--muted);
-    text-transform: uppercase;
-}
-
-.cert-id-top strong {
-    display: block;
-    color: var(--gold-light);
-    margin-top: 3px;
-    font-size: 8px;
-}
-
-/* Main title */
-
-.heading {
-    text-align: center;
-    margin-top: 7mm;
-}
-
-.brand-small {
-    color: var(--gold);
-    letter-spacing: 5px;
-    font-size: 9px;
-    font-weight: 700;
-    margin-bottom: 4px;
-}
-
-.heading-line {
-    width: 150mm;
-    height: 1px;
-    margin: 5px auto 7px;
-
-    background: linear-gradient(
-        90deg,
-        transparent,
-        var(--gold),
-        transparent
-    );
-}
-
-.heading h1 {
-    font-size: 29px;
-    letter-spacing: 4px;
-    font-weight: 800;
-    line-height: 1;
-}
-
-.heading h2 {
-    font-size: 10px;
-    letter-spacing: 5px;
-    color: var(--gold-light);
-    margin-top: 6px;
-}
-
-/* Candidate */
-
-.presented {
-    text-align: center;
-    margin-top: 7mm;
-}
-
-.presented-label {
-    font-size: 7px;
-    color: var(--muted);
-    letter-spacing: 3px;
-    text-transform: uppercase;
-}
-
-.candidate-name {
-    margin-top: 5px;
-
-    font-size: 28px;
-    font-weight: 800;
-
-    color: white;
-
-    text-shadow:
-        0 2px 15px rgba(0,0,0,.3);
-}
-
-.name-line {
-    width: 80mm;
-    height: 1px;
-    margin: 5px auto 0;
-
-    background: var(--gold);
-}
-
-/* Test */
-
-.test-info {
-    text-align: center;
-    margin-top: 5mm;
-}
-
-.test-label {
-    color: var(--muted);
-    font-size: 7px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-}
-
-.test-name {
-    color: var(--gold-light);
-    font-size: 15px;
-    font-weight: 700;
-    margin-top: 5px;
-}
-
-/* Score */
-
-.score-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 12mm;
-    margin-top: 6mm;
-}
-
-.score-circle {
-    width: 25mm;
-    height: 25mm;
-
-    border-radius: 50%;
-
-    border: 1.5px solid var(--gold);
-
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-
-    box-shadow:
-        0 0 0 3px rgba(214,179,106,.08),
-        inset 0 0 20px rgba(214,179,106,.05);
-}
-
-.score-small {
-    font-size: 6px;
-    color: var(--muted);
-    letter-spacing: 2px;
-}
-
-.score-value {
-    font-size: 17px;
-    font-weight: 800;
-    color: white;
-    margin: 2px 0;
-}
-
-.grade {
-    font-size: 6px;
-    color: var(--gold-light);
-    letter-spacing: 1px;
-}
-
-/* =========================
-   BOTTOM
-========================= */
-
-.bottom-area {
-    margin-top: auto;
-
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-
-    align-items: end;
-
-    gap: 15mm;
-}
-
-/* Signature */
-
-.signature-area {
-    text-align: center;
-}
-
-.signature-image {
-    height: 14mm;
-    max-width: 42mm;
-    object-fit: contain;
-
-    filter: brightness(0) invert(1);
-}
-
-.signature-line {
-    width: 45mm;
-    height: 1px;
-    background: var(--gold);
-    margin: 1mm auto 2mm;
-}
-
-.signature-name {
-    font-size: 9px;
-    font-weight: 700;
-}
-
-.signature-role {
-    color: var(--muted);
-    font-size: 6px;
-    margin-top: 2px;
-}
-
-/* Seal */
-
-.seal-area {
-    text-align: center;
-}
-
-.seal {
-    width: 26mm;
-    height: 26mm;
-
-    border-radius: 50%;
-
-    border: 2px solid var(--gold);
-
-    margin: auto;
-
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-
-    box-shadow:
-        0 0 0 3px rgba(214,179,106,.08),
-        inset 0 0 15px rgba(214,179,106,.1);
-}
-
-.seal-star {
-    color: var(--gold-light);
-    font-size: 15px;
-}
-
-.seal-text {
-    font-size: 5px;
-    letter-spacing: 1px;
-    color: var(--gold-light);
-}
-
-.seal-bottom {
-    font-size: 5px;
-    color: var(--muted);
-    letter-spacing: 1px;
-}
-
-/* Date / ID */
-
-.meta-area {
-    text-align: right;
-}
-
-.meta-row {
-    margin-bottom: 5mm;
-}
-
-.meta-label {
-    color: var(--muted);
-    font-size: 6px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-}
-
-.meta-value {
-    color: white;
-    font-size: 8px;
-    font-weight: 700;
-    margin-top: 2px;
-}
-
-.meta-value.gold {
-    color: var(--gold-light);
-}
-
-/* Footer */
-
-.footer {
-    position: absolute;
-
-    left: 18mm;
-    right: 18mm;
-    bottom: 7mm;
-
-    text-align: center;
-
-    color: #718096;
-
-    font-size: 5px;
-    letter-spacing: 1.5px;
-}
-
-.footer span {
-    color: var(--gold);
-}
-
-/* =========================
-   PRINT
-========================= */
-
-@page {
-    size: A4 landscape;
-    margin: 0;
-}
-
-@media print {
-
-    html,
-    body {
-        width: 297mm !important;
-        height: 210mm !important;
-
-        margin: 0 !important;
-        padding: 0 !important;
-
-        background: #061426 !important;
-
-        overflow: hidden !important;
-
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-
-    .portal {
-        width: 297mm !important;
-        height: 210mm !important;
-
-        margin: 0 !important;
-        padding: 0 !important;
-
-        min-height: 0 !important;
-    }
-
-    .portal-header,
-    .verify-box,
-    .message,
-    .print-button,
-    .no-print {
-        display: none !important;
-    }
-
-    .certificate-area {
-        width: 297mm !important;
-        height: 210mm !important;
-
-        display: block !important;
-
-        margin: 0 !important;
-        padding: 0 !important;
-    }
-
-    .certificate {
-        width: 297mm !important;
-        height: 210mm !important;
-
-        margin: 0 !important;
-
-        box-shadow: none !important;
-
-        page-break-after: avoid !important;
-        page-break-before: avoid !important;
-        break-after: avoid !important;
-        break-before: avoid !important;
-
-        transform: none !important;
-    }
-
+  <style>
     * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-    }
-}
-
-/* Mobile preview only */
-@media screen and (max-width: 800px) {
-
-    .portal {
-        padding: 15px;
+      box-sizing: border-box;
     }
 
-    .certificate-area {
-        overflow-x: auto;
-        justify-content: flex-start;
+    body {
+      margin: 0;
+      padding: 30px 15px 50px;
+      min-height: 100vh;
+      font-family: Arial, Helvetica, sans-serif;
+      color: #fff;
+      background:
+        radial-gradient(circle at top, #172d55 0%, #08162e 45%, #020712 100%);
     }
 
-    .certificate {
-        flex-shrink: 0;
-        transform-origin: top left;
+    .container {
+      width: 100%;
+      max-width: 1100px;
+      margin: auto;
     }
+
+    /* =========================
+       HEADER
+    ========================== */
+
+    .topbar {
+      text-align: center;
+      margin-bottom: 25px;
+    }
+
+    .brand {
+      color: #d8b45a;
+      font-size: 30px;
+      font-weight: 900;
+      letter-spacing: 4px;
+    }
+
+    .subtitle {
+      margin-top: 8px;
+      color: #aebbd0;
+      font-size: 14px;
+    }
+
+    /* =========================
+       VERIFY BOX
+    ========================== */
 
     .verify-box {
-        flex-direction: column;
+      max-width: 620px;
+      margin: 0 auto 30px;
+      padding: 28px;
+      border: 1px solid rgba(216,180,90,.45);
+      border-radius: 18px;
+      background: rgba(5,16,35,.95);
+      box-shadow: 0 20px 50px rgba(0,0,0,.45);
     }
 
-    .verify-box button {
-        height: 48px;
+    .verify-title {
+      margin: 0;
+      text-align: center;
+      font-size: 25px;
     }
-}
-</style>
+
+    .verify-description {
+      margin: 9px 0 23px;
+      text-align: center;
+      color: #aebbd0;
+      font-size: 13px;
+      line-height: 1.6;
+    }
+
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 7px;
+      color: #dce5f5;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .field input {
+      width: 100%;
+      height: 48px;
+      padding: 0 14px;
+      border: 1px solid #354968;
+      border-radius: 10px;
+      outline: none;
+      background: #09172f;
+      color: #fff;
+      font-size: 14px;
+    }
+
+    .field input:focus {
+      border-color: #d8b45a;
+      box-shadow: 0 0 0 3px rgba(216,180,90,.10);
+    }
+
+    .field input::placeholder {
+      color: #71819a;
+    }
+
+    .btn-row {
+      display: flex;
+      gap: 10px;
+    }
+
+    button {
+      min-height: 47px;
+      padding: 0 20px;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 800;
+      transition: .2s;
+    }
+
+    button:disabled {
+      opacity: .65;
+      cursor: not-allowed;
+    }
+
+    .primary-btn {
+      flex: 1;
+      color: #071226;
+      background: linear-gradient(135deg,#f2d078,#c99c3b);
+    }
+
+    .primary-btn:hover:not(:disabled) {
+      transform: translateY(-1px);
+      filter: brightness(1.06);
+    }
+
+    .secondary-btn {
+      flex: 1;
+      color: #fff;
+      background: #132544;
+      border: 1px solid #385071;
+    }
+
+    .secondary-btn:hover:not(:disabled) {
+      background: #1a3154;
+    }
+
+    .message {
+      display: none;
+      margin-top: 16px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .message.success {
+      display: block;
+      color: #bdf5ce;
+      background: rgba(35,120,66,.15);
+      border: 1px solid rgba(85,210,120,.35);
+    }
+
+    .message.error {
+      display: block;
+      color: #ffc5c5;
+      background: rgba(160,40,40,.15);
+      border: 1px solid rgba(255,100,100,.35);
+    }
+
+    /* =========================
+       CERTIFICATE
+    ========================== */
+
+    #certificateSection {
+      display: none;
+    }
+
+    .certificate-wrapper {
+      width: 100%;
+      overflow-x: auto;
+      padding-bottom: 10px;
+    }
+
+    .certificate {
+      position: relative;
+      width: 100%;
+      max-width: 1000px;
+      min-height: 690px;
+      margin: auto;
+      padding: 55px 70px 50px;
+      overflow: hidden;
+
+      background:
+        radial-gradient(
+          circle at 50% 35%,
+          rgba(255,255,255,.04),
+          transparent 40%
+        ),
+        linear-gradient(
+          145deg,
+          #07142b,
+          #0b1d3c 55%,
+          #071329
+        );
+
+      border: 3px solid #d8b45a;
+
+      box-shadow:
+        0 25px 70px rgba(0,0,0,.55),
+        inset 0 0 0 8px #071226,
+        inset 0 0 0 10px rgba(216,180,90,.35);
+    }
+
+    .certificate::before {
+      content: "";
+      position: absolute;
+      inset: 22px;
+      border: 1px solid rgba(216,180,90,.35);
+      pointer-events: none;
+    }
+
+    .certificate::after {
+      content: "GROWTECH AXON";
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%,-50%) rotate(-25deg);
+      color: rgba(255,255,255,.025);
+      font-size: 70px;
+      font-weight: 900;
+      letter-spacing: 5px;
+      white-space: nowrap;
+      pointer-events: none;
+    }
+
+    .cert-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    /* =========================
+       SEAL
+    ========================== */
+
+    .seal {
+      width: 82px;
+      height: 82px;
+      margin: 0 auto 13px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      border: 2px solid #d8b45a;
+      border-radius: 50%;
+
+      color: #d8b45a;
+      font-size: 10px;
+      line-height: 1.2;
+      font-weight: 900;
+      letter-spacing: 1px;
+      text-align: center;
+
+      box-shadow:
+        0 0 0 5px rgba(216,180,90,.06),
+        inset 0 0 15px rgba(216,180,90,.08);
+    }
+
+    .cert-brand {
+      color: #d8b45a;
+      font-size: 18px;
+      font-weight: 900;
+      letter-spacing: 5px;
+      margin-bottom: 12px;
+    }
+
+    .cert-heading {
+      margin: 0;
+      color: #fff;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 42px;
+      letter-spacing: 3px;
+      text-transform: uppercase;
+    }
+
+    .cert-subheading {
+      margin-top: 9px;
+      color: #b8c5d8;
+      font-size: 13px;
+      letter-spacing: 2px;
+    }
+
+    .presented {
+      margin-top: 38px;
+      color: #aab7ca;
+      font-size: 14px;
+      letter-spacing: 1px;
+    }
+
+    .candidate-name {
+      margin-top: 12px;
+      padding: 0 15px;
+      color: #f1d27d;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 38px;
+      font-weight: 700;
+      word-break: break-word;
+    }
+
+    .candidate-line {
+      width: 62%;
+      height: 1px;
+      margin: 11px auto 0;
+      background: linear-gradient(
+        to right,
+        transparent,
+        #d8b45a,
+        transparent
+      );
+    }
+
+    .cert-text {
+      max-width: 720px;
+      margin: 24px auto 0;
+      color: #d6deeb;
+      font-size: 15px;
+      line-height: 1.8;
+    }
+
+    .test-title {
+      color: #f1d27d;
+      font-weight: 800;
+    }
+
+    /* =========================
+       STATS
+    ========================== */
+
+    .cert-stats {
+      display: flex;
+      justify-content: center;
+      gap: 18px;
+      margin-top: 27px;
+      flex-wrap: wrap;
+    }
+
+    .stat {
+      min-width: 145px;
+      padding: 13px 18px;
+      border: 1px solid rgba(216,180,90,.35);
+      border-radius: 10px;
+      background: rgba(0,0,0,.12);
+    }
+
+    .stat-label {
+      margin-bottom: 5px;
+      color: #8fa0ba;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .stat-value {
+      color: #fff;
+      font-size: 17px;
+      font-weight: 800;
+    }
+
+    /* =========================
+       BOTTOM
+    ========================== */
+
+    .cert-bottom {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 30px;
+      margin-top: 48px;
+      padding: 0 30px;
+    }
+
+    .signature-area,
+    .date-area {
+      width: 220px;
+      text-align: center;
+    }
+
+    /* Digital signature */
+    .digital-signature {
+      width: 190px;
+      height: 42px;
+      margin: 0 auto 5px;
+
+      display: flex;
+      align-items: center;
+      justify-content: center;
+
+      background: #fff;
+      border-radius: 4px;
+
+      color: #e8dd0c;
+      font-family: "Brush Script MT",
+                   "Segoe Script",
+                   cursive;
+      font-size: 30px;
+      font-style: italic;
+
+      transform: rotate(-5deg);
+    }
+
+    .signature-line,
+    .date-line {
+      height: 1px;
+      margin-bottom: 7px;
+      background: #d8b45a;
+    }
+
+    .signatory-name {
+      color: #fff;
+      font-size: 12px;
+      font-weight: 800;
+    }
+
+    .signatory-designation {
+      margin-top: 3px;
+      color: #94a2b9;
+      font-size: 10px;
+    }
+
+    .date-value {
+      margin-bottom: 12px;
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .date-label {
+      color: #94a2b9;
+      font-size: 10px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    .certificate-id {
+      margin-top: 27px;
+      color: #7788a3;
+      font-size: 10px;
+      letter-spacing: 1px;
+    }
+
+    .certificate-id strong {
+      color: #b9c6da;
+    }
+
+    /* =========================
+       ACTIONS
+    ========================== */
+
+    .certificate-actions {
+      max-width: 1000px;
+      margin: 22px auto 0;
+
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    #downloadBtn,
+    #printBtn {
+      min-width: 220px;
+    }
+
+    #downloadedMessage {
+      display: none;
+      max-width: 600px;
+      margin: 16px auto 0;
+      padding: 13px 15px;
+
+      text-align: center;
+
+      color: #bdf5ce;
+      background: rgba(35,120,66,.15);
+      border: 1px solid rgba(85,210,120,.35);
+      border-radius: 10px;
+
+      font-size: 13px;
+      font-weight: 700;
+    }
+
+    .loading {
+      opacity: .65;
+      pointer-events: none;
+    }
+
+    /* =========================
+       PRINT
+    ========================== */
+
+    @media print {
+
+      body {
+        margin: 0;
+        padding: 0;
+        background: #fff !important;
+      }
+
+      .topbar,
+      .verify-box,
+      .certificate-actions,
+      #downloadedMessage {
+        display: none !important;
+      }
+
+      #certificateSection {
+        display: block !important;
+      }
+
+      .certificate-wrapper {
+        overflow: visible;
+        padding: 0;
+      }
+
+      .certificate {
+        width: 100%;
+        max-width: none;
+        margin: 0;
+        box-shadow: none;
+        page-break-inside: avoid;
+      }
+    }
+
+    /* =========================
+       MOBILE
+    ========================== */
+
+    @media (max-width: 700px) {
+
+      body {
+        padding: 18px 10px 35px;
+      }
+
+      .brand {
+        font-size: 22px;
+        letter-spacing: 2px;
+      }
+
+      .verify-box {
+        padding: 20px 16px;
+      }
+
+      .btn-row {
+        flex-direction: column;
+      }
+
+      .certificate {
+        min-width: 760px;
+        min-height: 690px;
+        padding: 50px 60px;
+      }
+
+      .certificate-wrapper {
+        overflow-x: auto;
+      }
+    }
+  </style>
 </head>
 
 <body>
 
-<div class="portal">
+  <div class="container">
 
-    <!-- This section will NOT print -->
-    <div class="portal-header no-print">
-        <h1>Certificate Portal</h1>
-        <p>Verify your GrowtechAxon certificate</p>
+    <!-- =========================
+         HEADER
+    ========================== -->
+
+    <div class="topbar">
+
+      <div class="brand">
+        GROWTECH AXON
+      </div>
+
+      <div class="subtitle">
+        Official Certificate Verification & Download Portal
+      </div>
+
     </div>
 
-    <div class="verify-box no-print">
+
+    <!-- =========================
+         VERIFICATION BOX
+    ========================== -->
+
+    <div class="verify-box">
+
+      <h2 class="verify-title">
+        Get Your Certificate
+      </h2>
+
+      <div class="verify-description">
+        Enter your Certificate ID and registered email address
+        to verify and access your certificate.
+      </div>
+
+
+      <div class="field">
+
+        <label for="certificateId">
+          Certificate ID
+        </label>
 
         <input
-            type="text"
-            id="certificateId"
-            placeholder="Enter Certificate ID"
-            autocomplete="off"
+          type="text"
+          id="certificateId"
+          placeholder="Enter Certificate ID"
+          autocomplete="off"
         >
+
+      </div>
+
+
+      <div class="field">
+
+        <label for="email">
+          Registered Email
+        </label>
 
         <input
-            type="email"
-            id="email"
-            placeholder="Exam Email"
-            autocomplete="off"
+          type="email"
+          id="email"
+          placeholder="Enter registered email"
+          autocomplete="email"
         >
 
-        <button onclick="verifyCertificate()">
-            Verify
+      </div>
+
+
+      <div class="btn-row">
+
+        <button
+          id="getCertificateBtn"
+          class="primary-btn"
+          onclick="verifyCertificate()"
+        >
+          Get Certificate
         </button>
 
+        <button
+          id="clearBtn"
+          class="secondary-btn"
+          onclick="clearCertificate()"
+        >
+          Clear
+        </button>
+
+      </div>
+
+
+      <div
+        id="message"
+        class="message"
+      ></div>
+
     </div>
 
-    <div id="message" class="message no-print"></div>
 
-    <!-- ================= CERTIFICATE ================= -->
+    <!-- =========================
+         CERTIFICATE SECTION
+    ========================== -->
 
-    <div class="certificate-area">
+    <section id="certificateSection">
 
-        <div class="certificate" id="certificate">
+      <div class="certificate-wrapper">
 
-            <div class="border-outer"></div>
-            <div class="border-middle"></div>
-            <div class="border-inner"></div>
+        <div
+          id="certificate"
+          class="certificate"
+        >
 
-            <div class="corner tl"></div>
-            <div class="corner tr"></div>
-            <div class="corner bl"></div>
-            <div class="corner br"></div>
+          <div class="cert-content">
 
-            <div class="certificate-content">
 
-                <!-- HEADER -->
+            <!-- SEAL -->
 
-                <div class="cert-header">
+            <div class="seal">
+              GROWTECH<br>
+              AXON<br>
+              VERIFIED
+            </div>
 
-                    <img
-                        src="/assets/growtechaxon-logo.png"
-                        class="logo"
-                        alt="GrowtechAxon"
-                    >
 
-                    <div class="cert-id-top">
-                        Certificate ID
-                        <strong id="topCertificateId">
-                            GTAX-XXXX-XXXX
-                        </strong>
-                    </div>
+            <div class="cert-brand">
+              GROWTECH AXON
+            </div>
 
-                </div>
 
-                <!-- TITLE -->
+            <h1 class="cert-heading">
+              Certificate
+            </h1>
 
-                <div class="heading">
 
-                    <div class="brand-small">
-                        GROWTECH AXON
-                    </div>
+            <div class="cert-subheading">
+              OF ACHIEVEMENT
+            </div>
 
-                    <div class="heading-line"></div>
 
-                    <h1>
-                        CERTIFICATE
-                    </h1>
+            <div class="presented">
+              This certificate is proudly presented to
+            </div>
 
-                    <h2>
-                        OF ACHIEVEMENT
-                    </h2>
 
-                </div>
+            <div
+              id="candidateName"
+              class="candidate-name"
+            >
+              Candidate Name
+            </div>
 
-                <!-- CANDIDATE -->
 
-                <div class="presented">
+            <div class="candidate-line"></div>
 
-                    <div class="presented-label">
-                        This certificate is proudly presented to
-                    </div>
 
-                    <div
-                        class="candidate-name"
-                        id="candidateName"
-                    >
-                        Candidate Name
-                    </div>
+            <div class="cert-text">
 
-                    <div class="name-line"></div>
+              In recognition of successfully completing the
 
-                </div>
+              <span
+                id="testTitle"
+                class="test-title"
+              >
+                Assessment
+              </span>
 
-                <!-- TEST -->
+              conducted by Growtech Axon.
 
-                <div class="test-info">
-
-                    <div class="test-label">
-                        For successfully completing the assessment
-                    </div>
-
-                    <div
-                        class="test-name"
-                        id="testName"
-                    >
-                        HTML & CSS Assessment
-                    </div>
-
-                </div>
-
-                <!-- SCORE -->
-
-                <div class="score-section">
-
-                    <div class="score-circle">
-
-                        <div class="score-small">
-                            SCORE
-                        </div>
-
-                        <div
-                            class="score-value"
-                            id="percentage"
-                        >
-                            65%
-                        </div>
-
-                        <div
-                            class="grade"
-                            id="grade"
-                        >
-                            GRADE B
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- BOTTOM -->
-
-                <div class="bottom-area">
-
-                    <!-- SIGNATURE -->
-
-                    <div class="signature-area">
-
-                        <img
-                            src="/assets/signature.png"
-                            class="signature-image"
-                            alt="Ram Signature"
-                        >
-
-                        <div class="signature-line"></div>
-
-                        <div class="signature-name">
-                            Ram
-                        </div>
-
-                        <div class="signature-role">
-                            Founder & CEO
-                        </div>
-
-                    </div>
-
-                    <!-- SEAL -->
-
-                    <div class="seal-area">
-
-                        <div class="seal">
-
-                            <div class="seal-star">
-                                ★
-                            </div>
-
-                            <div class="seal-text">
-                                GROWTECH
-                            </div>
-
-                            <div class="seal-bottom">
-                                AXON
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                    <!-- META -->
-
-                    <div class="meta-area">
-
-                        <div class="meta-row">
-
-                            <div class="meta-label">
-                                Date of Issue
-                            </div>
-
-                            <div
-                                class="meta-value"
-                                id="issueDate"
-                            >
-                                13 September 2026
-                            </div>
-
-                        </div>
-
-                        <div class="meta-row">
-
-                            <div class="meta-label">
-                                Certificate ID
-                            </div>
-
-                            <div
-                                class="meta-value gold"
-                                id="bottomCertificateId"
-                            >
-                                GTAX-XXXX-XXXX
-                            </div>
-
-                        </div>
-
-                    </div>
-
-                </div>
+              This certificate acknowledges the candidate's
+              successful completion and achievement.
 
             </div>
 
-            <div class="footer">
-                GROWTECH AXON • CERTIFICATE AUTHENTICITY CAN BE VERIFIED ONLINE
-                <span>•</span>
-                SKILLS TODAY, SUCCESS TOMORROW
+
+            <!-- STATS -->
+
+            <div class="cert-stats">
+
+
+              <div class="stat">
+
+                <div class="stat-label">
+                  Percentage
+                </div>
+
+                <div
+                  id="percentage"
+                  class="stat-value"
+                >
+                  --
+                </div>
+
+              </div>
+
+
+              <div class="stat">
+
+                <div class="stat-label">
+                  Grade
+                </div>
+
+                <div
+                  id="grade"
+                  class="stat-value"
+                >
+                  --
+                </div>
+
+              </div>
+
+
+              <div class="stat">
+
+                <div class="stat-label">
+                  Certificate Status
+                </div>
+
+                <div class="stat-value">
+                  VALID
+                </div>
+
+              </div>
+
+
             </div>
+
+
+            <!-- BOTTOM -->
+
+            <div class="cert-bottom">
+
+
+              <!-- SIGNATURE -->
+
+              <div class="signature-area">
+
+                <div class="digital-signature">
+                  Rambharosa
+                </div>
+
+                <div class="signature-line"></div>
+
+                <div
+                  id="signatoryName"
+                  class="signatory-name"
+                >
+                  Rambharosa
+                </div>
+
+                <div
+                  id="signatoryDesignation"
+                  class="signatory-designation"
+                >
+                  Founder & CEO
+                </div>
+
+              </div>
+
+
+              <!-- DATE -->
+
+              <div class="date-area">
+
+                <div
+                  id="issueDate"
+                  class="date-value"
+                >
+                  --
+                </div>
+
+                <div class="date-line"></div>
+
+                <div class="date-label">
+                  Date of Issue
+                </div>
+
+              </div>
+
+
+            </div>
+
+
+            <div class="certificate-id">
+
+              Certificate ID:
+
+              <strong id="displayCertificateId">
+                --
+              </strong>
+
+            </div>
+
+
+          </div>
 
         </div>
 
-    </div>
+      </div>
 
-    <!-- PRINT BUTTON -->
 
-    <div
-        class="no-print"
-        style="text-align:center; margin:20px;"
-    >
+      <!-- =========================
+           ACTION BUTTONS
+      ========================== -->
+
+      <div class="certificate-actions">
+
+
+        <!--
+          Verification se pehle hidden.
+          Verification successful hone ke baad visible.
+        -->
 
         <button
-            class="print-button"
-            onclick="window.print()"
-            style="height:50px;"
+          id="downloadBtn"
+          class="primary-btn"
+          style="display:none;"
+          onclick="downloadCertificate()"
         >
-            🖨 Print Certificate
+          Download Certificate
         </button>
 
-    </div>
 
-</div>
+        <button
+          id="printBtn"
+          class="secondary-btn"
+          style="display:none;"
+          onclick="printCertificate()"
+        >
+          Print Certificate
+        </button>
 
 
-<script>
+      </div>
 
-async function verifyCertificate() {
 
-    const certificateId =
-        document.getElementById("certificateId").value.trim();
+      <!--
+        Ye message tabhi show hoga jab PDF
+        successfully fetch/download ho jaye.
+      -->
 
-    const email =
-        document.getElementById("email").value.trim();
+      <div id="downloadedMessage">
 
-    const message =
+        ✓ Certificate Downloaded Successfully
+
+      </div>
+
+
+    </section>
+
+  </div>
+
+
+  <script>
+
+    let verifiedCertificate = null;
+
+    let downloadCompleted = false;
+
+
+    /* =========================================
+       MESSAGE
+    ========================================== */
+
+    function showMessage(text, type) {
+
+      const message =
         document.getElementById("message");
 
-    if (!certificateId) {
+      message.textContent = text;
 
-        message.textContent =
-            "Please enter Certificate ID.";
+      message.className =
+        "message " + type;
+    }
 
-        message.style.color = "#d92d20";
+
+    /* =========================================
+       DATE FORMAT
+    ========================================== */
+
+    function formatDate(dateValue) {
+
+      if (!dateValue) {
+        return "--";
+      }
+
+      const date =
+        new Date(dateValue);
+
+      if (isNaN(date.getTime())) {
+        return "--";
+      }
+
+      return date.toLocaleDateString(
+        "en-IN",
+        {
+          day: "2-digit",
+          month: "long",
+          year: "numeric"
+        }
+      );
+    }
+
+
+    /* =========================================
+       VERIFY CERTIFICATE
+    ========================================== */
+
+    async function verifyCertificate() {
+
+      const certificateId =
+        document
+          .getElementById("certificateId")
+          .value
+          .trim()
+          .toUpperCase();
+
+
+      const email =
+        document
+          .getElementById("email")
+          .value
+          .trim()
+          .toLowerCase();
+
+
+      const button =
+        document.getElementById(
+          "getCertificateBtn"
+        );
+
+
+      if (!certificateId) {
+
+        showMessage(
+          "Please enter your Certificate ID.",
+          "error"
+        );
 
         return;
+      }
+
+
+      if (!email) {
+
+        showMessage(
+          "Please enter your registered email.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      button.disabled = true;
+
+      button.classList.add("loading");
+
+      button.textContent =
+        "Verifying...";
+
+
+      try {
+
+        const response =
+          await fetch(
+            `/api/certificates/verify?certificateId=${encodeURIComponent(
+              certificateId
+            )}&email=${encodeURIComponent(
+              email
+            )}`
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok) {
+
+          throw new Error(
+            data.message ||
+            "Certificate verification failed."
+          );
+        }
+
+
+        if (
+          data.valid === false
+        ) {
+
+          throw new Error(
+            data.message ||
+            "Certificate is not valid."
+          );
+        }
+
+
+        /*
+         * Save verified certificate.
+         */
+
+        verifiedCertificate =
+          data.certificate || data;
+
+
+        downloadCompleted = false;
+
+
+        /*
+         * Candidate
+         */
+
+        document.getElementById(
+          "candidateName"
+        ).textContent =
+          verifiedCertificate.candidateName ||
+          "Candidate Name";
+
+
+        /*
+         * Test title
+         */
+
+        document.getElementById(
+          "testTitle"
+        ).textContent =
+          verifiedCertificate.testTitle ||
+          "Assessment";
+
+
+        /*
+         * Percentage
+         */
+
+        document.getElementById(
+          "percentage"
+        ).textContent =
+          verifiedCertificate.percentage !== undefined
+            ? `${verifiedCertificate.percentage}%`
+            : "--";
+
+
+        /*
+         * Grade
+         */
+
+        document.getElementById(
+          "grade"
+        ).textContent =
+          verifiedCertificate.grade ||
+          "Completed";
+
+
+        /*
+         * Certificate ID
+         */
+
+        document.getElementById(
+          "displayCertificateId"
+        ).textContent =
+          verifiedCertificate.certificateId ||
+          certificateId;
+
+
+        /*
+         * Issue date
+         */
+
+        document.getElementById(
+          "issueDate"
+        ).textContent =
+          formatDate(
+            verifiedCertificate.issueDate
+          );
+
+
+        /*
+         * Signatory
+         */
+
+        document.getElementById(
+          "signatoryName"
+        ).textContent =
+          verifiedCertificate.signatoryName ||
+          "Rambharosa";
+
+
+        document.getElementById(
+          "signatoryDesignation"
+        ).textContent =
+          verifiedCertificate.signatoryDesignation ||
+          "Founder & CEO";
+
+
+        /*
+         * Show certificate.
+         */
+
+        document.getElementById(
+          "certificateSection"
+        ).style.display =
+          "block";
+
+
+        /*
+         * Download button:
+         * verification ke baad visible.
+         */
+
+        document.getElementById(
+          "downloadBtn"
+        ).style.display =
+          "inline-block";
+
+
+        /*
+         * Print button:
+         * verification ke baad visible.
+         */
+
+        document.getElementById(
+          "printBtn"
+        ).style.display =
+          "inline-block";
+
+
+        /*
+         * Download success message:
+         * abhi hidden rahega.
+         */
+
+        document.getElementById(
+          "downloadedMessage"
+        ).style.display =
+          "none";
+
+
+        showMessage(
+          "✓ Certificate verified successfully. Your certificate is ready.",
+          "success"
+        );
+
+
+        setTimeout(() => {
+
+          document
+            .getElementById(
+              "certificateSection"
+            )
+            .scrollIntoView({
+              behavior: "smooth",
+              block: "start"
+            });
+
+        }, 200);
+
+
+      } catch (error) {
+
+        verifiedCertificate = null;
+
+        downloadCompleted = false;
+
+
+        document.getElementById(
+          "certificateSection"
+        ).style.display =
+          "none";
+
+
+        document.getElementById(
+          "downloadBtn"
+        ).style.display =
+          "none";
+
+
+        document.getElementById(
+          "printBtn"
+        ).style.display =
+          "none";
+
+
+        document.getElementById(
+          "downloadedMessage"
+        ).style.display =
+          "none";
+
+
+        showMessage(
+          error.message ||
+          "Unable to verify certificate.",
+          "error"
+        );
+
+      } finally {
+
+        button.disabled = false;
+
+        button.classList.remove(
+          "loading"
+        );
+
+        button.textContent =
+          "Get Certificate";
+
+      }
     }
 
-    try {
 
-        message.textContent = "Verifying certificate...";
-        message.style.color = "#475467";
+    /* =========================================
+       DOWNLOAD CERTIFICATE PDF
+    ========================================== */
 
-        let url =
-            `/api/certificates/verify?certificateId=${encodeURIComponent(certificateId)}`;
+    async function downloadCertificate() {
 
-        if (email) {
-            url += `&email=${encodeURIComponent(email)}`;
+      /*
+       * Certificate verification required.
+       */
+
+      if (!verifiedCertificate) {
+
+        showMessage(
+          "Please verify your certificate first.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      const certificateId =
+        verifiedCertificate.certificateId ||
+        document
+          .getElementById(
+            "certificateId"
+          )
+          .value
+          .trim()
+          .toUpperCase();
+
+
+      const email =
+        verifiedCertificate.email ||
+        document
+          .getElementById(
+            "email"
+          )
+          .value
+          .trim()
+          .toLowerCase();
+
+
+      const button =
+        document.getElementById(
+          "downloadBtn"
+        );
+
+
+      button.disabled = true;
+
+      button.classList.add("loading");
+
+      button.textContent =
+        "Preparing PDF...";
+
+
+      try {
+
+        /*
+         * IMPORTANT:
+         *
+         * Aapke backend me route:
+         *
+         * /api/certificates/:id/pdf
+         *
+         * hai.
+         */
+
+        const url =
+          `/api/certificates/${encodeURIComponent(
+            certificateId
+          )}/pdf?email=${encodeURIComponent(
+            email
+          )}`;
+
+
+        const response =
+          await fetch(url);
+
+
+        /*
+         * Backend error.
+         */
+
+        if (!response.ok) {
+
+          let errorMessage =
+            "Certificate download failed.";
+
+
+          try {
+
+            const errorData =
+              await response.json();
+
+
+            if (errorData.message) {
+
+              errorMessage =
+                errorData.message;
+
+            }
+
+          } catch (_) {}
+
+
+          throw new Error(
+            errorMessage
+          );
         }
 
-        const response = await fetch(url);
 
-        const data = await response.json();
+        /*
+         * Get PDF as Blob.
+         */
 
-        if (!response.ok || !data.certificate) {
+        const blob =
+          await response.blob();
 
-            message.textContent =
-                data.message || "Certificate not found.";
 
-            message.style.color = "#d92d20";
+        if (!blob || blob.size === 0) {
 
-            return;
+          throw new Error(
+            "Certificate PDF is empty."
+          );
         }
 
-        const certificate = data.certificate;
 
-        /* Candidate */
+        /*
+         * Create temporary download URL.
+         */
 
-        document.getElementById("candidateName").textContent =
-            certificate.candidateName || "Candidate";
+        const blobUrl =
+          window.URL.createObjectURL(
+            blob
+          );
 
-        /* Test */
 
-        document.getElementById("testName").textContent =
-            certificate.testTitle || "Assessment";
+        const link =
+          document.createElement("a");
 
-        /* Percentage */
 
-        const percentage =
-            certificate.percentage ?? 0;
+        link.href = blobUrl;
 
-        document.getElementById("percentage").textContent =
-            `${percentage}%`;
+        link.download =
+          `${certificateId}.pdf`;
 
-        /* Grade */
 
-        document.getElementById("grade").textContent =
-            `GRADE ${certificate.grade || "-"}`;
+        document.body.appendChild(link);
 
-        /* Certificate ID */
 
-        document.getElementById("topCertificateId").textContent =
-            certificate.certificateId;
+        /*
+         * Browser download.
+         */
 
-        document.getElementById("bottomCertificateId").textContent =
-            certificate.certificateId;
+        link.click();
 
-        /* Date */
 
-        let dateText = "—";
+        link.remove();
 
-        if (certificate.issueDate) {
 
-            dateText = new Date(
-                certificate.issueDate
-            ).toLocaleDateString(
-                "en-IN",
-                {
-                    day: "2-digit",
-                    month: "long",
-                    year: "numeric"
-                }
-            );
+        /*
+         * Release object URL.
+         */
 
-        }
+        setTimeout(() => {
 
-        document.getElementById("issueDate").textContent =
-            dateText;
+          window.URL.revokeObjectURL(
+            blobUrl
+          );
 
-        message.textContent =
-            "✓ Certificate verified successfully.";
+        }, 1000);
 
-        message.style.color = "#087443";
 
-    } catch (error) {
+        /*
+         * Download successful.
+         */
 
-        console.error(error);
+        downloadCompleted = true;
 
-        message.textContent =
-            "Unable to verify certificate. Please try again.";
 
-        message.style.color = "#d92d20";
+        /*
+         * IMPORTANT:
+         * Ye message actual PDF response
+         * milne ke baad hi show hota hai.
+         */
+
+        document.getElementById(
+          "downloadedMessage"
+        ).style.display =
+          "block";
+
+
+        showMessage(
+          "✓ Certificate PDF downloaded successfully.",
+          "success"
+        );
+
+
+        button.textContent =
+          "Download Again";
+
+
+      } catch (error) {
+
+        downloadCompleted = false;
+
+
+        document.getElementById(
+          "downloadedMessage"
+        ).style.display =
+          "none";
+
+
+        showMessage(
+          error.message ||
+          "Unable to download certificate PDF.",
+          "error"
+        );
+
+
+        button.textContent =
+          "Download Certificate";
+
+      } finally {
+
+        button.disabled = false;
+
+        button.classList.remove(
+          "loading"
+        );
+
+      }
     }
-}
 
-</script>
+
+    /* =========================================
+       PRINT
+    ========================================== */
+
+    function printCertificate() {
+
+      if (!verifiedCertificate) {
+
+        showMessage(
+          "Please verify your certificate first.",
+          "error"
+        );
+
+        return;
+      }
+
+
+      window.print();
+    }
+
+
+    /* =========================================
+       CLEAR
+    ========================================== */
+
+    function clearCertificate() {
+
+      document.getElementById(
+        "certificateId"
+      ).value = "";
+
+
+      document.getElementById(
+        "email"
+      ).value = "";
+
+
+      document.getElementById(
+        "certificateSection"
+      ).style.display =
+        "none";
+
+
+      document.getElementById(
+        "downloadBtn"
+      ).style.display =
+        "none";
+
+
+      document.getElementById(
+        "printBtn"
+      ).style.display =
+        "none";
+
+
+      document.getElementById(
+        "downloadedMessage"
+      ).style.display =
+        "none";
+
+
+      const message =
+        document.getElementById(
+          "message"
+        );
+
+
+      message.className =
+        "message";
+
+
+      message.textContent =
+        "";
+
+
+      verifiedCertificate = null;
+
+      downloadCompleted = false;
+    }
+
+
+    /* =========================================
+       ENTER KEY
+    ========================================== */
+
+    document
+      .getElementById("certificateId")
+      .addEventListener(
+        "keydown",
+        function(event) {
+
+          if (event.key === "Enter") {
+
+            verifyCertificate();
+
+          }
+
+        }
+      );
+
+
+    document
+      .getElementById("email")
+      .addEventListener(
+        "keydown",
+        function(event) {
+
+          if (event.key === "Enter") {
+
+            verifyCertificate();
+
+          }
+
+        }
+      );
+
+  </script>
 
 </body>
 </html>
