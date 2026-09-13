@@ -12,35 +12,67 @@
 <div class="admin-wrap">
 
   <aside class="sidebar">
+
     <a class="brand" href="/">
       <img src="/assets/growtechaxon-logo.png">
       <span>GROWTECHAXON</span>
     </a>
 
     <nav class="side-nav" style="margin-top:25px">
-      <a class="side-link" href="/admin/dashboard.html">Results</a>
-      <a class="side-link active" href="/admin/tests.html">Tests</a>
-      <a class="side-link" href="/verify.html">Verify</a>
-      <a class="side-link" href="#" onclick="logout()">Logout</a>
+
+      <a class="side-link"
+         href="/admin/dashboard.html">
+        Results
+      </a>
+
+      <a class="side-link active"
+         href="/admin/tests.html">
+        Tests
+      </a>
+
+      <a class="side-link"
+         href="/verify.html">
+        Verify
+      </a>
+
+      <a class="side-link"
+         href="#"
+         onclick="logout()">
+        Logout
+      </a>
+
     </nav>
+
   </aside>
+
 
   <main class="main">
 
     <div class="nav">
+
       <div>
-        <div class="eyebrow">Test Management</div>
-        <h1>Create / Manage Tests</h1>
+        <div class="eyebrow">
+          Test Management
+        </div>
+
+        <h1>
+          Create / Manage Tests
+        </h1>
       </div>
 
-      <button class="btn btn-gold" onclick="newTest()">
+      <button
+        class="btn btn-gold"
+        onclick="newTest()">
         + New Test
       </button>
+
     </div>
+
 
     <div id="list" class="grid"></div>
 
   </main>
+
 </div>
 
 
@@ -53,31 +85,72 @@
   <div class="modal-box">
 
     <div class="nav">
-      <h2 id="mtitle">New Test</h2>
-      <button class="btn btn-ghost" onclick="closeM()">Close</button>
+
+      <h2 id="mtitle">
+        New Test
+      </h2>
+
+      <button
+        class="btn btn-ghost"
+        onclick="closeM()">
+        Close
+      </button>
+
     </div>
 
 
     <!-- BASIC DETAILS -->
 
     <div class="field">
-      <label>Test Title</label>
+
+      <label>
+        Test Title
+      </label>
+
       <input id="title">
+
     </div>
 
+
     <div class="field">
-      <label>Description</label>
+
+      <label>
+        Description
+      </label>
+
       <textarea id="desc"></textarea>
+
     </div>
 
-    <div class="field">
-      <label>Duration (minutes)</label>
-      <input id="duration" type="number" value="15">
-    </div>
 
     <div class="field">
-      <label>Passing Percentage</label>
-      <input id="pass" type="number" value="50">
+
+      <label>
+        Duration (minutes)
+      </label>
+
+      <input
+        id="duration"
+        type="number"
+        min="1"
+        value="15">
+
+    </div>
+
+
+    <div class="field">
+
+      <label>
+        Passing Percentage
+      </label>
+
+      <input
+        id="pass"
+        type="number"
+        min="0"
+        max="100"
+        value="50">
+
     </div>
 
 
@@ -85,83 +158,160 @@
          EXAM SCHEDULE
     ================================================== -->
 
-    <h3>Exam Schedule</h3>
+    <h3>
+      Exam Schedule
+    </h3>
+
 
     <div class="field">
-      <label>Exam Start Date & Time</label>
-      <input id="startAt" type="datetime-local">
+
+      <label>
+        Exam Start Date & Time
+      </label>
+
+      <input
+        id="startAt"
+        type="datetime-local">
+
       <small class="muted">
         Candidate exam will open from this time.
       </small>
+
     </div>
 
+
     <div class="field">
-      <label>Exam End Date & Time</label>
-      <input id="endAt" type="datetime-local">
+
+      <label>
+        Exam End Date & Time
+      </label>
+
+      <input
+        id="endAt"
+        type="datetime-local">
+
       <small class="muted">
-        After this time, new attempts will be blocked and
-        running attempts will end.
+        After this time, new attempts will be blocked
+        and running attempts will end.
       </small>
+
     </div>
 
 
     <!-- SETTINGS -->
 
     <div class="field">
+
       <label>
-        <input id="cert" type="checkbox" checked>
+
+        <input
+          id="cert"
+          type="checkbox"
+          checked>
+
         Certificate Enabled
+
       </label>
+
     </div>
 
+
     <div class="field">
+
       <label>
-        <input id="active" type="checkbox" checked>
+
+        <input
+          id="active"
+          type="checkbox"
+          checked>
+
         Active
+
       </label>
+
     </div>
 
 
     <!-- QUESTIONS -->
 
-    <h3>Questions</h3>
+    <h3>
+      Questions
+    </h3>
+
 
     <div id="questions"></div>
 
-    <button class="btn btn-ghost" onclick="addQ()">
+
+    <button
+      class="btn btn-ghost"
+      onclick="addQ()">
+
       + Add Question
+
     </button>
 
 
     <!-- SAVE -->
 
     <div class="actions">
-      <button class="btn btn-primary" onclick="save()">
+
+      <button
+        class="btn btn-primary"
+        onclick="save()">
+
         Save Test
+
       </button>
+
     </div>
 
   </div>
+
 </div>
 
 
 <script>
 
-const token = localStorage.getItem('growtechAdminToken');
+const token =
+  localStorage.getItem(
+    'growtechAdminToken'
+  );
+
+
+// =====================================================
+// AUTH CHECK
+// =====================================================
 
 if (!token) {
-  location.href = '/admin/login.html';
+
+  location.href =
+    '/admin/login.html';
+
 }
+
 
 let editId = null;
 
+
+// =====================================================
+// API HELPER
+// =====================================================
+
 const api = (u, o = {}) =>
+
   fetch(u, {
+
     ...o,
+
     headers: {
+
       ...(o.headers || {}),
-      Authorization: 'Bearer ' + token
+
+      Authorization:
+        'Bearer ' + token
+
     }
+
   });
 
 
@@ -171,80 +321,402 @@ const api = (u, o = {}) =>
 
 async function load() {
 
-  const r = await api('/api/admin/tests');
+  try {
 
-  if (r.status === 401) {
-    return logout();
-  }
+    const r =
+      await api(
+        '/api/admin/tests'
+      );
 
-  const a = await r.json();
 
-  list.innerHTML = a.map(t => {
+    if (r.status === 401) {
 
-    const start = t.startAt
-      ? new Date(t.startAt).toLocaleString('en-IN', {
-          dateStyle: 'medium',
-          timeStyle: 'short'
-        })
-      : 'Immediately';
+      return logout();
 
-    const end = t.endAt
-      ? new Date(t.endAt).toLocaleString('en-IN', {
-          dateStyle: 'medium',
-          timeStyle: 'short'
-        })
-      : 'No closing time';
+    }
 
-    return `
+
+    if (!r.ok) {
+
+      throw new Error(
+        'Unable to load tests.'
+      );
+
+    }
+
+
+    const a =
+      await r.json();
+
+
+    if (!Array.isArray(a)) {
+
+      list.innerHTML =
+        '<p class="muted">No tests found.</p>';
+
+      return;
+
+    }
+
+
+    if (!a.length) {
+
+      list.innerHTML = `
+        <article class="card">
+
+          <h3>
+            No tests created yet
+          </h3>
+
+          <p class="muted">
+            Click "+ New Test" to create your first exam.
+          </p>
+
+        </article>
+      `;
+
+      return;
+
+    }
+
+
+    list.innerHTML =
+      a.map(t => {
+
+        const start =
+          t.startAt
+
+            ? new Date(
+                t.startAt
+              ).toLocaleString(
+                'en-IN',
+                {
+                  dateStyle: 'medium',
+                  timeStyle: 'short'
+                }
+              )
+
+            : 'Immediately';
+
+
+        const end =
+          t.endAt
+
+            ? new Date(
+                t.endAt
+              ).toLocaleString(
+                'en-IN',
+                {
+                  dateStyle: 'medium',
+                  timeStyle: 'short'
+                }
+              )
+
+            : 'No closing time';
+
+
+        return `
+
+          <article class="card">
+
+            <span class="pill">
+
+              ${Array.isArray(t.questions)
+                ? t.questions.length
+                : 0}
+              questions
+
+            </span>
+
+
+            <h3>
+              ${esc(t.title)}
+            </h3>
+
+
+            <p class="muted">
+
+              ${t.durationMinutes} min
+              •
+              Pass ${t.passingPercentage}%
+
+            </p>
+
+
+            <p>
+
+              ${t.active
+                ? '🟢 Active'
+                : '⚪ Inactive'}
+
+              •
+
+              ${t.certificateEnabled
+                ? 'Certificate On'
+                : 'Certificate Off'}
+
+            </p>
+
+
+            <p class="muted">
+
+              🕐 Opens:
+              ${esc(start)}
+
+            </p>
+
+
+            <p class="muted">
+
+              🛑 Closes:
+              ${esc(end)}
+
+            </p>
+
+
+            <div class="actions">
+
+              <button
+                class="btn btn-primary"
+                onclick="edit('${t._id}')">
+
+                Edit
+
+              </button>
+
+
+              <button
+                class="btn btn-ghost"
+                onclick="del('${t._id}')">
+
+                Delete
+
+              </button>
+
+
+              <button
+                class="btn btn-gold"
+                onclick="downloadTestResults('${t._id}', this)">
+
+                📄 Download Results PDF
+
+              </button>
+
+            </div>
+
+
+            <small class="muted"
+                   style="display:block;margin-top:10px">
+
+              PDF contains all submitted students
+              of this test with PASS / FAIL status.
+
+            </small>
+
+          </article>
+
+        `;
+
+      }).join('');
+
+
+  } catch (err) {
+
+    console.error(err);
+
+    list.innerHTML = `
+
       <article class="card">
 
-        <span class="pill">
-          ${t.questions.length} questions
-        </span>
-
-        <h3>${esc(t.title)}</h3>
+        <h3>
+          Unable to load tests
+        </h3>
 
         <p class="muted">
-          ${t.durationMinutes} min •
-          Pass ${t.passingPercentage}%
+          ${esc(err.message)}
         </p>
-
-        <p>
-          ${t.active ? '🟢 Active' : '⚪ Inactive'}
-          •
-          ${t.certificateEnabled
-            ? 'Certificate On'
-            : 'Certificate Off'}
-        </p>
-
-        <p class="muted">
-          🕐 Opens: ${esc(start)}
-        </p>
-
-        <p class="muted">
-          🛑 Closes: ${esc(end)}
-        </p>
-
-        <div class="actions">
-
-          <button
-            class="btn btn-primary"
-            onclick="edit('${t._id}')">
-            Edit
-          </button>
-
-          <button
-            class="btn btn-ghost"
-            onclick="del('${t._id}')">
-            Delete
-          </button>
-
-        </div>
 
       </article>
+
     `;
 
-  }).join('');
+  }
+
+}
+
+
+// =====================================================
+// DOWNLOAD TEST-WISE RESULTS PDF
+// =====================================================
+
+async function downloadTestResults(
+  testId,
+  button
+) {
+
+  if (!testId) {
+
+    return alert(
+      'Test ID is missing.'
+    );
+
+  }
+
+
+  const originalText =
+    button
+      ? button.textContent
+      : '';
+
+
+  try {
+
+    if (button) {
+
+      button.disabled = true;
+
+      button.textContent =
+        'Generating PDF...';
+
+    }
+
+
+    const r =
+      await api(
+        '/api/admin/results/test/' +
+        encodeURIComponent(testId) +
+        '/pdf'
+      );
+
+
+    if (r.status === 401) {
+
+      return logout();
+
+    }
+
+
+    if (!r.ok) {
+
+      let message =
+        'Unable to generate results PDF.';
+
+
+      try {
+
+        const data =
+          await r.json();
+
+        if (data.message) {
+
+          message =
+            data.message;
+
+        }
+
+      } catch (_) {}
+
+
+      throw new Error(
+        message
+      );
+
+    }
+
+
+    const blob =
+      await r.blob();
+
+
+    if (
+      !blob ||
+      blob.size === 0
+    ) {
+
+      throw new Error(
+        'Generated PDF is empty.'
+      );
+
+    }
+
+
+    const url =
+      URL.createObjectURL(
+        blob
+      );
+
+
+    const a =
+      document.createElement(
+        'a'
+      );
+
+
+    a.href = url;
+
+
+    a.download =
+      'GrowtechAxon-Test-Results.pdf';
+
+
+    document.body.appendChild(a);
+
+    a.click();
+
+    a.remove();
+
+
+    setTimeout(() => {
+
+      URL.revokeObjectURL(url);
+
+    }, 5000);
+
+
+    if (button) {
+
+      button.textContent =
+        '✓ PDF Downloaded';
+
+      setTimeout(() => {
+
+        button.textContent =
+          originalText;
+
+        button.disabled =
+          false;
+
+      }, 2500);
+
+    }
+
+
+  } catch (err) {
+
+    console.error(
+      'Test results PDF error:',
+      err
+    );
+
+
+    alert(
+      err.message ||
+      'Unable to download results PDF.'
+    );
+
+
+    if (button) {
+
+      button.textContent =
+        originalText;
+
+      button.disabled =
+        false;
+
+    }
+
+  }
+
 }
 
 
@@ -256,29 +728,52 @@ function newTest() {
 
   editId = null;
 
-  mtitle.textContent = 'New Test';
+
+  mtitle.textContent =
+    'New Test';
+
 
   title.value = '';
 
+
   desc.value = '';
 
-  duration.value = 15;
 
-  pass.value = 50;
+  duration.value =
+    15;
 
-  startAt.value = '';
 
-  endAt.value = '';
+  pass.value =
+    50;
 
-  cert.checked = true;
 
-  active.checked = true;
+  startAt.value =
+    '';
 
-  questions.innerHTML = '';
+
+  endAt.value =
+    '';
+
+
+  cert.checked =
+    true;
+
+
+  active.checked =
+    true;
+
+
+  questions.innerHTML =
+    '';
+
 
   addQ();
 
-  modal.classList.add('show');
+
+  modal.classList.add(
+    'show'
+  );
+
 }
 
 
@@ -288,52 +783,126 @@ function newTest() {
 
 async function edit(id) {
 
-  const r = await api('/api/admin/tests');
+  try {
 
-  if (r.status === 401) {
-    return logout();
+    const r =
+      await api(
+        '/api/admin/tests'
+      );
+
+
+    if (r.status === 401) {
+
+      return logout();
+
+    }
+
+
+    const a =
+      await r.json();
+
+
+    const t =
+      a.find(
+        x => x._id === id
+      );
+
+
+    if (!t) {
+
+      return alert(
+        'Test not found.'
+      );
+
+    }
+
+
+    editId =
+      id;
+
+
+    mtitle.textContent =
+      'Edit Test';
+
+
+    title.value =
+      t.title;
+
+
+    desc.value =
+      t.description || '';
+
+
+    duration.value =
+      t.durationMinutes;
+
+
+    pass.value =
+      t.passingPercentage;
+
+
+    cert.checked =
+      t.certificateEnabled;
+
+
+    active.checked =
+      t.active;
+
+
+    startAt.value =
+      t.startAt
+        ? toDatetimeLocal(
+            t.startAt
+          )
+        : '';
+
+
+    endAt.value =
+      t.endAt
+        ? toDatetimeLocal(
+            t.endAt
+          )
+        : '';
+
+
+    questions.innerHTML =
+      '';
+
+
+    if (
+      Array.isArray(
+        t.questions
+      ) &&
+      t.questions.length
+    ) {
+
+      t.questions.forEach(
+        q => addQ(q)
+      );
+
+    } else {
+
+      addQ();
+
+    }
+
+
+    modal.classList.add(
+      'show'
+    );
+
+
+  } catch (err) {
+
+    console.error(err);
+
+    alert(
+      err.message ||
+      'Unable to load test.'
+    );
+
   }
 
-  const a = await r.json();
-
-  const t = a.find(x => x._id === id);
-
-  if (!t) {
-    return alert('Test not found.');
-  }
-
-  editId = id;
-
-  mtitle.textContent = 'Edit Test';
-
-  title.value = t.title;
-
-  desc.value = t.description || '';
-
-  duration.value = t.durationMinutes;
-
-  pass.value = t.passingPercentage;
-
-  cert.checked = t.certificateEnabled;
-
-  active.checked = t.active;
-
-
-  // Convert database UTC time to browser local datetime.
-  startAt.value = t.startAt
-    ? toDatetimeLocal(t.startAt)
-    : '';
-
-  endAt.value = t.endAt
-    ? toDatetimeLocal(t.endAt)
-    : '';
-
-
-  questions.innerHTML = '';
-
-  t.questions.forEach(q => addQ(q));
-
-  modal.classList.add('show');
 }
 
 
@@ -343,37 +912,59 @@ async function edit(id) {
 
 function addQ(q = {}) {
 
-  const d = document.createElement('div');
+  const d =
+    document.createElement(
+      'div'
+    );
 
-  d.className = 'question';
+
+  d.className =
+    'question';
+
 
   d.innerHTML = `
 
     <div class="field">
-      <label>Question</label>
+
+      <label>
+        Question
+      </label>
 
       <input
         class="qq"
-        value="${escAttr(q.question || '')}">
+        value="${escAttr(
+          q.question || ''
+        )}">
+
     </div>
 
 
     <div class="field">
-      <label>Options (one per line)</label>
 
-      <textarea class="qo">${(q.options ||
-        [
-          'Option A',
-          'Option B',
-          'Option C',
-          'Option D'
-        ])
+      <label>
+        Options (one per line)
+      </label>
+
+      <textarea
+        class="qo">${(
+          q.options ||
+
+          [
+            'Option A',
+            'Option B',
+            'Option C',
+            'Option D'
+          ]
+
+        )
         .map(esc)
         .join('\n')}</textarea>
+
     </div>
 
 
     <div class="field">
+
       <label>
         Correct option number (1-based)
       </label>
@@ -382,19 +973,30 @@ function addQ(q = {}) {
         class="qa"
         type="number"
         min="1"
-        value="${Number(q.answer ?? 0) + 1}">
+        value="${
+          Number(
+            q.answer ?? 0
+          ) + 1
+        }">
+
     </div>
 
 
     <button
       class="btn btn-ghost"
       onclick="this.parentElement.remove()">
+
       Remove
+
     </button>
 
   `;
 
-  questions.appendChild(d);
+
+  questions.appendChild(
+    d
+  );
+
 }
 
 
@@ -404,157 +1006,385 @@ function addQ(q = {}) {
 
 async function save() {
 
-  // -----------------------------------------------
-  // Validate schedule
-  // -----------------------------------------------
+  try {
 
-  let startISO = null;
+    // -----------------------------------------------
+    // Basic validation
+    // -----------------------------------------------
 
-  let endISO = null;
-
-
-  if (startAt.value) {
-    startISO = new Date(startAt.value).toISOString();
-  }
+    const testTitle =
+      title.value.trim();
 
 
-  if (endAt.value) {
-    endISO = new Date(endAt.value).toISOString();
-  }
-
-
-  if (startISO && endISO) {
-
-    if (
-      new Date(endISO).getTime() <=
-      new Date(startISO).getTime()
-    ) {
+    if (!testTitle) {
 
       return alert(
-        'Exam end time must be after start time.'
+        'Test title is required.'
       );
 
     }
 
-  }
+
+    const durationValue =
+      Number(
+        duration.value
+      );
 
 
-  // -----------------------------------------------
-  // Questions
-  // -----------------------------------------------
+    if (
+      !Number.isFinite(
+        durationValue
+      ) ||
+      durationValue < 1
+    ) {
 
-  const qs = [
-    ...document.querySelectorAll(
-      '#questions .question'
-    )
-  ]
-  .map(x => {
+      return alert(
+        'Duration must be at least 1 minute.'
+      );
 
-    const opts =
-      x.querySelector('.qo')
+    }
+
+
+    const passingValue =
+      Number(
+        pass.value
+      );
+
+
+    if (
+      !Number.isFinite(
+        passingValue
+      ) ||
+      passingValue < 0 ||
+      passingValue > 100
+    ) {
+
+      return alert(
+        'Passing percentage must be between 0 and 100.'
+      );
+
+    }
+
+
+    // -----------------------------------------------
+    // Schedule
+    // -----------------------------------------------
+
+    let startISO =
+      null;
+
+
+    let endISO =
+      null;
+
+
+    if (startAt.value) {
+
+      const startDate =
+        new Date(
+          startAt.value
+        );
+
+
+      if (
+        Number.isNaN(
+          startDate.getTime()
+        )
+      ) {
+
+        return alert(
+          'Invalid exam start date/time.'
+        );
+
+      }
+
+
+      startISO =
+        startDate.toISOString();
+
+    }
+
+
+    if (endAt.value) {
+
+      const endDate =
+        new Date(
+          endAt.value
+        );
+
+
+      if (
+        Number.isNaN(
+          endDate.getTime()
+        )
+      ) {
+
+        return alert(
+          'Invalid exam end date/time.'
+        );
+
+      }
+
+
+      endISO =
+        endDate.toISOString();
+
+    }
+
+
+    if (
+      startISO &&
+      endISO
+    ) {
+
+      if (
+        new Date(
+          endISO
+        ).getTime() <=
+        new Date(
+          startISO
+        ).getTime()
+      ) {
+
+        return alert(
+          'Exam end time must be after start time.'
+        );
+
+      }
+
+    }
+
+
+    // -----------------------------------------------
+    // Questions
+    // -----------------------------------------------
+
+    const qs = [
+
+      ...document.querySelectorAll(
+        '#questions .question'
+      )
+
+    ]
+
+    .map(x => {
+
+      const opts =
+        x.querySelector(
+          '.qo'
+        )
         .value
         .split('\n')
-        .map(s => s.trim())
-        .filter(Boolean);
+        .map(
+          s => s.trim()
+        )
+        .filter(
+          Boolean
+        );
 
-    return {
 
-      question:
-        x.querySelector('.qq')
-          .value
-          .trim(),
-
-      options: opts,
-
-      answer:
+      const answer =
         Number(
-          x.querySelector('.qa').value
-        ) - 1
+          x.querySelector(
+            '.qa'
+          ).value
+        ) - 1;
+
+
+      return {
+
+        question:
+          x.querySelector(
+            '.qq'
+          ).value.trim(),
+
+        options:
+          opts,
+
+        answer:
+          answer
+
+      };
+
+    });
+
+
+    // -----------------------------------------------
+    // Validate questions
+    // -----------------------------------------------
+
+    if (!qs.length) {
+
+      return alert(
+        'At least one question is required.'
+      );
+
+    }
+
+
+    for (
+      let i = 0;
+      i < qs.length;
+      i++
+    ) {
+
+      const q =
+        qs[i];
+
+
+      if (!q.question) {
+
+        return alert(
+          `Question ${i + 1} is empty.`
+        );
+
+      }
+
+
+      if (
+        q.options.length < 2
+      ) {
+
+        return alert(
+          `Question ${i + 1} must have at least 2 options.`
+        );
+
+      }
+
+
+      if (
+        !Number.isInteger(
+          q.answer
+        ) ||
+        q.answer < 0 ||
+        q.answer >=
+          q.options.length
+      ) {
+
+        return alert(
+          `Correct option for Question ${i + 1} is invalid.`
+        );
+
+      }
+
+    }
+
+
+    // -----------------------------------------------
+    // Request body
+    // -----------------------------------------------
+
+    const body = {
+
+      title:
+        testTitle,
+
+      description:
+        desc.value.trim(),
+
+      durationMinutes:
+        durationValue,
+
+      passingPercentage:
+        passingValue,
+
+      certificateEnabled:
+        cert.checked,
+
+      active:
+        active.checked,
+
+      startAt:
+        startISO,
+
+      endAt:
+        endISO,
+
+      questions:
+        qs
 
     };
 
-  })
-  .filter(q =>
-    q.question &&
-    q.options.length >= 2
-  );
 
+    // -----------------------------------------------
+    // Save
+    // -----------------------------------------------
 
-  // -----------------------------------------------
-  // Request body
-  // -----------------------------------------------
+    const r =
+      await api(
 
-  const body = {
-
-    title:
-      title.value.trim(),
-
-    description:
-      desc.value.trim(),
-
-    durationMinutes:
-      Number(duration.value),
-
-    passingPercentage:
-      Number(pass.value),
-
-    certificateEnabled:
-      cert.checked,
-
-    active:
-      active.checked,
-
-    startAt:
-      startISO,
-
-    endAt:
-      endISO,
-
-    questions:
-      qs
-
-  };
-
-
-  // -----------------------------------------------
-  // Save
-  // -----------------------------------------------
-
-  const r = await api(
-    editId
-      ? '/api/admin/tests/' + editId
-      : '/api/admin/tests',
-    {
-      method:
         editId
-          ? 'PUT'
-          : 'POST',
 
-      headers: {
-        'Content-Type':
-          'application/json'
-      },
+          ? '/api/admin/tests/' +
+            editId
 
-      body:
-        JSON.stringify(body)
+          : '/api/admin/tests',
+
+        {
+
+          method:
+            editId
+              ? 'PUT'
+              : 'POST',
+
+          headers: {
+
+            'Content-Type':
+              'application/json'
+
+          },
+
+          body:
+            JSON.stringify(
+              body
+            )
+
+        }
+
+      );
+
+
+    if (r.status === 401) {
+
+      return logout();
+
     }
-  );
 
 
-  const d = await r.json();
+    const d =
+      await r.json();
 
 
-  if (!r.ok) {
-    return alert(
-      d.message ||
+    if (!r.ok) {
+
+      return alert(
+        d.message ||
+        'Unable to save test.'
+      );
+
+    }
+
+
+    closeM();
+
+
+    await load();
+
+
+  } catch (err) {
+
+    console.error(
+      'Save test error:',
+      err
+    );
+
+    alert(
+      err.message ||
       'Unable to save test.'
     );
+
   }
 
-
-  closeM();
-
-  load();
 }
 
 
@@ -569,17 +1399,65 @@ async function del(id) {
       'Delete this test?'
     )
   ) {
+
     return;
+
   }
 
-  await api(
-    '/api/admin/tests/' + id,
-    {
-      method: 'DELETE'
-    }
-  );
 
-  load();
+  try {
+
+    const r =
+      await api(
+
+        '/api/admin/tests/' +
+        id,
+
+        {
+          method:
+            'DELETE'
+        }
+
+      );
+
+
+    if (r.status === 401) {
+
+      return logout();
+
+    }
+
+
+    const d =
+      await r.json();
+
+
+    if (!r.ok) {
+
+      return alert(
+        d.message ||
+        'Unable to delete test.'
+      );
+
+    }
+
+
+    await load();
+
+
+  } catch (err) {
+
+    console.error(
+      err
+    );
+
+    alert(
+      err.message ||
+      'Unable to delete test.'
+    );
+
+  }
+
 }
 
 
@@ -589,7 +1467,9 @@ async function del(id) {
 
 function closeM() {
 
-  modal.classList.remove('show');
+  modal.classList.remove(
+    'show'
+  );
 
 }
 
@@ -604,6 +1484,7 @@ function logout() {
     'growtechAdminToken'
   );
 
+
   location.href =
     '/admin/login.html';
 
@@ -616,16 +1497,32 @@ function logout() {
 
 function esc(s) {
 
-  return String(s ?? '')
+  return String(
+    s ?? ''
+  )
+
     .replace(
       /[&<>"']/g,
+
       m => ({
-        '&': '&amp;',
-        '<': '&lt;',
-        '>': '&gt;',
-        '"': '&quot;',
-        "'": '&#039;'
+
+        '&':
+          '&amp;',
+
+        '<':
+          '&lt;',
+
+        '>':
+          '&gt;',
+
+        '"':
+          '&quot;',
+
+        "'":
+          '&#039;'
+
       }[m])
+
     );
 
 }
@@ -634,6 +1531,7 @@ function esc(s) {
 function escAttr(s) {
 
   return esc(s)
+
     .replace(
       /"/g,
       '&quot;'
@@ -646,23 +1544,54 @@ function escAttr(s) {
 // DATETIME LOCAL HELPER
 // =====================================================
 
-function toDatetimeLocal(value) {
+function toDatetimeLocal(
+  value
+) {
 
-  const d = new Date(value);
+  const d =
+    new Date(
+      value
+    );
 
-  const pad = n =>
-    String(n).padStart(2, '0');
+
+  const pad =
+    n =>
+      String(
+        n
+      ).padStart(
+        2,
+        '0'
+      );
+
 
   return (
+
     d.getFullYear() +
+
     '-' +
-    pad(d.getMonth() + 1) +
+
+    pad(
+      d.getMonth() + 1
+    ) +
+
     '-' +
-    pad(d.getDate()) +
+
+    pad(
+      d.getDate()
+    ) +
+
     'T' +
-    pad(d.getHours()) +
+
+    pad(
+      d.getHours()
+    ) +
+
     ':' +
-    pad(d.getMinutes())
+
+    pad(
+      d.getMinutes()
+    )
+
   );
 
 }

@@ -30,6 +30,24 @@ function formatDate(value) {
   });
 }
 
+function formatDateTime(value) {
+  if (!value) return "N/A";
+
+  const date = new Date(value);
+
+  if (Number.isNaN(date.getTime())) {
+    return safe(value, "N/A");
+  }
+
+  return date.toLocaleString("en-GB", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit"
+  });
+}
+
 function formatPercentage(value) {
   const number = Number(value);
 
@@ -69,7 +87,12 @@ const COLORS = {
   muted: "#93A4BC",
   muted2: "#71839C",
 
-  bluePanel: "#0B2747"
+  bluePanel: "#0B2747",
+
+  green: "#35D07F",
+  red: "#FF6B6B",
+  darkGreen: "#103D2A",
+  darkRed: "#451D25"
 };
 
 /* =========================================================
@@ -362,6 +385,498 @@ function buildResultPdf(result, res) {
 }
 
 /* =========================================================
+   COMBINED TEST-WISE RESULTS PDF
+========================================================= */
+
+function buildTestResultsPdf(results, testTitle, res) {
+  const doc = new PDFDocument({
+    size: "A4",
+    margin: 0,
+
+    info: {
+      Title: `Growtech Axon - ${safe(testTitle, "Test")} Results`,
+      Author: "Growtech Axon",
+      Subject: "Test-wise Student Results"
+    }
+  });
+
+  const safeTitle = safe(testTitle, "Test")
+    .replace(/[<>:"/\\|?*]+/g, "-")
+    .replace(/\s+/g, "-")
+    .substring(0, 80);
+
+  res.setHeader("Content-Type", "application/pdf");
+
+  res.setHeader(
+    "Content-Disposition",
+    `attachment; filename="GrowtechAxon-${safeTitle}-Results.pdf"`
+  );
+
+  doc.pipe(res);
+
+  const pageWidth = doc.page.width;
+  const pageHeight = doc.page.height;
+
+  const left = 42;
+  const right = pageWidth - 42;
+  const tableWidth = right - left;
+
+  const colSno = 42;
+  const colName = 205;
+  const colCertificate = 170;
+  const colStatus = tableWidth - colSno - colName - colCertificate;
+
+  const totalStudents = results.length;
+
+  const totalPass = results.filter(
+    (result) => Boolean(result.passed)
+  ).length;
+
+  const totalFail = totalStudents - totalPass;
+
+  function drawPageBackground() {
+    doc
+      .rect(0, 0, pageWidth, pageHeight)
+      .fill(COLORS.navyDark);
+
+    doc
+      .rect(20, 20, pageWidth - 40, pageHeight - 40)
+      .fill(COLORS.navy);
+
+    doc
+      .rect(28, 28, pageWidth - 56, pageHeight - 56)
+      .lineWidth(1)
+      .stroke(COLORS.goldDark);
+  }
+
+  function drawHeader() {
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(23)
+      .fillColor(COLORS.goldLight)
+      .text(
+        "GROWTECH AXON",
+        left,
+        48,
+        {
+          width: tableWidth,
+          align: "center"
+        }
+      );
+
+    doc
+      .font("Helvetica")
+      .fontSize(8)
+      .fillColor(COLORS.muted)
+      .text(
+        "DIGITAL INNOVATION • SMARTER GROWTH",
+        left,
+        76,
+        {
+          width: tableWidth,
+          align: "center",
+          characterSpacing: 1
+        }
+      );
+
+    doc
+      .moveTo(90, 98)
+      .lineTo(pageWidth - 90, 98)
+      .lineWidth(1)
+      .stroke(COLORS.goldDark);
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(20)
+      .fillColor(COLORS.white)
+      .text(
+        "TEST RESULT SUMMARY",
+        left,
+        119,
+        {
+          width: tableWidth,
+          align: "center"
+        }
+      );
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(13)
+      .fillColor(COLORS.goldLight)
+      .text(
+        safe(testTitle, "Assessment"),
+        left,
+        151,
+        {
+          width: tableWidth,
+          align: "center"
+        }
+      );
+
+    /* Summary boxes */
+
+    const summaryY = 185;
+    const gap = 10;
+    const boxWidth = (tableWidth - gap * 2) / 3;
+    const boxHeight = 58;
+
+    const summary = [
+      ["TOTAL STUDENTS", totalStudents, COLORS.white],
+      ["PASS", totalPass, COLORS.green],
+      ["FAIL", totalFail, COLORS.red]
+    ];
+
+    summary.forEach((item, index) => {
+      const x = left + index * (boxWidth + gap);
+
+      doc
+        .roundedRect(
+          x,
+          summaryY,
+          boxWidth,
+          boxHeight,
+          9
+        )
+        .fill("#081D3C");
+
+      doc
+        .roundedRect(
+          x,
+          summaryY,
+          boxWidth,
+          boxHeight,
+          9
+        )
+        .lineWidth(0.8)
+        .stroke(COLORS.goldDark);
+
+      doc
+        .font("Helvetica")
+        .fontSize(7)
+        .fillColor(COLORS.muted)
+        .text(
+          item[0],
+          x,
+          summaryY + 11,
+          {
+            width: boxWidth,
+            align: "center"
+          }
+        );
+
+      doc
+        .font("Helvetica-Bold")
+        .fontSize(20)
+        .fillColor(item[2])
+        .text(
+          String(item[1]),
+          x,
+          summaryY + 27,
+          {
+            width: boxWidth,
+            align: "center"
+          }
+        );
+    });
+  }
+
+  function drawTableHeader(y) {
+    const headerHeight = 30;
+
+    doc
+      .roundedRect(
+        left,
+        y,
+        tableWidth,
+        headerHeight,
+        5
+      )
+      .fill(COLORS.bluePanel);
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(7.5)
+      .fillColor(COLORS.goldLight);
+
+    doc.text(
+      "S.NO",
+      left + 5,
+      y + 10,
+      {
+        width: colSno - 10,
+        align: "center"
+      }
+    );
+
+    doc.text(
+      "STUDENT NAME",
+      left + colSno + 5,
+      y + 10,
+      {
+        width: colName - 10,
+        align: "left"
+      }
+    );
+
+    doc.text(
+      "CERTIFICATE ID",
+      left + colSno + colName + 5,
+      y + 10,
+      {
+        width: colCertificate - 10,
+        align: "left"
+      }
+    );
+
+    doc.text(
+      "RESULT STATUS",
+      left + colSno + colName + colCertificate + 5,
+      y + 10,
+      {
+        width: colStatus - 10,
+        align: "center"
+      }
+    );
+  }
+
+  function drawRow(result, index, y) {
+    const rowHeight = 29;
+
+    const passed = Boolean(result.passed);
+
+    const certificateId = safe(
+      result.certificateId,
+      "—"
+    );
+
+    /* Row */
+
+    doc
+      .roundedRect(
+        left,
+        y,
+        tableWidth,
+        rowHeight,
+        4
+      )
+      .fill(index % 2 === 0 ? "#081D3C" : "#0A2141");
+
+    doc
+      .roundedRect(
+        left,
+        y,
+        tableWidth,
+        rowHeight,
+        4
+      )
+      .lineWidth(0.35)
+      .stroke(COLORS.goldDark);
+
+    /* S.No */
+
+    doc
+      .font("Helvetica")
+      .fontSize(8)
+      .fillColor(COLORS.muted)
+      .text(
+        String(index + 1),
+        left + 5,
+        y + 9,
+        {
+          width: colSno - 10,
+          align: "center"
+        }
+      );
+
+    /* Name */
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(8.5)
+      .fillColor(COLORS.white)
+      .text(
+        safe(result.candidateName, "Candidate"),
+        left + colSno + 5,
+        y + 8,
+        {
+          width: colName - 10,
+          height: 14,
+          ellipsis: true
+        }
+      );
+
+    /* Certificate ID */
+
+    doc
+      .font("Helvetica")
+      .fontSize(7.5)
+      .fillColor(
+        certificateId === "—"
+          ? COLORS.muted
+          : COLORS.goldLight
+      )
+      .text(
+        certificateId,
+        left + colSno + colName + 5,
+        y + 9,
+        {
+          width: colCertificate - 10,
+          height: 13,
+          ellipsis: true
+        }
+      );
+
+    /* Status badge */
+
+    const statusX =
+      left +
+      colSno +
+      colName +
+      colCertificate;
+
+    const badgeWidth = 58;
+    const badgeHeight = 17;
+
+    const badgeX =
+      statusX + (colStatus - badgeWidth) / 2;
+
+    const badgeY = y + 6;
+
+    doc
+      .roundedRect(
+        badgeX,
+        badgeY,
+        badgeWidth,
+        badgeHeight,
+        8
+      )
+      .fill(
+        passed
+          ? COLORS.darkGreen
+          : COLORS.darkRed
+      );
+
+    doc
+      .roundedRect(
+        badgeX,
+        badgeY,
+        badgeWidth,
+        badgeHeight,
+        8
+      )
+      .lineWidth(0.5)
+      .stroke(
+        passed
+          ? COLORS.green
+          : COLORS.red
+      );
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(7)
+      .fillColor(
+        passed
+          ? COLORS.green
+          : COLORS.red
+      )
+      .text(
+        passed ? "PASS" : "FAIL",
+        badgeX,
+        badgeY + 5,
+        {
+          width: badgeWidth,
+          align: "center"
+        }
+      );
+  }
+
+  function drawFooter() {
+    doc
+      .moveTo(left, pageHeight - 57)
+      .lineTo(right, pageHeight - 57)
+      .lineWidth(0.5)
+      .stroke(COLORS.goldDark);
+
+    doc
+      .font("Helvetica")
+      .fontSize(6.5)
+      .fillColor(COLORS.muted2)
+      .text(
+        `Generated: ${formatDateTime(new Date())}`,
+        left,
+        pageHeight - 45
+      );
+
+    doc
+      .font("Helvetica-Bold")
+      .fontSize(6.5)
+      .fillColor(COLORS.muted)
+      .text(
+        "GROWTECH AXON • OFFICIAL RESULT SUMMARY",
+        left,
+        pageHeight - 32,
+        {
+          width: tableWidth,
+          align: "center",
+          characterSpacing: 0.7
+        }
+      );
+  }
+
+  /* First page */
+
+  drawPageBackground();
+  drawHeader();
+
+  let currentY = 265;
+
+  drawTableHeader(currentY);
+  currentY += 30;
+
+  const rowHeight = 29;
+  const bottomLimit = pageHeight - 75;
+
+  results.forEach((result, index) => {
+    if (currentY + rowHeight > bottomLimit) {
+      drawFooter();
+
+      doc.addPage();
+
+      drawPageBackground();
+
+      currentY = 55;
+
+      doc
+        .font("Helvetica-Bold")
+        .fontSize(12)
+        .fillColor(COLORS.goldLight)
+        .text(
+          safe(testTitle, "Assessment"),
+          left,
+          currentY,
+          {
+            width: tableWidth,
+            align: "center"
+          }
+        );
+
+      currentY += 30;
+
+      drawTableHeader(currentY);
+      currentY += 30;
+    }
+
+    drawRow(result, index, currentY);
+
+    currentY += rowHeight + 4;
+  });
+
+  drawFooter();
+
+  doc.end();
+}
+
+/* =========================================================
    CERTIFICATE BACKGROUND
 ========================================================= */
 
@@ -369,13 +884,9 @@ function drawCertificateBackground(doc) {
   const w = doc.page.width;
   const h = doc.page.height;
 
-  /* Full background */
-
   doc
     .rect(0, 0, w, h)
     .fill(COLORS.navyDark);
-
-  /* Main certificate */
 
   doc
     .roundedRect(
@@ -386,8 +897,6 @@ function drawCertificateBackground(doc) {
       15
     )
     .fill(COLORS.navy);
-
-  /* Inner panel */
 
   doc
     .roundedRect(
@@ -408,8 +917,6 @@ function drawPremiumBorder(doc) {
   const w = doc.page.width;
   const h = doc.page.height;
 
-  /* Outer */
-
   doc
     .roundedRect(
       17,
@@ -421,8 +928,6 @@ function drawPremiumBorder(doc) {
     .lineWidth(2)
     .stroke(COLORS.gold);
 
-  /* Middle */
-
   doc
     .roundedRect(
       27,
@@ -433,8 +938,6 @@ function drawPremiumBorder(doc) {
     )
     .lineWidth(0.8)
     .stroke(COLORS.goldDark);
-
-  /* Inner */
 
   doc
     .roundedRect(
@@ -458,8 +961,6 @@ function drawCornerDecoration(doc) {
 
   const gold = COLORS.gold;
 
-  /* Top Left */
-
   doc
     .moveTo(38, 105)
     .lineTo(38, 55)
@@ -474,8 +975,6 @@ function drawCornerDecoration(doc) {
     .lineTo(107, 38)
     .lineWidth(2)
     .stroke(gold);
-
-  /* Top Right */
 
   doc
     .moveTo(w - 38, 105)
@@ -492,8 +991,6 @@ function drawCornerDecoration(doc) {
     .lineWidth(2)
     .stroke(gold);
 
-  /* Bottom Left */
-
   doc
     .moveTo(38, h - 105)
     .lineTo(38, h - 55)
@@ -508,8 +1005,6 @@ function drawCornerDecoration(doc) {
     .lineTo(107, h - 38)
     .lineWidth(2)
     .stroke(gold);
-
-  /* Bottom Right */
 
   doc
     .moveTo(w - 38, h - 105)
@@ -583,8 +1078,6 @@ function drawLogo(doc) {
       );
     }
   }
-
-  /* Fallback */
 
   doc
     .font("Helvetica-Bold")
@@ -681,8 +1174,6 @@ function drawCertificateHeading(doc) {
     .lineWidth(1)
     .stroke(COLORS.gold);
 
-  /* Diamond */
-
   const cx = w / 2;
 
   doc
@@ -735,15 +1226,11 @@ function drawCandidateSection(doc, certificate) {
       }
     );
 
-  /* Name line */
-
   doc
     .moveTo(315, 265)
     .lineTo(w - 315, 265)
     .lineWidth(1)
     .stroke(COLORS.gold);
-
-  /* Assessment label */
 
   doc
     .font("Helvetica")
@@ -759,8 +1246,6 @@ function drawCandidateSection(doc, certificate) {
         characterSpacing: 1
       }
     );
-
-  /* Test title */
 
   doc
     .font("Helvetica-Bold")
@@ -798,8 +1283,6 @@ function drawScoreBadge(doc, certificate) {
   const cx = w / 2;
   const cy = 357;
 
-  /* Outer */
-
   doc
     .circle(cx, cy, 38)
     .fill(COLORS.navy);
@@ -809,14 +1292,10 @@ function drawScoreBadge(doc, certificate) {
     .lineWidth(1.8)
     .stroke(COLORS.gold);
 
-  /* Inner */
-
   doc
     .circle(cx, cy, 31)
     .lineWidth(0.6)
     .stroke(COLORS.goldDark);
-
-  /* Score */
 
   doc
     .font("Helvetica")
@@ -862,6 +1341,7 @@ function drawScoreBadge(doc, certificate) {
       }
     );
 }
+
 /* =========================================================
    DIGITAL HANDWRITTEN SIGNATURE
 ========================================================= */
@@ -870,36 +1350,25 @@ function drawSignature(doc, certificate) {
   const x = 75;
   const y = 445;
 
-  /* Exact signature name */
-  const name = "Rambharosa";
+  const name = safe(
+    certificate.signatoryName,
+    "Rambharosa"
+  );
 
   const designation = safe(
     certificate.signatoryDesignation,
     "Founder & CEO"
   );
 
-  /*
-     Handwritten-style digital signature
-     - Black ink
-     - Slightly tilted
-     - Larger flowing appearance
-     - No signature image
-  */
-
   doc.save();
 
-  /* Signature position + natural tilt */
   doc.translate(x + 87, y + 12);
   doc.rotate(-8);
 
-  /*
-     Use a large italic/script-like font.
-     Black color makes it look like real ink.
-  */
   doc
     .font("Times-Italic")
     .fontSize(31)
-    .fillColor("#f1f1ec")
+    .fillColor("#1E3A8A")
     .text(
       name,
       -100,
@@ -913,7 +1382,6 @@ function drawSignature(doc, certificate) {
 
   doc.restore();
 
-  /* Small flowing underline under signature */
   doc.save();
 
   doc
@@ -927,11 +1395,9 @@ function drawSignature(doc, certificate) {
       y + 38
     )
     .lineWidth(1)
-    .stroke("#000000");
+    .stroke("#1E3A8A");
 
   doc.restore();
-
-  /* Printed signatory name */
 
   doc
     .font("Helvetica-Bold")
@@ -947,8 +1413,6 @@ function drawSignature(doc, certificate) {
       }
     );
 
-  /* Designation */
-
   doc
     .font("Helvetica")
     .fontSize(6.5)
@@ -963,6 +1427,7 @@ function drawSignature(doc, certificate) {
       }
     );
 }
+
 /* =========================================================
    OFFICIAL SEAL
 ========================================================= */
@@ -971,21 +1436,15 @@ function drawOfficialSeal(doc) {
   const cx = 420;
   const cy = 475;
 
-  /* Outer */
-
   doc
     .circle(cx, cy, 31)
     .lineWidth(1.6)
     .stroke(COLORS.gold);
 
-  /* Inner */
-
   doc
     .circle(cx, cy, 25)
     .lineWidth(0.7)
     .stroke(COLORS.goldDark);
-
-  /* Star */
 
   doc
     .moveTo(cx, cy - 14)
@@ -1050,8 +1509,6 @@ function drawCertificateMeta(doc, certificate) {
   const issueDate =
     formatDate(certificate.issueDate);
 
-  /* Date */
-
   doc
     .font("Helvetica")
     .fontSize(6.5)
@@ -1079,8 +1536,6 @@ function drawCertificateMeta(doc, certificate) {
       }
     );
 
-  /* Certificate ID */
-
   doc
     .font("Helvetica")
     .fontSize(6.5)
@@ -1107,8 +1562,6 @@ function drawCertificateMeta(doc, certificate) {
         width: 190
       }
     );
-
-  /* Verified badge */
 
   doc
     .roundedRect(
@@ -1201,13 +1654,6 @@ function buildCertificatePdf(certificate, res) {
     certificate._id || "certificate"
   );
 
-  /*
-      IMPORTANT
-
-      A4 Landscape:
-      842 x 595 points
-  */
-
   const doc = new PDFDocument({
     size: "A4",
     layout: "landscape",
@@ -1234,74 +1680,42 @@ function buildCertificatePdf(certificate, res) {
 
   doc.pipe(res);
 
-  /* Background */
-
   drawCertificateBackground(doc);
-
-  /* Texture */
-
   drawBackgroundTexture(doc);
-
-  /* Borders */
-
   drawPremiumBorder(doc);
-
-  /* Corners */
-
   drawCornerDecoration(doc);
-
-  /* Logo */
-
   drawLogo(doc);
-
-  /* Certificate ID */
 
   drawTopCertificateId(
     doc,
     certificate
   );
 
-  /* Heading */
-
   drawCertificateHeading(doc);
-
-  /* Candidate */
 
   drawCandidateSection(
     doc,
     certificate
   );
 
-  /* Score */
-
   drawScoreBadge(
     doc,
     certificate
   );
-
-  /* Digital Signature */
 
   drawSignature(
     doc,
     certificate
   );
 
-  /* Seal */
-
   drawOfficialSeal(doc);
-
-  /* Meta */
 
   drawCertificateMeta(
     doc,
     certificate
   );
 
-  /* Footer */
-
   drawCertificateFooter(doc);
-
-  /* Finish */
 
   doc.end();
 }
@@ -1312,6 +1726,7 @@ function buildCertificatePdf(certificate, res) {
 
 module.exports = {
   buildResultPdf,
+  buildTestResultsPdf,
   buildCertificatePdf,
   gradeFromPercentage
 };

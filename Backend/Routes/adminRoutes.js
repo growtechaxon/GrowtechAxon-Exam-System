@@ -10,20 +10,23 @@ const adminAuth = require("../Middleware/adminAuth");
 
 const {
   buildResultPdf,
+  buildTestResultsPdf,
   buildCertificatePdf,
   gradeFromPercentage
 } = require("../Utils/pdf");
 
 const router = express.Router();
 
-// =========================
-// ADMIN LOGIN
-// =========================
+/* =========================================================
+   ADMIN LOGIN
+========================================================= */
+
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
 
     const okEmail = email === process.env.ADMIN_EMAIL;
+
     const configured = process.env.ADMIN_PASSWORD || "";
 
     const okPass = configured.startsWith("$2")
@@ -58,9 +61,10 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// =========================
-// GET ALL RESULTS
-// =========================
+/* =========================================================
+   GET ALL RESULTS
+========================================================= */
+
 router.get("/results", adminAuth, async (req, res) => {
   try {
     const q = (req.query.q || "").trim();
@@ -68,10 +72,30 @@ router.get("/results", adminAuth, async (req, res) => {
     const filter = q
       ? {
           $or: [
-            { candidateName: { $regex: q, $options: "i" } },
-            { email: { $regex: q, $options: "i" } },
-            { resultId: { $regex: q, $options: "i" } },
-            { testTitle: { $regex: q, $options: "i" } }
+            {
+              candidateName: {
+                $regex: q,
+                $options: "i"
+              }
+            },
+            {
+              email: {
+                $regex: q,
+                $options: "i"
+              }
+            },
+            {
+              resultId: {
+                $regex: q,
+                $options: "i"
+              }
+            },
+            {
+              testTitle: {
+                $regex: q,
+                $options: "i"
+              }
+            }
           ]
         }
       : {};
@@ -91,9 +115,81 @@ router.get("/results", adminAuth, async (req, res) => {
   }
 });
 
-// =========================
-// VIEW SINGLE RESULT
-// =========================
+/* =========================================================
+   DELETE SINGLE RESULT
+   Also deletes linked certificate
+========================================================= */
+
+router.delete("/results/:id", adminAuth, async (req, res) => {
+  try {
+    const id = String(req.params.id).trim();
+
+    let result = await TestResult.findOne({
+      resultId: id
+    });
+
+    if (!result && mongoose.Types.ObjectId.isValid(id)) {
+      result = await TestResult.findById(id);
+    }
+
+    if (!result) {
+      return res.status(404).json({
+        message: "Result not found."
+      });
+    }
+
+    /*
+      Delete certificate linked with this result.
+
+      We check both:
+      1. resultId
+      2. certificateId
+
+      This keeps the database clean even if certificate
+      and result references are slightly out of sync.
+    */
+
+    const certificateFilters = [
+      {
+        resultId: result._id
+      }
+    ];
+
+    if (result.certificateId) {
+      certificateFilters.push({
+        certificateId: result.certificateId
+      });
+    }
+
+    await Certificate.deleteMany({
+      $or: certificateFilters
+    });
+
+    await TestResult.deleteOne({
+      _id: result._id
+    });
+
+    res.json({
+      success: true,
+      message:
+        "Student result and linked certificate deleted successfully.",
+      deletedResultId:
+        result.resultId || String(result._id)
+    });
+  } catch (err) {
+    console.error("Delete result error:", err);
+
+    res.status(500).json({
+      message: "Unable to delete result.",
+      error: err.message
+    });
+  }
+});
+
+/* =========================================================
+   VIEW SINGLE RESULT
+========================================================= */
+
 router.get("/results/:id", adminAuth, async (req, res) => {
   try {
     const id = req.params.id;
@@ -134,9 +230,10 @@ router.get("/results/:id", adminAuth, async (req, res) => {
   }
 });
 
-// =========================
-// RESULT PDF
-// =========================
+/* =========================================================
+   SINGLE RESULT PDF
+========================================================= */
+
 router.get("/results/:id/pdf", adminAuth, async (req, res) => {
   try {
     const id = req.params.id;
@@ -168,49 +265,122 @@ router.get("/results/:id/pdf", adminAuth, async (req, res) => {
   }
 });
 
-// =========================
-// CERTIFICATE PDF
-// =========================
-router.get("/certificates/:id/pdf", adminAuth, async (req, res) => {
-  try {
-    const id = req.params.id;
+/* =========================================================
+   TEST-WISE COMBINED RESULTS PDF
+========================================================= */
 
-    let certificate = await Certificate.findOne({
-      certificateId: id
-    });
+router.get(
+  "/results/test/:testId/pdf",
+  adminAuth,
+  async (req, res) => {
+    try {
+      const testId = req.params.testId;
 
-    if (!certificate && mongoose.Types.ObjectId.isValid(id)) {
-      certificate = await Certificate.findById(id);
-    }
+      if (!mongoose.Types.ObjectId.isValid(testId)) {
+        return res.status(400).json({
+          message: "Invalid test ID."
+        });
+      }
 
-    if (!certificate) {
-      return res.status(404).json({
-        message: "Certificate not found."
-      });
-    }
+      const test = await Test.findById(testId).lean();
 
-    if (certificate.status === "revoked") {
-      return res.status(400).json({
-        message: "Certificate is revoked."
-      });
-    }
+      if (!test) {
+        return res.status(404).json({
+          message: "Test not found."
+        });
+      }
 
-    buildCertificatePdf(certificate, res);
-  } catch (err) {
-    console.error("Certificate PDF error:", err);
+      const results = await TestResult.find({
+        testId: test._id
+      })
+        .sort({
+          submittedAt: 1
+        })
+        .lean();
 
-    if (!res.headersSent) {
-      res.status(500).json({
-        message: "Unable to generate certificate PDF.",
-        error: err.message
-      });
+      buildTestResultsPdf(
+        results,
+        test.title,
+        res
+      );
+    } catch (err) {
+      console.error(
+        "Test-wise results PDF error:",
+        err
+      );
+
+      if (!res.headersSent) {
+        res.status(500).json({
+          message:
+            "Unable to generate test-wise results PDF.",
+          error: err.message
+        });
+      }
     }
   }
-});
+);
 
-// =========================
-// GENERATE CERTIFICATE
-// =========================
+/* =========================================================
+   CERTIFICATE PDF
+========================================================= */
+
+router.get(
+  "/certificates/:id/pdf",
+  adminAuth,
+  async (req, res) => {
+    try {
+      const id = req.params.id;
+
+      let certificate =
+        await Certificate.findOne({
+          certificateId: id
+        });
+
+      if (
+        !certificate &&
+        mongoose.Types.ObjectId.isValid(id)
+      ) {
+        certificate =
+          await Certificate.findById(id);
+      }
+
+      if (!certificate) {
+        return res.status(404).json({
+          message: "Certificate not found."
+        });
+      }
+
+      if (certificate.status === "revoked") {
+        return res.status(400).json({
+          message: "Certificate is revoked."
+        });
+      }
+
+      buildCertificatePdf(
+        certificate,
+        res
+      );
+    } catch (err) {
+      console.error(
+        "Certificate PDF error:",
+        err
+      );
+
+      if (!res.headersSent) {
+        res.status(500).json({
+          message:
+            "Unable to generate certificate PDF.",
+          error: err.message
+        });
+      }
+    }
+  }
+);
+
+/* =========================================================
+   GENERATE CERTIFICATE
+========================================================= */
+
 router.post(
   "/certificates/generate/:resultId",
   adminAuth,
@@ -218,12 +388,17 @@ router.post(
     try {
       const id = req.params.resultId;
 
-      let result = await TestResult.findOne({
-        resultId: id
-      });
+      let result =
+        await TestResult.findOne({
+          resultId: id
+        });
 
-      if (!result && mongoose.Types.ObjectId.isValid(id)) {
-        result = await TestResult.findById(id);
+      if (
+        !result &&
+        mongoose.Types.ObjectId.isValid(id)
+      ) {
+        result =
+          await TestResult.findById(id);
       }
 
       if (!result) {
@@ -240,12 +415,16 @@ router.post(
       }
 
       if (result.certificateId) {
-        const existingCertificate = await Certificate.findOne({
-          certificateId: result.certificateId
-        });
+        const existingCertificate =
+          await Certificate.findOne({
+            certificateId:
+              result.certificateId
+          });
 
         if (existingCertificate) {
-          return res.json(existingCertificate);
+          return res.json(
+            existingCertificate
+          );
         }
       }
 
@@ -262,118 +441,167 @@ router.post(
             .substring(2, 8)
             .toUpperCase();
 
-        exists = await Certificate.exists({
-          certificateId
-        });
+        exists =
+          await Certificate.exists({
+            certificateId
+          });
       }
 
-      const percentage = Number(result.percentage || 0);
+      const percentage =
+        Number(result.percentage || 0);
 
-      const certificate = await Certificate.create({
-        certificateId,
-        resultId: result._id,
-        candidateName: result.candidateName,
-        email: result.email,
-        testTitle: result.testTitle,
-        issueDate: new Date(),
-        percentage,
-        grade: gradeFromPercentage(percentage),
-        status: "valid",
-        signatoryName:
-          process.env.CERTIFICATE_SIGNATORY_NAME ||
-          "Growtech Axon",
-        signatoryDesignation:
-          process.env.CERTIFICATE_SIGNATORY_DESIGNATION ||
-          "Authorized Signatory"
-      });
+      const certificate =
+        await Certificate.create({
+          certificateId,
 
-      result.certificateId = certificate.certificateId;
+          resultId: result._id,
+
+          candidateName:
+            result.candidateName,
+
+          email: result.email,
+
+          testTitle:
+            result.testTitle,
+
+          issueDate: new Date(),
+
+          percentage,
+
+          grade:
+            gradeFromPercentage(
+              percentage
+            ),
+
+          status: "valid",
+
+          signatoryName:
+            process.env
+              .CERTIFICATE_SIGNATORY_NAME ||
+            "Growtech Axon",
+
+          signatoryDesignation:
+            process.env
+              .CERTIFICATE_SIGNATORY_DESIGNATION ||
+            "Authorized Signatory"
+        });
+
+      result.certificateId =
+        certificate.certificateId;
 
       await result.save();
 
-      return res.status(201).json(certificate);
+      return res.status(201).json(
+        certificate
+      );
     } catch (err) {
-      console.error("Generate certificate error:", err);
+      console.error(
+        "Generate certificate error:",
+        err
+      );
 
       return res.status(500).json({
-        message: "Unable to generate certificate.",
+        message:
+          "Unable to generate certificate.",
         error: err.message
       });
     }
   }
 );
 
-// =========================
-// EDIT CERTIFICATE
-// =========================
-router.put("/certificates/:id", adminAuth, async (req, res) => {
-  try {
-    const allowed = [
-      "candidateName",
-      "testTitle",
-      "issueDate",
-      "percentage",
-      "grade",
-      "status",
-      "signatoryName",
-      "signatoryDesignation"
-    ];
+/* =========================================================
+   EDIT CERTIFICATE
+========================================================= */
 
-    const data = {};
+router.put(
+  "/certificates/:id",
+  adminAuth,
+  async (req, res) => {
+    try {
+      const allowed = [
+        "candidateName",
+        "testTitle",
+        "issueDate",
+        "percentage",
+        "grade",
+        "status",
+        "signatoryName",
+        "signatoryDesignation"
+      ];
 
-    allowed.forEach((key) => {
-      if (req.body[key] !== undefined) {
-        data[key] = req.body[key];
+      const data = {};
+
+      allowed.forEach((key) => {
+        if (req.body[key] !== undefined) {
+          data[key] = req.body[key];
+        }
+      });
+
+      if (data.percentage !== undefined) {
+        data.percentage =
+          Number(data.percentage);
+
+        if (!req.body.grade) {
+          data.grade =
+            gradeFromPercentage(
+              data.percentage
+            );
+        }
       }
-    });
 
-    if (data.percentage !== undefined) {
-      data.percentage = Number(data.percentage);
+      const certificate =
+        await Certificate.findOneAndUpdate(
+          {
+            certificateId:
+              req.params.id
+          },
+          data,
+          {
+            new: true,
+            runValidators: true
+          }
+        );
 
-      if (!req.body.grade) {
-        data.grade = gradeFromPercentage(data.percentage);
+      if (!certificate) {
+        return res.status(404).json({
+          message: "Certificate not found."
+        });
       }
-    }
 
-    const certificate = await Certificate.findOneAndUpdate(
-      {
-        certificateId: req.params.id
-      },
-      data,
-      {
-        new: true,
-        runValidators: true
-      }
-    );
+      res.json(certificate);
+    } catch (err) {
+      console.error(
+        "Certificate update error:",
+        err
+      );
 
-    if (!certificate) {
-      return res.status(404).json({
-        message: "Certificate not found."
+      res.status(500).json({
+        message:
+          "Unable to update certificate.",
+        error: err.message
       });
     }
-
-    res.json(certificate);
-  } catch (err) {
-    console.error("Certificate update error:", err);
-
-    res.status(500).json({
-      message: "Unable to update certificate.",
-      error: err.message
-    });
   }
-});
+);
 
-// =========================
-// GET ALL TESTS
-// =========================
+/* =========================================================
+   GET ALL TESTS
+========================================================= */
+
 router.get("/tests", adminAuth, async (req, res) => {
   try {
-    const tests = await Test.find()
-      .sort({ createdAt: -1 });
+    const tests =
+      await Test.find()
+        .sort({
+          createdAt: -1
+        });
 
     res.json(tests);
   } catch (err) {
-    console.error("Tests list error:", err);
+    console.error(
+      "Tests list error:",
+      err
+    );
 
     res.status(500).json({
       message: "Unable to load tests.",
@@ -382,9 +610,10 @@ router.get("/tests", adminAuth, async (req, res) => {
   }
 });
 
-// =========================
-// CREATE TEST
-// =========================
+/* =========================================================
+   CREATE TEST
+========================================================= */
+
 router.post("/tests", adminAuth, async (req, res) => {
   try {
     const {
@@ -410,43 +639,53 @@ router.post("/tests", adminAuth, async (req, res) => {
       });
     }
 
-    const cleanQuestions = questions.map((q) => ({
-      question: String(q.question || "").trim(),
+    const cleanQuestions =
+      questions.map((q) => ({
+        question: String(
+          q.question || ""
+        ).trim(),
 
-      options: Array.isArray(q.options)
-        ? q.options.map((option) => String(option).trim())
-        : [],
+        options:
+          Array.isArray(q.options)
+            ? q.options.map((option) =>
+                String(option).trim()
+              )
+            : [],
 
-      answer: Number(q.answer)
-    }));
+        answer: Number(q.answer)
+      }));
 
-    // =========================
-    // VALIDATE SCHEDULE
-    // =========================
+    const parsedStartAt =
+      startAt
+        ? new Date(startAt)
+        : null;
 
-    const parsedStartAt = startAt
-      ? new Date(startAt)
-      : null;
-
-    const parsedEndAt = endAt
-      ? new Date(endAt)
-      : null;
+    const parsedEndAt =
+      endAt
+        ? new Date(endAt)
+        : null;
 
     if (
       parsedStartAt &&
-      Number.isNaN(parsedStartAt.getTime())
+      Number.isNaN(
+        parsedStartAt.getTime()
+      )
     ) {
       return res.status(400).json({
-        message: "Invalid exam start date/time."
+        message:
+          "Invalid exam start date/time."
       });
     }
 
     if (
       parsedEndAt &&
-      Number.isNaN(parsedEndAt.getTime())
+      Number.isNaN(
+        parsedEndAt.getTime()
+      )
     ) {
       return res.status(400).json({
-        message: "Invalid exam end date/time."
+        message:
+          "Invalid exam end date/time."
       });
     }
 
@@ -461,196 +700,232 @@ router.post("/tests", adminAuth, async (req, res) => {
       });
     }
 
-    const test = await Test.create({
-      title: String(title).trim(),
+    const test =
+      await Test.create({
+        title: String(title).trim(),
 
-      description:
-        String(description || "").trim(),
+        description:
+          String(
+            description || ""
+          ).trim(),
 
-      durationMinutes:
-        Number(durationMinutes || 15),
+        durationMinutes:
+          Number(
+            durationMinutes || 15
+          ),
 
-      passingPercentage:
-        Number(passingPercentage ?? 50),
+        passingPercentage:
+          Number(
+            passingPercentage ?? 50
+          ),
 
-      certificateEnabled:
-        Boolean(certificateEnabled),
+        certificateEnabled:
+          Boolean(
+            certificateEnabled
+          ),
 
-      active:
-        Boolean(active),
+        active:
+          Boolean(active),
 
-      startAt:
-        parsedStartAt,
+        startAt:
+          parsedStartAt,
 
-      endAt:
-        parsedEndAt,
+        endAt:
+          parsedEndAt,
 
-      questions:
-        cleanQuestions
-    });
+        questions:
+          cleanQuestions
+      });
 
     res.status(201).json(test);
   } catch (err) {
-    console.error("Create test error:", err);
-
-    res.status(500).json({
-      message: "Unable to create test.",
-      error: err.message
-    });
-  }
-});
-
-// =========================
-// UPDATE TEST
-// =========================
-router.put("/tests/:id", adminAuth, async (req, res) => {
-  try {
-    const allowed = [
-      "title",
-      "description",
-      "durationMinutes",
-      "passingPercentage",
-      "certificateEnabled",
-      "active",
-      "startAt",
-      "endAt",
-      "questions"
-    ];
-
-    const data = {};
-
-    allowed.forEach((key) => {
-      if (req.body[key] !== undefined) {
-        data[key] = req.body[key];
-      }
-    });
-
-    // =========================
-    // NUMBERS
-    // =========================
-
-    if (data.durationMinutes !== undefined) {
-      data.durationMinutes =
-        Number(data.durationMinutes);
-    }
-
-    if (data.passingPercentage !== undefined) {
-      data.passingPercentage =
-        Number(data.passingPercentage);
-    }
-
-    // =========================
-    // SCHEDULE
-    // =========================
-
-    if (data.startAt !== undefined) {
-      data.startAt = data.startAt
-        ? new Date(data.startAt)
-        : null;
-
-      if (
-        data.startAt &&
-        Number.isNaN(data.startAt.getTime())
-      ) {
-        return res.status(400).json({
-          message:
-            "Invalid exam start date/time."
-        });
-      }
-    }
-
-    if (data.endAt !== undefined) {
-      data.endAt = data.endAt
-        ? new Date(data.endAt)
-        : null;
-
-      if (
-        data.endAt &&
-        Number.isNaN(data.endAt.getTime())
-      ) {
-        return res.status(400).json({
-          message:
-            "Invalid exam end date/time."
-        });
-      }
-    }
-
-    // =========================
-    // CHECK START / END ORDER
-    // =========================
-
-    let scheduleStart = data.startAt;
-    let scheduleEnd = data.endAt;
-
-    if (
-      scheduleStart === undefined ||
-      scheduleEnd === undefined
-    ) {
-      const existingTest = await Test.findById(
-        req.params.id
-      );
-
-      if (!existingTest) {
-        return res.status(404).json({
-          message: "Test not found."
-        });
-      }
-
-      if (scheduleStart === undefined) {
-        scheduleStart =
-          existingTest.startAt;
-      }
-
-      if (scheduleEnd === undefined) {
-        scheduleEnd =
-          existingTest.endAt;
-      }
-    }
-
-    if (
-      scheduleStart &&
-      scheduleEnd &&
-      scheduleEnd <= scheduleStart
-    ) {
-      return res.status(400).json({
-        message:
-          "Exam end time must be after start time."
-      });
-    }
-
-    // =========================
-    // UPDATE
-    // =========================
-
-    const test = await Test.findByIdAndUpdate(
-      req.params.id,
-      data,
-      {
-        new: true,
-        runValidators: true
-      }
+    console.error(
+      "Create test error:",
+      err
     );
 
-    if (!test) {
-      return res.status(404).json({
-        message: "Test not found."
-      });
-    }
-
-    res.json(test);
-  } catch (err) {
-    console.error("Update test error:", err);
-
     res.status(500).json({
-      message: "Unable to update test.",
+      message:
+        "Unable to create test.",
       error: err.message
     });
   }
 });
 
-// =========================
-// DELETE TEST
-// =========================
+/* =========================================================
+   UPDATE TEST
+========================================================= */
+
+router.put(
+  "/tests/:id",
+  adminAuth,
+  async (req, res) => {
+    try {
+      const allowed = [
+        "title",
+        "description",
+        "durationMinutes",
+        "passingPercentage",
+        "certificateEnabled",
+        "active",
+        "startAt",
+        "endAt",
+        "questions"
+      ];
+
+      const data = {};
+
+      allowed.forEach((key) => {
+        if (req.body[key] !== undefined) {
+          data[key] = req.body[key];
+        }
+      });
+
+      if (
+        data.durationMinutes !== undefined
+      ) {
+        data.durationMinutes =
+          Number(
+            data.durationMinutes
+          );
+      }
+
+      if (
+        data.passingPercentage !== undefined
+      ) {
+        data.passingPercentage =
+          Number(
+            data.passingPercentage
+          );
+      }
+
+      if (
+        data.startAt !== undefined
+      ) {
+        data.startAt =
+          data.startAt
+            ? new Date(data.startAt)
+            : null;
+
+        if (
+          data.startAt &&
+          Number.isNaN(
+            data.startAt.getTime()
+          )
+        ) {
+          return res.status(400).json({
+            message:
+              "Invalid exam start date/time."
+          });
+        }
+      }
+
+      if (
+        data.endAt !== undefined
+      ) {
+        data.endAt =
+          data.endAt
+            ? new Date(data.endAt)
+            : null;
+
+        if (
+          data.endAt &&
+          Number.isNaN(
+            data.endAt.getTime()
+          )
+        ) {
+          return res.status(400).json({
+            message:
+              "Invalid exam end date/time."
+          });
+        }
+      }
+
+      let scheduleStart =
+        data.startAt;
+
+      let scheduleEnd =
+        data.endAt;
+
+      if (
+        scheduleStart === undefined ||
+        scheduleEnd === undefined
+      ) {
+        const existingTest =
+          await Test.findById(
+            req.params.id
+          );
+
+        if (!existingTest) {
+          return res.status(404).json({
+            message:
+              "Test not found."
+          });
+        }
+
+        if (
+          scheduleStart === undefined
+        ) {
+          scheduleStart =
+            existingTest.startAt;
+        }
+
+        if (
+          scheduleEnd === undefined
+        ) {
+          scheduleEnd =
+            existingTest.endAt;
+        }
+      }
+
+      if (
+        scheduleStart &&
+        scheduleEnd &&
+        scheduleEnd <= scheduleStart
+      ) {
+        return res.status(400).json({
+          message:
+            "Exam end time must be after start time."
+        });
+      }
+
+      const test =
+        await Test.findByIdAndUpdate(
+          req.params.id,
+          data,
+          {
+            new: true,
+            runValidators: true
+          }
+        );
+
+      if (!test) {
+        return res.status(404).json({
+          message:
+            "Test not found."
+        });
+      }
+
+      res.json(test);
+    } catch (err) {
+      console.error(
+        "Update test error:",
+        err
+      );
+
+      res.status(500).json({
+        message:
+          "Unable to update test.",
+        error: err.message
+      });
+    }
+  }
+);
+
+/* =========================================================
+   DELETE TEST
+========================================================= */
+
 router.delete(
   "/tests/:id",
   adminAuth,
@@ -663,7 +938,8 @@ router.delete(
 
       if (!test) {
         return res.status(404).json({
-          message: "Test not found."
+          message:
+            "Test not found."
         });
       }
 

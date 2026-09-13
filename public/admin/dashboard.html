@@ -59,6 +59,17 @@
   cursor:pointer;
 }
 
+.delete-btn{
+  cursor:pointer;
+  border:1px solid #ef444455 !important;
+  color:#f87171 !important;
+}
+
+.delete-btn:hover{
+  background:#ef444415 !important;
+  border-color:#ef4444 !important;
+}
+
 .field{
   margin-bottom:15px;
 }
@@ -437,6 +448,126 @@ function downloadCertificate(certificateId){
 
 
 /* =====================================================
+   DELETE RESULT
+===================================================== */
+
+async function deleteResult(resultId, candidateName){
+
+  if(!resultId){
+
+    alert("Result ID is missing.");
+
+    return;
+  }
+
+
+  const confirmed = confirm(
+    "Delete this student result?\n\n" +
+
+    "Candidate: " +
+    (candidateName || "Unknown") +
+
+    "\nResult ID: " +
+    resultId +
+
+    "\n\n" +
+
+    "This will also delete the linked certificate, if any." +
+
+    "\n\nThis action cannot be undone."
+  );
+
+
+  if(!confirmed){
+    return;
+  }
+
+
+  try{
+
+    const button =
+      document.querySelector(
+        '[data-delete-result="' +
+        CSS.escape(resultId) +
+        '"]'
+      );
+
+
+    if(button){
+
+      button.disabled = true;
+      button.innerText = "Deleting...";
+
+    }
+
+
+    const response = await api(
+      "/api/admin/results/" +
+      encodeURIComponent(resultId),
+      {
+        method:"DELETE"
+      }
+    );
+
+
+    if(response.status === 401){
+
+      logout();
+
+      return;
+    }
+
+
+    let data = {};
+
+    try{
+
+      data = await response.json();
+
+    }catch(e){}
+
+
+    if(!response.ok){
+
+      throw new Error(
+        data.message ||
+        "Unable to delete result."
+      );
+
+    }
+
+
+    alert(
+      "✓ Student result deleted successfully."
+    );
+
+
+    closeModal();
+
+
+    await load();
+
+  }
+
+  catch(err){
+
+    console.error(
+      "Delete result error:",
+      err
+    );
+
+
+    alert(
+      err.message ||
+      "Unable to delete result."
+    );
+
+  }
+
+}
+
+
+/* =====================================================
    LOAD RESULTS
 ===================================================== */
 
@@ -569,12 +700,34 @@ async function load(){
 
           <td>
 
-            <button
-              class="btn btn-ghost"
-              onclick="view('${escAttr(x.resultId)}')"
+            <div
+              style="
+                display:flex;
+                gap:6px;
+                flex-wrap:wrap;
+              "
             >
-              View
-            </button>
+
+              <button
+                class="btn btn-ghost"
+                onclick="view('${escAttr(x.resultId)}')"
+              >
+                View
+              </button>
+
+
+              <button
+                class="btn btn-ghost delete-btn"
+                data-delete-result="${escAttr(x.resultId)}"
+                onclick="deleteResult(
+                  '${escAttr(x.resultId)}',
+                  '${escAttr(x.candidateName)}'
+                )"
+              >
+                🗑️ Delete
+              </button>
+
+            </div>
 
           </td>
 
@@ -1058,6 +1211,18 @@ function renderResult(result,certificate){
       }
 
 
+      <button
+        class="btn btn-ghost delete-btn"
+        type="button"
+        onclick="deleteResult(
+          '${escAttr(result.resultId)}',
+          '${escAttr(result.candidateName)}'
+        )"
+      >
+        🗑️ Delete Result
+      </button>
+
+
     </div>
 
   `;
@@ -1092,6 +1257,7 @@ async function generateCertificate(resultId,button){
 
       button.disabled = true;
       button.innerText = "Generating...";
+
     }
 
 
@@ -1389,7 +1555,7 @@ function editCert(c){
       <select id="ec_status">
 
         <option
-          value="active"
+          value="valid"
           ${
             c.status === "active" ||
             c.status === "valid"
