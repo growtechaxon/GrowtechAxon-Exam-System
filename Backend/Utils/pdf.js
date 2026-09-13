@@ -864,47 +864,12 @@ function drawScoreBadge(doc, certificate) {
 }
 
 /* =========================================================
-   SIGNATURE
+   DIGITAL HANDWRITTEN SIGNATURE
 ========================================================= */
 
 function drawSignature(doc, certificate) {
-  const signaturePath = path.join(
-    __dirname,
-    "../../public/assets/signature.png"
-  );
-
   const x = 75;
   const y = 445;
-
-  /* Signature image */
-
-  if (fs.existsSync(signaturePath)) {
-    try {
-      doc.image(
-        signaturePath,
-        x + 25,
-        y - 5,
-        {
-          fit: [125, 42],
-          align: "center",
-          valign: "center"
-        }
-      );
-    } catch (error) {
-      console.warn(
-        "Signature could not be loaded:",
-        error.message
-      );
-    }
-  }
-
-  /* Signature line */
-
-  doc
-    .moveTo(x, y + 38)
-    .lineTo(x + 175, y + 38)
-    .lineWidth(0.7)
-    .stroke(COLORS.goldDark);
 
   const name = safe(
     certificate.signatoryName,
@@ -915,6 +880,51 @@ function drawSignature(doc, certificate) {
     certificate.signatoryDesignation,
     "Founder & CEO"
   );
+
+  /*
+     Digital signature:
+     - No signature image
+     - Uses Times-Italic
+     - Slightly rotated for handwritten effect
+     - Automatically uses signatoryName
+  */
+
+  doc.save();
+
+  /*
+     Translate to signature position first,
+     then rotate slightly counter-clockwise.
+  */
+
+  doc.translate(x + 90, y + 18);
+  doc.rotate(-7);
+
+  doc
+    .font("Times-Italic")
+    .fontSize(27)
+    .fillColor(COLORS.goldLight)
+    .text(
+      name,
+      -85,
+      -16,
+      {
+        width: 170,
+        align: "center",
+        lineGap: -2
+      }
+    );
+
+  doc.restore();
+
+  /* Signature underline */
+
+  doc
+    .moveTo(x, y + 38)
+    .lineTo(x + 175, y + 38)
+    .lineWidth(0.7)
+    .stroke(COLORS.goldDark);
+
+  /* Signatory name */
 
   doc
     .font("Helvetica-Bold")
@@ -929,6 +939,8 @@ function drawSignature(doc, certificate) {
         align: "center"
       }
     );
+
+  /* Designation */
 
   doc
     .font("Helvetica")
@@ -1178,7 +1190,6 @@ function drawCertificateFooter(doc) {
 ========================================================= */
 
 function buildCertificatePdf(certificate, res) {
-
   const certificateId = safe(
     certificate.certificateId,
     certificate._id || "certificate"
@@ -1262,7 +1273,7 @@ function buildCertificatePdf(certificate, res) {
     certificate
   );
 
-  /* Signature */
+  /* Digital Signature */
 
   drawSignature(
     doc,
