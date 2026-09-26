@@ -1,0 +1,4 @@
+GrowtechAxon branding included.
+Existing public contact/social information can be added to future footer/portal pages as needed.
+WhatsApp group link configured from the supplied link in .env.example.
+Signature image supplied by the user is included as signature.png.

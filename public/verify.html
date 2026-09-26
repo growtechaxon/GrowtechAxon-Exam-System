@@ -1,0 +1,737 @@
+
+<!doctype html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Verify Certificate | GrowtechAxon</title>
+
+  <link rel="stylesheet" href="/assets/style.css">
+</head>
+
+<body>
+
+  <!-- =========================
+       HEADER
+  ========================== -->
+
+  <header class="topbar">
+    <div class="container nav">
+
+      <a class="brand" href="/">
+        <img
+          src="/assets/growtechaxon-logo.png"
+          alt="GrowtechAxon Logo"
+        >
+        <span>GROWTECHAXON</span>
+      </a>
+
+      <a
+        class="btn btn-ghost"
+        href="/certificate.html"
+      >
+        Certificate Portal
+      </a>
+
+    </div>
+  </header>
+
+
+  <!-- =========================
+       MAIN
+  ========================== -->
+
+  <main class="container verify-page">
+
+    <section class="verify-hero">
+
+      <div class="eyebrow">
+        PUBLIC CERTIFICATE VERIFICATION
+      </div>
+
+      <h1>
+        Verify a
+        <span>Certificate</span>
+      </h1>
+
+      <p>
+        Confirm the authenticity of a GrowtechAxon certificate
+        using its unique Certificate ID.
+      </p>
+
+    </section>
+
+
+    <!-- =========================
+         VERIFICATION CARD
+    ========================== -->
+
+    <section class="card verify-card">
+
+      <div class="verify-card-icon">
+        ✓
+      </div>
+
+      <div class="form-header">
+
+        <div>
+
+          <h2>Certificate Verification</h2>
+
+          <p class="muted">
+            Enter the Certificate ID shown on the
+            certificate to check its official status.
+          </p>
+
+        </div>
+
+        <div class="secure-badge">
+          <span>🔒</span>
+          Secure
+        </div>
+
+      </div>
+
+
+      <div class="form-divider"></div>
+
+
+      <!-- Certificate ID -->
+
+      <div class="field">
+
+        <label for="cid">
+          Certificate ID
+          <span class="required">*</span>
+        </label>
+
+        <div class="input-wrap">
+
+          <span class="input-icon">
+            ▣
+          </span>
+
+          <input
+            id="cid"
+            type="text"
+            placeholder="GTAX-CERT-XXXXXXXX"
+            autocomplete="off"
+            spellcheck="false"
+          >
+
+        </div>
+
+        <small class="field-help">
+          Example: GTAX-CERT-12345678
+        </small>
+
+      </div>
+
+
+      <!-- Action -->
+
+      <div class="form-actions">
+
+        <button
+          id="go"
+          type="button"
+          class="btn btn-primary verify-btn"
+        >
+          <span id="goIcon">✓</span>
+          <span id="goText">Verify Certificate</span>
+        </button>
+
+        <a
+          class="btn btn-ghost"
+          href="/"
+        >
+          ← Home
+        </a>
+
+      </div>
+
+
+      <!-- Status -->
+
+      <div
+        id="status"
+        class="certificate-message"
+        role="status"
+        aria-live="polite"
+      ></div>
+
+
+      <!-- =========================
+           RESULT
+      ========================== -->
+
+      <div
+        id="out"
+        class="verify-result hidden"
+      ></div>
+
+    </section>
+
+
+    <!-- =========================
+         HOW IT WORKS
+    ========================== -->
+
+    <section class="verify-info">
+
+      <div class="verify-info-heading">
+
+        <span class="eyebrow">
+          SIMPLE & SECURE
+        </span>
+
+        <h2>
+          How verification works
+        </h2>
+
+      </div>
+
+
+      <div class="certificate-info-grid">
+
+        <article class="info-card">
+
+          <div class="info-icon">
+            01
+          </div>
+
+          <div>
+
+            <h3>Enter Certificate ID</h3>
+
+            <p>
+              Enter the unique Certificate ID printed
+              on the certificate.
+            </p>
+
+          </div>
+
+        </article>
+
+
+        <article class="info-card">
+
+          <div class="info-icon">
+            02
+          </div>
+
+          <div>
+
+            <h3>Verify Record</h3>
+
+            <p>
+              The ID is checked against the official
+              GrowtechAxon certificate records.
+            </p>
+
+          </div>
+
+        </article>
+
+
+        <article class="info-card">
+
+          <div class="info-icon">
+            03
+          </div>
+
+          <div>
+
+            <h3>View Status</h3>
+
+            <p>
+              A valid certificate displays the candidate
+              and examination information.
+            </p>
+
+          </div>
+
+        </article>
+
+      </div>
+
+    </section>
+
+
+    <!-- =========================
+         CERTIFICATE CTA
+    ========================== -->
+
+    <section class="certificate-cta">
+
+      <div>
+
+        <span class="eyebrow">
+          NEED YOUR CERTIFICATE?
+        </span>
+
+        <h2>
+          Access your certificate
+        </h2>
+
+        <p class="muted">
+          If you are the certificate holder, use the
+          Certificate Portal to verify your details
+          and download your certificate PDF.
+        </p>
+
+      </div>
+
+      <a
+        href="/certificate.html"
+        class="btn btn-gold"
+      >
+        Open Certificate Portal →
+      </a>
+
+    </section>
+
+  </main>
+
+
+  <!-- =========================
+       FOOTER
+  ========================== -->
+
+  <footer class="footer">
+
+    <div class="container footer-inner">
+
+      <div class="footer-brand">
+
+        <strong>GROWTECHAXON</strong>
+
+        <span>
+          Digital Innovation. Smarter Growth.
+        </span>
+
+      </div>
+
+      <div class="footer-links">
+
+        <a href="/">Home</a>
+
+        <a href="/certificate.html">
+          Certificate
+        </a>
+
+        <a href="/verify.html">
+          Verify
+        </a>
+
+      </div>
+
+    </div>
+
+
+    <div class="container footer-bottom">
+
+      <span>
+        © GrowtechAxon. All rights reserved.
+      </span>
+
+      <span>
+        Professional Examination & Certification Platform
+      </span>
+
+    </div>
+
+  </footer>
+
+
+  <!-- =========================
+       JAVASCRIPT
+  ========================== -->
+
+  <script>
+
+    const $ = (id) =>
+      document.getElementById(id);
+
+
+    const goButton = $("go");
+    const goText = $("goText");
+    const goIcon = $("goIcon");
+
+    const status = $("status");
+    const output = $("out");
+
+
+    /* =========================
+       ESCAPE HTML
+    ========================== */
+
+    function esc(value) {
+
+      return String(value ?? "").replace(
+        /[&<>"']/g,
+        (char) => ({
+          "&": "&amp;",
+          "<": "&lt;",
+          ">": "&gt;",
+          '"': "&quot;",
+          "'": "&#039;"
+        }[char])
+      );
+
+    }
+
+
+    /* =========================
+       STATUS MESSAGE
+    ========================== */
+
+    function showStatus(text, type) {
+
+      status.textContent = text;
+
+      status.className =
+        "certificate-message";
+
+      if (type === "success") {
+        status.classList.add("message-success");
+      }
+
+      if (type === "error") {
+        status.classList.add("message-error");
+      }
+
+      if (type === "info") {
+        status.classList.add("message-info");
+      }
+
+    }
+
+
+    /* =========================
+       LOADING STATE
+    ========================== */
+
+    function setLoading(loading) {
+
+      goButton.disabled = loading;
+
+      if (loading) {
+
+        goText.textContent = "Verifying...";
+        goIcon.textContent = "⟳";
+
+        goButton.classList.add("loading");
+
+      } else {
+
+        goText.textContent =
+          "Verify Certificate";
+
+        goIcon.textContent = "✓";
+
+        goButton.classList.remove("loading");
+
+      }
+
+    }
+
+
+    /* =========================
+       RENDER RESULT
+    ========================== */
+
+    function renderResult(certificate) {
+
+      const issueDate =
+        certificate.issueDate
+          ? new Date(
+              certificate.issueDate
+            ).toLocaleDateString("en-IN")
+          : "—";
+
+
+      output.innerHTML = `
+
+        <div class="verify-result-header">
+
+          <div class="verified-icon">
+            ✓
+          </div>
+
+          <div>
+
+            <span class="result-label">
+              CERTIFICATE VERIFIED
+            </span>
+
+            <h2>
+              ${esc(
+                certificate.candidateName ||
+                "Candidate"
+              )}
+            </h2>
+
+          </div>
+
+        </div>
+
+
+        <div class="result-divider"></div>
+
+
+        <div class="verify-details">
+
+          <div class="verify-detail">
+
+            <span>
+              Certificate ID
+            </span>
+
+            <strong>
+              ${esc(
+                certificate.certificateId ||
+                "—"
+              )}
+            </strong>
+
+          </div>
+
+
+          <div class="verify-detail">
+
+            <span>
+              Assessment
+            </span>
+
+            <strong>
+              ${esc(
+                certificate.testTitle ||
+                "—"
+              )}
+            </strong>
+
+          </div>
+
+
+          <div class="verify-detail">
+
+            <span>
+              Issue Date
+            </span>
+
+            <strong>
+              ${esc(issueDate)}
+            </strong>
+
+          </div>
+
+
+          <div class="verify-detail">
+
+            <span>
+              Status
+            </span>
+
+            <strong class="valid-status">
+              ✓ VALID
+            </strong>
+
+          </div>
+
+        </div>
+
+
+        <div class="verification-stamp">
+
+          <span class="stamp-check">
+            ✓
+          </span>
+
+          <div>
+
+            <strong>
+              Official GrowtechAxon Record
+            </strong>
+
+            <p>
+              This certificate record has been
+              successfully verified.
+            </p>
+
+          </div>
+
+        </div>
+
+      `;
+
+      output.classList.remove("hidden");
+
+    }
+
+
+    /* =========================
+       VERIFY CERTIFICATE
+    ========================== */
+
+    async function verifyCertificate() {
+
+      const cid =
+        $("cid").value
+          .trim()
+          .toUpperCase();
+
+
+      output.classList.add("hidden");
+
+
+      if (!cid) {
+
+        showStatus(
+          "Please enter a Certificate ID.",
+          "error"
+        );
+
+        $("cid").focus();
+
+        return;
+
+      }
+
+
+      setLoading(true);
+
+      showStatus(
+        "Checking certificate records...",
+        "info"
+      );
+
+
+      try {
+
+        const url =
+          "/api/certificates/verify" +
+          "?certificateId=" +
+          encodeURIComponent(cid);
+
+
+        const response =
+          await fetch(url);
+
+
+        let data = {};
+
+        try {
+
+          data =
+            await response.json();
+
+        } catch {
+
+          data = {};
+
+        }
+
+
+        if (
+          !response.ok ||
+          !data.valid
+        ) {
+
+          throw new Error(
+            data.message ||
+            "Certificate not found or revoked."
+          );
+
+        }
+
+
+        renderResult(
+          data.certificate
+        );
+
+
+        showStatus(
+          "✓ Certificate verified successfully.",
+          "success"
+        );
+
+
+        output.scrollIntoView({
+          behavior: "smooth",
+          block: "center"
+        });
+
+
+      } catch (error) {
+
+        output.classList.add("hidden");
+
+        showStatus(
+          error.message ||
+          "Verification service unavailable.",
+          "error"
+        );
+
+      } finally {
+
+        setLoading(false);
+
+      }
+
+    }
+
+
+    /* =========================
+       BUTTON
+    ========================== */
+
+    goButton.addEventListener(
+      "click",
+      verifyCertificate
+    );
+
+
+    /* =========================
+       UPPERCASE ID
+    ========================== */
+
+    $("cid").addEventListener(
+      "input",
+      () => {
+
+        $("cid").value =
+          $("cid").value.toUpperCase();
+
+      }
+    );
+
+
+    /* =========================
+       ENTER KEY
+    ========================== */
+
+    $("cid").addEventListener(
+      "keydown",
+      (event) => {
+
+        if (event.key === "Enter") {
+          verifyCertificate();
+        }
+
+      }
+    );
+
+  </script>
+
+</body>
+
+</html>
+
+
+
+
+
+

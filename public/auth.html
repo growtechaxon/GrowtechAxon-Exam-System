@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="GrowtechAxon student registration and login portal.">
+  <title>Student Login / Registration | GrowtechAxon</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/assets/style.css">
+  <style>
+    .auth-shell{min-height:calc(100vh - 90px);display:grid;place-items:center;padding:48px 18px}
+    .auth-card{width:min(560px,100%);padding:34px;border:1px solid rgba(59,130,246,.35);box-shadow:0 24px 80px rgba(0,0,0,.3)}
+    .auth-tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:6px;background:rgba(15,23,42,.7);border-radius:14px;margin:24px 0}
+    .auth-tab{border:0;background:transparent;color:#9fb0c7;padding:12px;border-radius:10px;font-weight:700;cursor:pointer}
+    .auth-tab.active{background:linear-gradient(135deg,#2563eb,#0ea5e9);color:white}
+    .auth-form{display:none}.auth-form.active{display:block}
+    .auth-message{display:none;padding:12px 14px;border-radius:10px;margin:16px 0;font-size:14px}
+    .auth-message.show{display:block}.auth-message.error{background:rgba(239,68,68,.12);color:#fca5a5;border:1px solid rgba(239,68,68,.3)}
+    .auth-message.success{background:rgba(34,197,94,.12);color:#86efac;border:1px solid rgba(34,197,94,.3)}
+    .auth-note{font-size:13px;color:#94a3b8;line-height:1.6;margin-top:18px}
+    .auth-brand{text-align:center}.auth-brand img{width:70px;height:70px;object-fit:contain;margin-bottom:10px}
+    .auth-brand h1{margin:4px 0 8px}.auth-brand p{margin:0;color:#94a3b8}
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="container nav">
+      <a class="brand" href="/" aria-label="GrowtechAxon Home">
+        <img src="/assets/growtechaxon-logo.png" alt="GrowtechAxon Logo">
+        <span>GROWTECH<span class="brand-accent">AXON</span></span>
+      </a>
+    </div>
+  </header>
+
+  <main class="auth-shell">
+    <section class="card auth-card">
+      <div class="auth-brand">
+        <img src="/assets/growtechaxon-logo.png" alt="GrowtechAxon">
+        <div class="eyebrow">STUDENT EXAMINATION PORTAL</div>
+        <h1>Welcome to GrowtechAxon</h1>
+        <p>Create your student account or login to continue to the exam portal.</p>
+      </div>
+
+      <div class="auth-tabs">
+        <button class="auth-tab active" id="registerTab" type="button">New Student · Register</button>
+        <button class="auth-tab" id="loginTab" type="button">Existing Student · Login</button>
+      </div>
+
+      <div id="authMessage" class="auth-message" role="alert"></div>
+
+      <form id="registerForm" class="auth-form active">
+        <div class="field">
+          <label for="registerName">Full Name *</label>
+          <input id="registerName" type="text" maxlength="100" autocomplete="name" placeholder="Enter your full name" required>
+        </div>
+        <div class="field">
+          <label for="registerEmail">Email Address *</label>
+          <input id="registerEmail" type="email" maxlength="150" autocomplete="email" placeholder="you@example.com" required>
+        </div>
+        <div class="field">
+          <label for="registerMobile">Mobile Number</label>
+          <input id="registerMobile" type="tel" maxlength="20" autocomplete="tel" placeholder="Enter mobile number">
+        </div>
+        <div class="field">
+          <label for="registerPassword">Create Password *</label>
+          <input id="registerPassword" type="password" minlength="6" autocomplete="new-password" placeholder="Minimum 6 characters" required>
+        </div>
+        <div class="field">
+          <label for="registerPasswordConfirm">Confirm Password *</label>
+          <input id="registerPasswordConfirm" type="password" minlength="6" autocomplete="new-password" placeholder="Repeat password" required>
+        </div>
+        <button class="btn btn-primary btn-large" type="submit" id="registerButton">Create Account & Continue →</button>
+        <p class="auth-note">After successful registration, you will be automatically logged in and taken to the available exam portal.</p>
+      </form>
+
+      <form id="loginForm" class="auth-form">
+        <div class="field">
+          <label for="loginEmail">Registered Email *</label>
+          <input id="loginEmail" type="email" maxlength="150" autocomplete="email" placeholder="Enter registered email" required>
+        </div>
+        <div class="field">
+          <label for="loginPassword">Password *</label>
+          <input id="loginPassword" type="password" autocomplete="current-password" placeholder="Enter your password" required>
+        </div>
+        <button class="btn btn-primary btn-large" type="submit" id="loginButton">Login & Open Exam Portal →</button>
+        <p class="auth-note">Use the same email and password you used during registration. Your saved student data will be automatically reused in the exam.</p>
+      </form>
+    </section>
+  </main>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const next = params.get("next") || "/";
+    const token = localStorage.getItem("growtechStudentToken");
+    const registered = localStorage.getItem("growtechStudentRegistered") === "1";
+
+    const registerTab = document.getElementById("registerTab");
+    const loginTab = document.getElementById("loginTab");
+    const registerForm = document.getElementById("registerForm");
+    const loginForm = document.getElementById("loginForm");
+    const message = document.getElementById("authMessage");
+
+    function showMessage(text, type="error") {
+      message.textContent = text;
+      message.className = "auth-message show " + type;
+    }
+
+    function setMode(mode) {
+      const login = mode === "login";
+      registerTab.classList.toggle("active", !login);
+      loginTab.classList.toggle("active", login);
+      registerForm.classList.toggle("active", !login);
+      loginForm.classList.toggle("active", login);
+      message.className = "auth-message";
+    }
+
+    registerTab.onclick = () => setMode("register");
+    loginTab.onclick = () => setMode("login");
+
+    if (registered) setMode("login");
+
+    async function checkExistingSession() {
+      if (!token) return;
+      try {
+        const r = await fetch("/api/auth/me", {headers:{Authorization:"Bearer " + token}});
+        if (r.ok) location.replace(next);
+      } catch {}
+    }
+    checkExistingSession();
+
+    registerForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const fullName = document.getElementById("registerName").value.trim();
+      const email = document.getElementById("registerEmail").value.trim();
+      const mobile = document.getElementById("registerMobile").value.trim();
+      const password = document.getElementById("registerPassword").value;
+      const confirm = document.getElementById("registerPasswordConfirm").value;
+
+      if (password !== confirm) return showMessage("Passwords do not match.");
+
+      const button = document.getElementById("registerButton");
+      button.disabled = true;
+      button.textContent = "Creating account...";
+
+      try {
+        const response = await fetch("/api/auth/register", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({fullName,email,mobile,password})
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Registration failed.");
+
+        localStorage.setItem("growtechStudentToken", data.token);
+        localStorage.setItem("growtechStudentRegistered", "1");
+        location.replace(next);
+      } catch (error) {
+        showMessage(error.message || "Registration failed.");
+        button.disabled = false;
+        button.textContent = "Create Account & Continue →";
+      }
+    });
+
+    loginForm.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const email = document.getElementById("loginEmail").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      const button = document.getElementById("loginButton");
+      button.disabled = true;
+      button.textContent = "Logging in...";
+
+      try {
+        const response = await fetch("/api/auth/login", {
+          method:"POST",
+          headers:{"Content-Type":"application/json"},
+          body:JSON.stringify({email,password})
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.message || "Login failed.");
+
+        localStorage.setItem("growtechStudentToken", data.token);
+        localStorage.setItem("growtechStudentRegistered", "1");
+        location.replace(next);
+      } catch (error) {
+        showMessage(error.message || "Login failed.");
+        button.disabled = false;
+        button.textContent = "Login & Open Exam Portal →";
+      }
+    });
+  </script>
+</body>
+</html>

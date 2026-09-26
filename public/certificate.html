@@ -1,0 +1,1651 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Growtech Axon | Student Portal</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #03101f;
+      color: #fff;
+    }
+
+    header {
+      padding: 18px 25px;
+      background: #061a31;
+      border-bottom: 1px solid #c9a53a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand img {
+      width: 50px;
+      height: 50px;
+      object-fit: contain;
+    }
+
+    .brand strong {
+      color: #e6c45d;
+      font-size: 20px;
+      letter-spacing: 1px;
+    }
+
+    .home {
+      background: #e6c45d;
+      color: #061a31;
+      padding: 10px 18px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+
+    main {
+      max-width: 1100px;
+      margin: 35px auto;
+      padding: 0 15px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #e6c45d;
+    }
+
+    .subtitle {
+      text-align: center;
+      color: #9eafc3;
+      margin-bottom: 30px;
+    }
+
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 25px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 12px 22px;
+      border-radius: 25px;
+      border: 1px solid #806827;
+      background: #09213b;
+      color: #ddd;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .tab.active {
+      background: #e6c45d;
+      color: #061a31;
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    .card {
+      background: #071d35;
+      border: 1px solid rgba(230,196,93,.25);
+      border-radius: 18px;
+      padding: 25px;
+      margin-bottom: 25px;
+    }
+
+    .card h2 {
+      color: #e6c45d;
+      margin-top: 0;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+    }
+
+    .full {
+      grid-column: 1 / -1;
+    }
+
+    label {
+      display: block;
+      color: #b9c6d7;
+      margin-bottom: 7px;
+      font-size: 14px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 14px;
+      border-radius: 8px;
+      border: 1px solid #294461;
+      background: #020d1a;
+      color: white;
+      font-size: 15px;
+    }
+
+    button {
+      cursor: pointer;
+    }
+
+    .primary {
+      padding: 14px 22px;
+      background: #e6c45d;
+      color: #061a31;
+      border: 0;
+      border-radius: 8px;
+      font-weight: bold;
+      font-size: 15px;
+    }
+
+    .secondary {
+      padding: 12px 20px;
+      background: transparent;
+      color: #e6c45d;
+      border: 1px solid #a88a35;
+      border-radius: 8px;
+      font-weight: bold;
+    }
+
+    .message {
+      display: none;
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .message.show {
+      display: block;
+    }
+
+    .error {
+      background: #3a1515;
+      color: #ffaaaa;
+    }
+
+    .success {
+      background: #123a29;
+      color: #9bf0bd;
+    }
+
+    #resultArea,
+    #certificateArea {
+      display: none;
+    }
+
+    .student-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 15px;
+      flex-wrap: wrap;
+      border-bottom: 1px solid #243a51;
+      padding-bottom: 20px;
+    }
+
+    .student-header h2 {
+      margin-bottom: 5px;
+    }
+
+    .student-header p {
+      margin: 4px 0;
+      color: #9eafc3;
+    }
+
+    .status {
+      padding: 9px 18px;
+      border-radius: 20px;
+      font-weight: bold;
+    }
+
+    .pass {
+      background: #63d992;
+      color: #062014;
+    }
+
+    .fail {
+      background: #ff7777;
+      color: #260505;
+    }
+
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 10px;
+      margin: 25px 0;
+    }
+
+    .stat {
+      background: #041426;
+      border: 1px solid #1e3852;
+      border-radius: 10px;
+      padding: 15px 8px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      color: #e6c45d;
+      font-size: 22px;
+      margin-bottom: 5px;
+    }
+
+    .stat span {
+      color: #899bb0;
+      font-size: 11px;
+    }
+
+    .question {
+      background: #041426;
+      border: 1px solid #203a55;
+      border-radius: 12px;
+      padding: 18px;
+      margin-bottom: 15px;
+    }
+
+    .q-number {
+      color: #e6c45d;
+      font-size: 12px;
+      font-weight: bold;
+      margin-bottom: 8px;
+    }
+
+    .q-text {
+      font-size: 16px;
+      font-weight: bold;
+      line-height: 1.5;
+      margin-bottom: 15px;
+    }
+
+    .option {
+      padding: 10px;
+      margin: 7px 0;
+      background: #0a223d;
+      border-radius: 7px;
+      color: #c9d4e1;
+    }
+
+    .option.selected {
+      border: 1px solid #e6c45d;
+      color: #f4d879;
+    }
+
+    .option.correct,
+    .option.selected-correct {
+      border: 1px solid #39d98a;
+      background: rgba(24, 125, 78, 0.18);
+      color: #8ff0b4;
+    }
+
+    .option.selected-wrong {
+      border: 1px solid #ff5f6d;
+      background: rgba(170, 39, 52, 0.18);
+      color: #ff929c;
+    }
+
+    .answers {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-top: 15px;
+    }
+
+    .answer {
+      background: #071d35;
+      padding: 12px;
+      border-radius: 8px;
+    }
+
+    .answer small {
+      display: block;
+      color: #788ca4;
+      margin-bottom: 5px;
+    }
+
+    .correct-text {
+      color: #63df98;
+      font-weight: bold;
+    }
+
+    .wrong-text {
+      color: #ff8585;
+      font-weight: bold;
+    }
+
+    .unanswered-text {
+      color: #e6c45d;
+      font-weight: bold;
+    }
+
+    .certificate {
+      text-align: center;
+      padding: 45px 20px;
+      border: 2px solid #c9a53a;
+      background:
+        radial-gradient(
+          circle,
+          rgba(201,165,58,.12),
+          transparent 60%
+        );
+    }
+
+    .seal {
+      width: 100px;
+      height: 100px;
+      border: 2px solid #e6c45d;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: auto;
+      color: #e6c45d;
+      font-size: 11px;
+      font-weight: bold;
+      text-align: center;
+    }
+
+    .certificate h2 {
+      color: #e6c45d;
+      font-size: 30px;
+    }
+
+    .certificate h3 {
+      color: #f0d477;
+      font-size: 22px;
+    }
+
+    .cert-info {
+      max-width: 650px;
+      margin: 25px auto;
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      text-align: left;
+    }
+
+    .cert-info div {
+      background: #071d35;
+      padding: 13px;
+      border-radius: 8px;
+    }
+
+    .cert-info small {
+      display: block;
+      color: #778ba3;
+      margin-bottom: 5px;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    footer {
+      text-align: center;
+      padding: 30px;
+      color: #667c95;
+      border-top: 1px solid #142c44;
+    }
+
+    @media(max-width:800px) {
+      .summary {
+        grid-template-columns: repeat(3,1fr);
+      }
+    }
+
+    @media(max-width:600px) {
+      .form-grid,
+      .answers,
+      .cert-info {
+        grid-template-columns: 1fr;
+      }
+
+      .summary {
+        grid-template-columns: repeat(2,1fr);
+      }
+
+      header {
+        padding: 12px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <div class="brand">
+    <img
+      src="/assets/growtechaxon-logo.png"
+      alt="Growtech Axon"
+      onerror="this.style.display='none'"
+    >
+
+    <div>
+      <strong>GROWTECH AXON</strong>
+    </div>
+  </div>
+
+  <a href="/" class="home">Home</a>
+</header>
+
+
+<main>
+
+  <h1>Student Portal</h1>
+
+  <div class="subtitle">
+    Check your examination result, answers and certificate.
+  </div>
+
+
+  <!-- TABS -->
+
+  <div class="tabs">
+
+    <button
+      class="tab active"
+      onclick="openTab('resultPanel', this)"
+    >
+      Check Result
+    </button>
+
+    <button
+      class="tab"
+      onclick="openTab('certificatePanel', this)"
+    >
+      Certificate
+    </button>
+
+  </div>
+
+
+  <!-- ================================================= -->
+  <!-- RESULT -->
+  <!-- ================================================= -->
+
+  <section
+    id="resultPanel"
+    class="panel active"
+  >
+
+    <div class="card">
+
+      <h2>Check Examination Result</h2>
+
+      <p style="color:#95a8bd;">
+        Enter your Student/Result ID and registered email.
+      </p>
+
+      <form id="resultForm">
+
+        <div class="form-grid">
+
+          <div>
+            <label>Student / Result ID</label>
+
+            <input
+              id="resultId"
+              type="text"
+              placeholder="Enter Result ID"
+              required
+            >
+          </div>
+
+          <div>
+            <label>Registered Email</label>
+
+            <input
+              id="resultEmail"
+              type="email"
+              placeholder="Enter registered email"
+              required
+            >
+          </div>
+
+          <div class="full">
+
+            <button
+              class="primary"
+              type="submit"
+            >
+              Check Result & Answers
+            </button>
+
+          </div>
+
+        </div>
+
+      </form>
+
+      <div
+        id="resultMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+
+    <!-- RESULT AREA -->
+
+    <div
+      id="resultArea"
+      class="card"
+    >
+
+      <div class="student-header">
+
+        <div>
+
+          <h2 id="candidateName"></h2>
+
+          <p id="testTitle"></p>
+
+          <p id="submittedAt"></p>
+
+        </div>
+
+        <div
+          id="passStatus"
+          class="status"
+        ></div>
+
+      </div>
+
+
+      <div class="summary">
+
+        <div class="stat">
+          <strong id="totalQuestions">0</strong>
+          <span>Total</span>
+        </div>
+
+        <div class="stat">
+          <strong id="attempted">0</strong>
+          <span>Attempted</span>
+        </div>
+
+        <div class="stat">
+          <strong id="correct">0</strong>
+          <span>Correct</span>
+        </div>
+
+        <div class="stat">
+          <strong id="wrong">0</strong>
+          <span>Wrong</span>
+        </div>
+
+        <div class="stat">
+          <strong id="unanswered">0</strong>
+          <span>Unanswered</span>
+        </div>
+
+        <div class="stat">
+          <strong id="percentage">0%</strong>
+          <span>Percentage</span>
+        </div>
+
+      </div>
+
+
+      <div style="
+        text-align:center;
+        background:#041426;
+        padding:15px;
+        border-radius:10px;
+      ">
+
+        <span style="color:#8295aa;">
+          Score:
+        </span>
+
+        <strong
+          id="score"
+          style="
+            color:#e6c45d;
+            font-size:24px;
+          "
+        >
+          0
+        </strong>
+
+      </div>
+
+
+      <h2 style="color:#e6c45d;margin-top:30px;">
+        Question-wise Answer Review
+      </h2>
+
+      <div id="questionsContainer"></div>
+
+
+      <div
+        id="certificateButtonArea"
+        style="
+          display:none;
+          text-align:center;
+          margin-top:25px;
+        "
+      >
+
+        <button
+          class="secondary"
+          onclick="goCertificate()"
+        >
+          View Certificate
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- ================================================= -->
+  <!-- CERTIFICATE -->
+  <!-- ================================================= -->
+
+  <section
+    id="certificatePanel"
+    class="panel"
+  >
+
+    <div class="card">
+
+      <h2>Certificate Verification</h2>
+
+      <p style="color:#95a8bd;">
+        Enter Certificate ID and registered email.
+      </p>
+
+      <form id="certificateForm">
+
+        <div class="form-grid">
+
+          <div>
+            <label>Certificate ID</label>
+
+            <input
+              id="certificateId"
+              type="text"
+              placeholder="GTA-2026-XXXXXX"
+              required
+            >
+          </div>
+
+          <div>
+            <label>Registered Email</label>
+
+            <input
+              id="certificateEmail"
+              type="email"
+              placeholder="Enter registered email"
+              required
+            >
+          </div>
+
+          <div class="full">
+
+            <button
+              class="primary"
+              type="submit"
+            >
+              Verify Certificate
+            </button>
+
+          </div>
+
+        </div>
+
+      </form>
+
+      <div
+        id="certificateMessage"
+        class="message"
+      ></div>
+
+    </div>
+
+
+    <!-- CERTIFICATE -->
+
+    <div
+      id="certificateArea"
+      class="card"
+    >
+
+      <div class="certificate">
+
+        <div class="seal">
+          GROWTECH<br>
+          AXON<br>
+          OFFICIAL
+        </div>
+
+        <p style="
+          color:#9aaabd;
+          letter-spacing:3px;
+          font-weight:bold;
+        ">
+          CERTIFICATE OF ACHIEVEMENT
+        </p>
+
+        <h2 id="certCandidate"></h2>
+
+        <p style="color:#aab8c9;">
+          has successfully completed
+        </p>
+
+        <h3 id="certTest"></h3>
+
+
+        <div class="cert-info">
+
+          <div>
+            <small>Certificate ID</small>
+            <strong id="certId"></strong>
+          </div>
+
+          <div>
+            <small>Issue Date</small>
+            <strong id="certDate"></strong>
+          </div>
+
+          <div>
+            <small>Percentage</small>
+            <strong id="certPercentage"></strong>
+          </div>
+
+          <div>
+            <small>Grade</small>
+            <strong id="certGrade"></strong>
+          </div>
+
+          <div>
+            <small>Status</small>
+            <strong id="certStatus"></strong>
+          </div>
+
+          <div>
+            <small>Authorized Signatory</small>
+            <strong id="certSignatory"></strong>
+          </div>
+
+        </div>
+
+
+        <div class="actions">
+
+          <button
+            class="primary"
+            onclick="downloadCertificate()"
+          >
+            Download Certificate PDF
+          </button>
+
+          <button
+            class="secondary"
+            onclick="window.print()"
+          >
+            Print
+          </button>
+
+          <button
+            class="secondary"
+            onclick="clearCertificate()"
+          >
+            Clear
+          </button>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </section>
+
+</main>
+
+
+<footer>
+  © <span id="year"></span> Growtech Axon. All Rights Reserved.
+</footer>
+
+
+<script>
+
+  let currentResult = null;
+  let currentCertificate = null;
+
+
+  // =====================================================
+  // TAB
+  // =====================================================
+
+  function openTab(id, button) {
+
+    document
+      .querySelectorAll(".panel")
+      .forEach(panel => {
+        panel.classList.remove("active");
+      });
+
+    document
+      .querySelectorAll(".tab")
+      .forEach(tab => {
+        tab.classList.remove("active");
+      });
+
+    document
+      .getElementById(id)
+      .classList.add("active");
+
+    button.classList.add("active");
+  }
+
+
+  // =====================================================
+  // RESULT CHECK
+  // =====================================================
+
+  document
+    .getElementById("resultForm")
+    .addEventListener("submit", async function(e) {
+
+      e.preventDefault();
+
+      const resultId =
+        document
+          .getElementById("resultId")
+          .value
+          .trim();
+
+      const email =
+        document
+          .getElementById("resultEmail")
+          .value
+          .trim()
+          .toLowerCase();
+
+      const button =
+        this.querySelector("button");
+
+      button.disabled = true;
+      button.textContent = "Checking...";
+
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/results/check" +
+            "?resultId=" +
+            encodeURIComponent(resultId) +
+            "&email=" +
+            encodeURIComponent(email)
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok || !data.valid) {
+          throw new Error(
+            data.message ||
+            "Result not found."
+          );
+        }
+
+
+        currentResult =
+          data.result;
+
+
+        renderResult(
+          data.result,
+          data.questions
+        );
+
+
+        showMessage(
+          "resultMessage",
+          "Result verified successfully.",
+          "success"
+        );
+
+      } catch(error) {
+
+        document
+          .getElementById("resultArea")
+          .style.display = "none";
+
+        showMessage(
+          "resultMessage",
+          error.message
+        );
+
+      } finally {
+
+        button.disabled = false;
+        button.textContent =
+          "Check Result & Answers";
+
+      }
+
+    });
+
+
+  // =====================================================
+  // RENDER RESULT
+  // =====================================================
+
+  function renderResult(
+    result,
+    questions
+  ) {
+
+    document
+      .getElementById("resultArea")
+      .style.display = "block";
+
+
+    document
+      .getElementById("candidateName")
+      .textContent =
+        result.candidateName || "Student";
+
+
+    document
+      .getElementById("testTitle")
+      .textContent =
+        result.testTitle || "";
+
+
+    document
+      .getElementById("totalQuestions")
+      .textContent =
+        result.totalQuestions || 0;
+
+
+    document
+      .getElementById("attempted")
+      .textContent =
+        result.attempted || 0;
+
+
+    document
+      .getElementById("correct")
+      .textContent =
+        result.correct || 0;
+
+
+    document
+      .getElementById("wrong")
+      .textContent =
+        result.wrong || 0;
+
+
+    document
+      .getElementById("unanswered")
+      .textContent =
+        result.unanswered || 0;
+
+
+    document
+      .getElementById("percentage")
+      .textContent =
+        Number(result.percentage || 0)
+          .toFixed(2) + "%";
+
+
+    document
+      .getElementById("score")
+      .textContent =
+        result.score || 0;
+
+
+    const status =
+      document.getElementById("passStatus");
+
+
+    status.textContent =
+      result.passed
+        ? "PASS"
+        : "FAIL";
+
+
+    status.className =
+      "status " +
+      (
+        result.passed
+          ? "pass"
+          : "fail"
+      );
+
+
+    document
+      .getElementById("submittedAt")
+      .textContent =
+        result.submittedAt
+          ? "Submitted: " +
+            formatDate(result.submittedAt)
+          : "";
+
+
+    renderQuestions(
+      questions || []
+    );
+
+
+    const certButton =
+      document.getElementById(
+        "certificateButtonArea"
+      );
+
+
+    if (result.certificateId) {
+
+      certButton.style.display =
+        "block";
+
+    } else {
+
+      certButton.style.display =
+        "none";
+
+    }
+
+
+    document
+      .getElementById("resultArea")
+      .scrollIntoView({
+        behavior: "smooth"
+      });
+
+  }
+
+
+  // =====================================================
+  // QUESTIONS
+  // =====================================================
+
+  function renderQuestions(
+    questions
+  ) {
+
+    const container =
+      document.getElementById(
+        "questionsContainer"
+      );
+
+
+    if (!questions.length) {
+
+      container.innerHTML =
+        `<div class="message show error">
+          Question data is not available.
+        </div>`;
+
+      return;
+    }
+
+
+    container.innerHTML =
+      questions.map(q => {
+
+        const options =
+          Array.isArray(q.options)
+            ? q.options
+            : [];
+
+
+        const selectedIndex =
+          q.selectedIndex !== null &&
+          q.selectedIndex !== undefined
+            ? Number(q.selectedIndex)
+            : null;
+
+        const correctIndex =
+          q.correctIndex !== null &&
+          q.correctIndex !== undefined
+            ? Number(q.correctIndex)
+            : null;
+
+        const optionHtml =
+          options.map(
+            (option, index) => {
+
+              const isSelected =
+                selectedIndex !== null &&
+                selectedIndex === index;
+
+              const isCorrectOption =
+                correctIndex !== null &&
+                correctIndex === index;
+
+              let cls = "option";
+
+              // Correct answer is ALWAYS green.
+              if (isCorrectOption) {
+                cls += " correct";
+              }
+
+              // A selected wrong answer is ALWAYS red.
+              if (isSelected && !isCorrectOption) {
+                cls += " selected-wrong";
+              }
+
+              // A selected correct answer is green as well.
+              if (isSelected && isCorrectOption) {
+                cls += " selected-correct";
+              }
+
+              const labels = [];
+
+              if (isSelected) {
+                labels.push(
+                  isCorrectOption
+                    ? "Your Answer • Correct"
+                    : "Your Answer • Wrong"
+                );
+              }
+
+              if (isCorrectOption && !isSelected) {
+                labels.push("Correct Answer");
+              }
+
+              return `
+                <div class="${cls}">
+                  <b>${String.fromCharCode(65 + index)}.</b>
+                  ${escapeHtml(option)}
+                  ${labels.length ? ` — ${labels.join(" • ")}` : ""}
+                </div>
+              `;
+
+            }
+          ).join("");
+
+
+        let resultText;
+        let resultClass;
+
+
+        if (q.isCorrect === true) {
+
+          resultText =
+            "✓ Correct Answer";
+
+          resultClass =
+            "correct-text";
+
+        } else if (
+          q.isCorrect === false &&
+          q.selectedAnswer !== "Not Answered"
+        ) {
+
+          resultText =
+            "✕ Wrong Answer";
+
+          resultClass =
+            "wrong-text";
+
+        } else {
+
+          resultText =
+            "• Not Answered";
+
+          resultClass =
+            "unanswered-text";
+
+        }
+
+
+        return `
+          <div class="question">
+
+            <div class="q-number">
+              QUESTION ${q.number}
+            </div>
+
+            <div class="q-text">
+              ${escapeHtml(q.question)}
+            </div>
+
+            ${optionHtml}
+
+            <div class="answers">
+
+              <div class="answer">
+                <small>Your Answer</small>
+                <strong>
+                  ${escapeHtml(
+                    q.selectedAnswer ||
+                    "Not Answered"
+                  )}
+                </strong>
+              </div>
+
+              <div class="answer">
+                <small>Correct Answer</small>
+                <strong>
+                  ${escapeHtml(
+                    q.correctAnswer ||
+                    "Not Available"
+                  )}
+                </strong>
+              </div>
+
+            </div>
+
+            <div class="${resultClass}"
+                 style="margin-top:12px;">
+              ${resultText}
+            </div>
+
+          </div>
+        `;
+
+      }).join("");
+
+  }
+
+
+  // =====================================================
+  // CERTIFICATE
+  // =====================================================
+
+  document
+    .getElementById("certificateForm")
+    .addEventListener("submit", async function(e) {
+
+      e.preventDefault();
+
+      const certificateId =
+        document
+          .getElementById("certificateId")
+          .value
+          .trim()
+          .toUpperCase();
+
+      const email =
+        document
+          .getElementById("certificateEmail")
+          .value
+          .trim()
+          .toLowerCase();
+
+
+      const button =
+        this.querySelector("button");
+
+      button.disabled = true;
+      button.textContent = "Verifying...";
+
+
+      try {
+
+        const response =
+          await fetch(
+            "/api/certificates/verify" +
+            "?certificateId=" +
+            encodeURIComponent(certificateId) +
+            "&email=" +
+            encodeURIComponent(email)
+          );
+
+
+        const data =
+          await response.json();
+
+
+        if (!response.ok || !data.valid) {
+          throw new Error(
+            data.message ||
+            "Certificate not found."
+          );
+        }
+
+
+        currentCertificate =
+          data.certificate;
+
+
+        renderCertificate(
+          data.certificate
+        );
+
+
+        showMessage(
+          "certificateMessage",
+          "Certificate verified successfully.",
+          "success"
+        );
+
+      } catch(error) {
+
+        document
+          .getElementById("certificateArea")
+          .style.display = "none";
+
+        showMessage(
+          "certificateMessage",
+          error.message
+        );
+
+      } finally {
+
+        button.disabled = false;
+        button.textContent =
+          "Verify Certificate";
+
+      }
+
+    });
+
+
+  // =====================================================
+  // RENDER CERTIFICATE
+  // =====================================================
+
+  function renderCertificate(
+    certificate
+  ) {
+
+    document
+      .getElementById("certificateArea")
+      .style.display = "block";
+
+
+    document
+      .getElementById("certCandidate")
+      .textContent =
+        certificate.candidateName || "";
+
+
+    document
+      .getElementById("certTest")
+      .textContent =
+        certificate.testTitle || "";
+
+
+    document
+      .getElementById("certId")
+      .textContent =
+        certificate.certificateId || "";
+
+
+    document
+      .getElementById("certDate")
+      .textContent =
+        formatDate(
+          certificate.issueDate
+        );
+
+
+    document
+      .getElementById("certPercentage")
+      .textContent =
+        Number(
+          certificate.percentage || 0
+        ).toFixed(2) + "%";
+
+
+    document
+      .getElementById("certGrade")
+      .textContent =
+        certificate.grade || "Completed";
+
+
+    document
+      .getElementById("certStatus")
+      .textContent =
+        certificate.status === "valid"
+          ? "VALID"
+          : "REVOKED";
+
+
+    document
+      .getElementById("certSignatory")
+      .textContent =
+        certificate.signatoryName ||
+        "Growtech Axon";
+
+
+    document
+      .getElementById("certificateArea")
+      .scrollIntoView({
+        behavior: "smooth"
+      });
+
+  }
+
+
+  // =====================================================
+  // CERTIFICATE DOWNLOAD
+  // =====================================================
+
+  function downloadCertificate() {
+
+    if (!currentCertificate) {
+      return;
+    }
+
+
+    const id =
+      currentCertificate.certificateId;
+
+    const email =
+      currentCertificate.email;
+
+
+    const url =
+      "/api/certificates/" +
+      encodeURIComponent(id) +
+      "/pdf?email=" +
+      encodeURIComponent(email);
+
+
+    window.open(
+      url,
+      "_blank"
+    );
+
+  }
+
+
+  // =====================================================
+  // GO CERTIFICATE
+  // =====================================================
+
+  function goCertificate() {
+
+    const buttons =
+      document.querySelectorAll(".tab");
+
+    openTab(
+      "certificatePanel",
+      buttons[1]
+    );
+
+
+    if (
+      currentResult &&
+      currentResult.certificateId
+    ) {
+
+      document
+        .getElementById("certificateId")
+        .value =
+          currentResult.certificateId;
+
+
+      document
+        .getElementById("certificateEmail")
+        .value =
+          currentResult.email;
+
+    }
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth"
+    });
+
+  }
+
+
+  // =====================================================
+  // CLEAR
+  // =====================================================
+
+  function clearCertificate() {
+
+    currentCertificate = null;
+
+    document
+      .getElementById("certificateArea")
+      .style.display = "none";
+
+    document
+      .getElementById("certificateForm")
+      .reset();
+
+    hideMessage(
+      "certificateMessage"
+    );
+
+  }
+
+
+  // =====================================================
+  // HELPERS
+  // =====================================================
+
+  function showMessage(
+    id,
+    text,
+    type = "error"
+  ) {
+
+    const box =
+      document.getElementById(id);
+
+    box.textContent = text;
+
+    box.className =
+      "message show " + type;
+
+  }
+
+
+  function hideMessage(id) {
+
+    const box =
+      document.getElementById(id);
+
+    box.className =
+      "message";
+
+    box.textContent = "";
+
+  }
+
+
+  function formatDate(value) {
+
+    if (!value) {
+      return "-";
+    }
+
+    const date =
+      new Date(value);
+
+    if (
+      Number.isNaN(
+        date.getTime()
+      )
+    ) {
+      return "-";
+    }
+
+    return date.toLocaleDateString(
+      "en-IN",
+      {
+        day: "2-digit",
+        month: "long",
+        year: "numeric"
+      }
+    );
+
+  }
+
+
+  function escapeHtml(value) {
+
+    return String(value ?? "")
+      .replaceAll("&", "&amp;")
+      .replaceAll("<", "&lt;")
+      .replaceAll(">", "&gt;")
+      .replaceAll('"', "&quot;")
+      .replaceAll("'", "&#039;");
+
+  }
+
+
+  // Auto-open the just-submitted result when the exam redirects here.
+  (async function autoLoadSubmittedResult() {
+    const params = new URLSearchParams(location.search);
+    const resultId = params.get("resultId");
+    if (!resultId) return;
+
+    const token = localStorage.getItem("growtechStudentToken");
+    if (!token) return;
+
+    try {
+      const meResponse = await fetch("/api/auth/me", {
+        headers: { Authorization: "Bearer " + token }
+      });
+      const me = await meResponse.json();
+      if (!meResponse.ok || !me.student) return;
+
+      document.getElementById("resultId").value = resultId;
+      document.getElementById("resultEmail").value = me.student.email;
+      document.getElementById("resultForm").dispatchEvent(new Event("submit", { cancelable: true }));
+    } catch (error) {
+      console.error("Unable to auto-load result:", error);
+    }
+  })();
+
+
+  document
+    .getElementById("year")
+    .textContent =
+      new Date().getFullYear();
+
+</script>
+
+</body>
+</html>
