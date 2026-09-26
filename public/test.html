@@ -1,778 +1,715 @@
 <!doctype html>
 <html lang="en">
+  <head>
+    <meta charset="utf-8" />
 
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
 
-  <meta
-    name="description"
-    content="GrowtechAxon Professional Skill Assessment"
-  >
+    <meta
+      name="description"
+      content="GrowtechAxon Professional Skill Assessment"
+    />
 
-  <title>Take Test | GrowtechAxon</title>
+    <title>Take Test | GrowtechAxon</title>
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
 
-  <link
-    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
-    rel="stylesheet"
-  >
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 
-  <link rel="stylesheet" href="/assets/style.css">
-</head>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
 
+    <link rel="stylesheet" href="/assets/style.css" />
 
-<body>
+    <style>
+      /* =====================================================
+       ANTI CHEATING NOTICE
+    ====================================================== */
 
-  <!-- =====================================================
+      .anti-cheat-notice {
+        display: none;
+        margin: 18px 0;
+        padding: 14px 18px;
+        border: 1px solid rgba(201, 164, 92, 0.45);
+        border-radius: 12px;
+        background: rgba(201, 164, 92, 0.08);
+        color: #f5f1e8;
+        font-size: 14px;
+        line-height: 1.5;
+      }
+
+      .anti-cheat-notice.show {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .anti-cheat-count {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        background: #c9a45c;
+        color: #080b10;
+        font-weight: 800;
+        font-size: 13px;
+        flex-shrink: 0;
+      }
+
+      /* =====================================================
+       SUBMISSION SUCCESS
+    ====================================================== */
+
+      .submission-success {
+        display: none;
+        margin: 40px auto;
+        max-width: 760px;
+        padding: 50px 30px;
+        text-align: center;
+        border-radius: 20px;
+        background: linear-gradient(145deg, #0d1118, #111722);
+        border: 1px solid rgba(201, 164, 92, 0.35);
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.35);
+      }
+
+      .submission-success.show {
+        display: block;
+      }
+
+      .submission-success-icon {
+        width: 72px;
+        height: 72px;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 50%;
+        background: #c9a45c;
+        color: #080b10;
+        font-size: 34px;
+        font-weight: 900;
+      }
+
+      .submission-success h1 {
+        margin-bottom: 12px;
+      }
+
+      .submission-success p {
+        color: #a9adb5;
+        line-height: 1.7;
+      }
+
+      /* =====================================================
+       WHATSAPP BUTTON
+    ====================================================== */
+
+      .whatsapp-button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        margin-top: 25px;
+        padding: 14px 24px;
+        border-radius: 10px;
+        background: #25d366;
+        color: #ffffff;
+        text-decoration: none;
+        font-weight: 800;
+        transition: transform 0.2s ease;
+      }
+
+      .whatsapp-button:hover {
+        transform: translateY(-2px);
+      }
+
+      /* =====================================================
+       VIOLATION TEXT
+    ====================================================== */
+
+      .violation-warning {
+        margin-top: 10px;
+        color: #e7c77a;
+        font-size: 13px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <!-- =====================================================
        HEADER
   ====================================================== -->
 
-  <header class="topbar">
+    <header class="topbar">
+      <div class="container nav">
+        <a class="brand" href="/" aria-label="GrowtechAxon Home">
+          <img src="/assets/growtechaxon-logo.png" alt="GrowtechAxon Logo" />
 
-    <div class="container nav">
+          <span> GROWTECH<span class="brand-accent">AXON</span> </span>
+        </a>
 
-      <a
-        class="brand"
-        href="/"
-        aria-label="GrowtechAxon Home"
-      >
-
-        <img
-          src="/assets/growtechaxon-logo.png"
-          alt="GrowtechAxon Logo"
-        >
-
-        <span>
-          GROWTECH<span class="brand-accent">AXON</span>
-        </span>
-
-      </a>
-
-
-      <div class="test-header-info">
-
-        <span
-          id="testTitle"
-          class="pill"
-        >
-          Test
-        </span>
-
+        <div class="test-header-info">
+          <span id="testTitle" class="pill"> Test </span>
+        </div>
       </div>
+    </header>
 
-    </div>
-
-  </header>
-
-
-  <!-- =====================================================
+    <!-- =====================================================
        MAIN
   ====================================================== -->
 
-  <main class="container">
-
-
-    <!-- ===================================================
+    <main class="container">
+      <!-- ===================================================
          CANDIDATE DETAILS
     ==================================================== -->
 
-    <section
-      id="candidateCard"
-      class="card form-card candidate-form-card"
-    >
+      <section id="candidateCard" class="card form-card candidate-form-card">
+        <div class="form-header">
+          <div class="test-icon">📝</div>
 
-      <div class="form-header">
+          <div>
+            <div class="eyebrow">Candidate Details</div>
 
-        <div class="test-icon">
-          📝
-        </div>
+            <h1>Start Your Assessment</h1>
 
-        <div>
-
-          <div class="eyebrow">
-            Candidate Details
+            <p class="muted">
+              Enter your details carefully before starting the test.
+            </p>
           </div>
-
-          <h1>
-            Start Your Assessment
-          </h1>
-
-          <p class="muted">
-            Enter your details carefully before starting the test.
-          </p>
-
         </div>
 
-      </div>
+        <div class="form-divider"></div>
 
+        <!-- Full Name -->
 
-      <div class="form-divider"></div>
+        <div class="field">
+          <label for="name">
+            Full Name
 
+            <span class="required"> * </span>
+          </label>
 
-      <!-- Full Name -->
-
-      <div class="field">
-
-        <label for="name">
-          Full Name <span class="required">*</span>
-        </label>
-
-        <input
-          id="name"
-          type="text"
-          autocomplete="name"
-          placeholder="Enter your full name"
-          maxlength="100"
-          readonly
-          required
-        >
-
-      </div>
-
-
-      <!-- Email -->
-
-      <div class="field">
-
-        <label for="email">
-          Email Address <span class="required">*</span>
-        </label>
-
-        <input
-          id="email"
-          type="email"
-          autocomplete="email"
-          placeholder="you@example.com"
-          maxlength="150"
-          readonly
-          required
-        >
-
-      </div>
-
-
-      <!-- Phone -->
-
-      <div class="field">
-
-        <label for="phone">
-          Phone Number
-          <span class="optional">
-            Optional
-          </span>
-        </label>
-
-        <input
-          id="phone"
-          type="tel"
-          autocomplete="tel"
-          placeholder="Enter your phone number"
-          maxlength="20"
-          readonly
-        >
-
-      </div>
-
-
-      <!-- Important Notice -->
-
-      <div class="notice test-notice">
-
-        <div class="notice-icon">
-          ⏱
+          <input
+            id="name"
+            type="text"
+            autocomplete="name"
+            placeholder="Enter your full name"
+            maxlength="100"
+            required
+          />
         </div>
 
-        <div>
+        <!-- Email -->
 
-          <strong>
-            Before you begin
-          </strong>
+        <div class="field">
+          <label for="email">
+            Email Address
 
-          <p>
-            Once the test starts, the timer cannot be paused.
-            Your answers will be submitted automatically when the
-            time expires.
-          </p>
+            <span class="required"> * </span>
+          </label>
 
-          <p>
-            Your result is calculated securely on the server and
-            will not be displayed immediately after submission.
-          </p>
-
+          <input
+            id="email"
+            type="email"
+            autocomplete="email"
+            placeholder="you@example.com"
+            maxlength="150"
+            required
+          />
         </div>
 
-      </div>
+        <!-- Phone -->
 
+        <div class="field">
+          <label for="phone">
+            Phone Number
 
-      <p
-        id="err"
-        class="form-error"
-        role="alert"
-        aria-live="polite"
-      ></p>
+            <span class="optional"> Optional </span>
+          </label>
 
+          <input
+            id="phone"
+            type="tel"
+            autocomplete="tel"
+            placeholder="Enter your phone number"
+            maxlength="20"
+          />
+        </div>
 
-      <div class="actions form-actions">
+        <!-- Important Notice -->
 
-        <button
-          id="start"
-          class="btn btn-primary btn-large"
-          type="button"
-        >
-          <span>
-            Start Test
-          </span>
+        <div class="notice test-notice">
+          <div class="notice-icon">⏱</div>
 
-          <span class="arrow">
-            →
-          </span>
+          <div>
+            <strong> Before you begin </strong>
 
-        </button>
+            <p>
+              Once the test starts, the timer cannot be paused. Your answers
+              will be submitted automatically when the time expires.
+            </p>
 
-      </div>
+            <p>
+              During the assessment, switching tabs, copying/pasting, opening
+              developer tools or attempting restricted shortcuts may be recorded
+              as assessment violations.
+            </p>
+          </div>
+        </div>
 
+        <p id="err" class="form-error" role="alert" aria-live="polite"></p>
 
-      <div class="secure-note">
+        <div class="actions form-actions">
+          <button id="start" class="btn btn-primary btn-large" type="button">
+            <span> Start Test </span>
 
-        <span>🔒</span>
+            <span class="arrow"> → </span>
+          </button>
+        </div>
 
-        Your information is used only for assessment and result processing.
+        <div class="secure-note">
+          <span> 🔒 </span>
 
-      </div>
+          Your information is used only for assessment and result processing.
+        </div>
+      </section>
 
-    </section>
-
-
-
-    <!-- ===================================================
+      <!-- ===================================================
          TEST AREA
     ==================================================== -->
 
-    <section
-      id="testCard"
-      class="hidden test-area"
-    >
+      <section id="testCard" class="hidden test-area">
+        <!-- TEST TOP BAR -->
 
+        <div class="exam-topbar">
+          <div>
+            <span class="section-kicker"> LIVE ASSESSMENT </span>
 
-      <!-- TEST TOP BAR -->
-
-      <div class="exam-topbar">
-
-        <div>
-
-          <span class="section-kicker">
-            LIVE ASSESSMENT
-          </span>
-
-          <h1 id="examHeading">
-            Assessment
-          </h1>
-
-        </div>
-
-
-        <div class="exam-progress-info">
-
-          <span>
-            Answer the questions below
-          </span>
-
-          <strong id="questionCount">
-            0 Questions
-          </strong>
-
-        </div>
-
-      </div>
-
-
-
-      <!-- TIMER -->
-
-      <div class="timer-container">
-
-        <div class="timer">
-
-          <div class="timer-left">
-
-            <span class="timer-icon">
-              ⏱
-            </span>
-
-            <span>
-              Time Remaining
-            </span>
-
+            <h1 id="examHeading">Assessment</h1>
           </div>
 
-          <span
-            id="timer"
-            class="timer-value"
-          >
-            --:--
-          </span>
+          <div class="exam-progress-info">
+            <span> Answer the questions below </span>
 
+            <strong id="questionCount"> 0 Questions </strong>
+          </div>
         </div>
 
-      </div>
+        <!-- TIMER -->
 
+        <div class="timer-container">
+          <div class="timer">
+            <div class="timer-left">
+              <span class="timer-icon"> ⏱ </span>
 
+              <span> Time Remaining </span>
+            </div>
 
-      <!-- PROGRESS -->
-
-      <div class="exam-progress">
-
-        <div class="progress-header">
-
-          <span>
-            Test Progress
-          </span>
-
-          <strong id="progressText">
-            0%
-          </strong>
-
+            <span id="timer" class="timer-value"> --:-- </span>
+          </div>
         </div>
+
+        <!-- PROGRESS -->
+
+        <div class="exam-progress">
+          <div class="progress-header">
+            <span> Test Progress </span>
+
+            <strong id="progressText"> 0% </strong>
+          </div>
+
+          <div class="progress" aria-label="Test progress">
+            <div id="progress" style="width: 0%"></div>
+          </div>
+        </div>
+
+        <!-- ANTI CHEAT STATUS -->
 
         <div
-          class="progress"
-          aria-label="Test progress"
+          id="antiCheatNotice"
+          class="anti-cheat-notice"
+          role="status"
+          aria-live="polite"
         >
+          <span id="antiCheatCount" class="anti-cheat-count"> 0 </span>
 
-          <div
-            id="progress"
-            style="width:0%"
-          ></div>
+          <div>
+            <strong> Assessment Warning </strong>
 
+            <div id="antiCheatMessage">
+              Please remain on the assessment page.
+            </div>
+          </div>
         </div>
 
-      </div>
+        <!-- QUESTIONS -->
 
+        <form id="quiz" novalidate></form>
 
+        <!-- SUBMIT AREA -->
 
-      <!-- QUESTIONS -->
+        <div class="submit-area">
+          <div class="submit-warning">
+            <span> 📌 </span>
 
-      <form
-        id="quiz"
-        novalidate
-      ></form>
+            <span>
+              Make sure you have answered all the questions before submitting.
+            </span>
+          </div>
 
+          <button id="submit" class="btn btn-gold btn-large" type="button">
+            <span> Submit Test </span>
 
-
-      <!-- SUBMIT AREA -->
-
-      <div class="submit-area">
-
-        <div class="submit-warning">
-
-          <span>
-            📌
-          </span>
-
-          <span>
-            Make sure you have answered all the questions before submitting.
-          </span>
-
+            <span class="arrow"> → </span>
+          </button>
         </div>
+      </section>
 
+      <!-- ===================================================
+         SUBMISSION SUCCESS
+    ==================================================== -->
 
-        <button
-          id="submit"
-          class="btn btn-gold btn-large"
-          type="button"
+      <section id="submissionSuccess" class="submission-success">
+        <div class="submission-success-icon">✓</div>
+
+        <h1>Your Test Submitted Successfully</h1>
+
+        <p>
+          Your assessment has been submitted and securely recorded. Your result
+          is not displayed immediately. You can check your result through the
+          appropriate result verification section later.
+        </p>
+
+        <p id="submissionTypeText" class="violation-warning"></p>
+
+        <a
+          class="whatsapp-button"
+          href="https://chat.whatsapp.com/IYXOGpNpeYlGaXHZzBUC5I"
+          target="_blank"
+          rel="noopener noreferrer"
         >
+          <span> 💬 </span>
 
-          <span>
-            Submit Test
-          </span>
+          <span> Join WhatsApp Group </span>
+        </a>
+      </section>
+    </main>
 
-          <span class="arrow">
-            →
-          </span>
-
-        </button>
-
-      </div>
-
-
-    </section>
-
-  </main>
-
-
-
-  <!-- =====================================================
+    <!-- =====================================================
        SCRIPT
   ====================================================== -->
 
-  <script>
+    <script>
+      /* =====================================================
+       TEST STATE
+    ====================================================== */
 
-    const testId =
-      new URLSearchParams(location.search).get("test");
+      const testId = new URLSearchParams(location.search).get("test");
 
+      let sessionId = null;
 
-    let sessionId = null;
+      let questions = [];
 
-    let questions = [];
+      let endsAt = 0;
 
-    let endsAt = 0;
+      let startAt = 0;
 
-    let startAt = 0;
+      let durationMs = 0;
 
-    let durationMs = 0;
+      let timerHandle = null;
 
-    let timerHandle = null;
+      let submitted = false;
 
-    let submitted = false;
+      /* =====================================================
+       ANTI-CHEATING STATE
+    ====================================================== */
 
-    const studentToken = localStorage.getItem("growtechStudentToken");
-    let currentStudent = null;
+      const MAX_VIOLATIONS = 3;
 
+      let violationCount = 0;
 
-    /*
-     * Small DOM helper
-     */
+      let violations = [];
 
-    const $ = function (id) {
-      return document.getElementById(id);
-    };
+      let antiCheatActive = false;
 
+      let antiCheatSubmitting = false;
 
-    /*
-     * HTML escape helper
-     */
+      let fullscreenWasActive = false;
 
-    function esc(value) {
+      /* =====================================================
+       DOM HELPER
+    ====================================================== */
 
-      return String(value).replace(
-        /[&<>"']/g,
-        function (character) {
+      const $ = function (id) {
+        return document.getElementById(id);
+      };
 
+      /* =====================================================
+       HTML ESCAPE
+    ====================================================== */
+
+      function esc(value) {
+        return String(value).replace(/[&<>"']/g, function (character) {
           return {
             "&": "&amp;",
+
             "<": "&lt;",
+
             ">": "&gt;",
+
             '"': "&quot;",
-            "'": "&#039;"
+
+            "'": "&#039;",
           }[character];
-
-        }
-      );
-
-    }
-
-
-    /*
-     * Show error message
-     */
-
-    function showError(message) {
-
-      $("err").textContent = message;
-
-    }
-
-
-    /*
-     * Require authenticated student and auto-fill registered data.
-     */
-    async function ensureStudent() {
-      if (!studentToken) {
-        location.href = "/auth.html?next=" + encodeURIComponent(location.href);
-        return false;
-      }
-
-      try {
-        const response = await fetch("/api/auth/me", {
-          headers: { Authorization: "Bearer " + studentToken }
         });
-
-        const data = await response.json();
-
-        if (!response.ok || !data.student) {
-          localStorage.removeItem("growtechStudentToken");
-          localStorage.removeItem("growtechStudentRegistered");
-          location.href = "/auth.html?next=" + encodeURIComponent(location.href);
-          return false;
-        }
-
-        currentStudent = data.student;
-        $("name").value = data.student.fullName || "";
-        $("email").value = data.student.email || "";
-        $("phone").value = data.student.mobile || "";
-        return true;
-      } catch (error) {
-        console.error("Student session check failed:", error);
-        location.href = "/auth.html?next=" + encodeURIComponent(location.href);
-        return false;
-      }
-    }
-
-    ensureStudent();
-
-
-    /*
-     * Test ID validation
-     */
-
-    if (!testId) {
-
-      $("start").disabled = true;
-
-      showError(
-        "Invalid test link. Please return to the exam portal and select a test."
-      );
-
-    }
-
-
-    /*
-     * Start Test
-     */
-
-    $("start").onclick = async function () {
-
-      const name =
-        $("name").value.trim();
-
-      const email =
-        $("email").value.trim();
-
-      const phone =
-        $("phone").value.trim();
-
-
-      showError("");
-
-
-      /*
-       * Basic validation
-       */
-
-      if (!name) {
-
-        showError("Please enter your full name.");
-
-        $("name").focus();
-
-        return;
-
       }
 
+      /* =====================================================
+       ERROR
+    ====================================================== */
 
-      if (!email) {
-
-        showError("Please enter your email address.");
-
-        $("email").focus();
-
-        return;
-
+      function showError(message) {
+        $("err").textContent = message || "";
       }
 
+      /* =====================================================
+       INVALID TEST LINK
+    ====================================================== */
 
-      /*
-       * Browser email validation
-       */
-
-      if (
-        $("email").validity &&
-        !$("email").validity.valid
-      ) {
+      if (!testId) {
+        $("start").disabled = true;
 
         showError(
-          "Please enter a valid email address."
+          "Invalid test link. Please return to the exam portal and select a test.",
         );
-
-        $("email").focus();
-
-        return;
-
       }
 
+      /* =====================================================
+       START TEST
+    ====================================================== */
 
-      /*
-       * Prevent duplicate requests
-       */
+      $("start").onclick = async function () {
+        const name = $("name").value.trim();
 
-      $("start").disabled = true;
+        const email = $("email").value.trim();
 
-      $("start").innerHTML = `
+        const phone = $("phone").value.trim();
+
+        showError("");
+
+        /* ---------------------------------------------------
+         VALIDATION
+      --------------------------------------------------- */
+
+        if (!name) {
+          showError("Please enter your full name.");
+
+          $("name").focus();
+
+          return;
+        }
+
+        if (!email) {
+          showError("Please enter your email address.");
+
+          $("email").focus();
+
+          return;
+        }
+
+        if ($("email").validity && !$("email").validity.valid) {
+          showError("Please enter a valid email address.");
+
+          $("email").focus();
+
+          return;
+        }
+
+        /* ---------------------------------------------------
+         STUDENT JWT
+      --------------------------------------------------- */
+
+        const token = localStorage.getItem("growtechStudentToken");
+
+        if (!token) {
+          showError(
+            "Student login required. Please login again before starting the test.",
+          );
+
+          setTimeout(function () {
+            const currentUrl =
+              window.location.pathname + window.location.search;
+
+            window.location.href =
+              "/student/login.html?next=" + encodeURIComponent(currentUrl);
+          }, 1200);
+
+          return;
+        }
+
+        /* ---------------------------------------------------
+         BUTTON STATE
+      --------------------------------------------------- */
+
+        $("start").disabled = true;
+
+        $("start").innerHTML = `
+
         <span class="loading-spinner-small"></span>
+
         Starting Test...
+
       `;
 
-
-      try {
-
-        const response =
-          await fetch(
-            "/api/tests/start",
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type": "application/json",
-                "Authorization": "Bearer " + studentToken
-              },
-
-              body: JSON.stringify({
-                testId
-              })
-            }
-          );
-
-
-        let data;
-
         try {
+          /* =================================================
+           START TEST API
 
-          data = await response.json();
+           IMPORTANT:
+           JWT is now sent as Bearer token.
+        ================================================= */
 
-        } catch {
+          const response = await fetch("/api/tests/start", {
+            method: "POST",
 
-          throw new Error(
-            "Server returned an invalid response."
-          );
+            headers: {
+              "Content-Type": "application/json",
 
-        }
+              Authorization: "Bearer " + token,
+            },
 
+            body: JSON.stringify({
+              testId,
 
-        if (!response.ok) {
+              name,
 
-          throw new Error(
-            data.message ||
-            "Unable to start the test."
-          );
+              email,
 
-        }
+              phone,
+            }),
+          });
 
+          /* -------------------------------------------------
+           READ RESPONSE
+        ------------------------------------------------- */
 
-        /*
-         * Store server session
-         */
+          let data;
 
-        sessionId =
-          data.sessionId;
+          try {
+            data = await response.json();
+          } catch {
+            throw new Error("Server returned an invalid response.");
+          }
 
+          /* -------------------------------------------------
+           ERROR RESPONSE
+        ------------------------------------------------- */
 
-        /*
-         * Server-controlled expiry
-         */
+          if (!response.ok) {
+            if (response.status === 401) {
+              localStorage.removeItem("growtechStudentToken");
 
-        endsAt =
-          Number(data.expiresAt);
+              throw new Error(
+                "Your student session has expired. Please login again.",
+              );
+            }
 
+            throw new Error(data.message || "Unable to start the test.");
+          }
 
-        /*
-         * Local start time
-         */
+          /* =================================================
+           SERVER SESSION
+        ================================================= */
 
-        startAt =
-          Date.now();
+          sessionId = data.sessionId;
 
+          /* =================================================
+           SERVER EXPIRY
+        ================================================= */
 
-        /*
-         * Test duration
-         */
+          endsAt = Number(data.expiresAt);
 
-        durationMs =
-          Number(
-            data.test.durationMinutes
-          ) *
-          60 *
-          1000;
+          startAt = Date.now();
 
+          durationMs = Number(data.test.durationMinutes) * 60 * 1000;
 
-        /*
-         * Questions
-         */
+          /* =================================================
+           QUESTIONS
+        ================================================= */
 
-        questions =
-          Array.isArray(data.test.questions)
+          questions = Array.isArray(data.test.questions)
             ? data.test.questions
             : [];
 
+          /* =================================================
+           TEST INFORMATION
+        ================================================= */
 
-        /*
-         * Update title
-         */
+          $("testTitle").textContent = data.test.title || "Assessment";
 
-        $("testTitle").textContent =
-          data.test.title ||
-          "Assessment";
+          $("examHeading").textContent = data.test.title || "Assessment";
 
-
-        $("examHeading").textContent =
-          data.test.title ||
-          "Assessment";
-
-
-        $("questionCount").textContent =
-          `${questions.length} ${
-            questions.length === 1
-              ? "Question"
-              : "Questions"
+          $("questionCount").textContent = `${questions.length} ${
+            questions.length === 1 ? "Question" : "Questions"
           }`;
 
+          /* =================================================
+           RENDER
+        ================================================= */
 
-        /*
-         * Render questions
-         */
+          renderQuestions();
 
-        renderQuestions();
+          /* =================================================
+           HIDE CANDIDATE FORM
+        ================================================= */
 
+          $("candidateCard").classList.add("hidden");
 
-        /*
-         * Switch screen
-         */
+          $("testCard").classList.remove("hidden");
 
-        $("candidateCard")
-          .classList
-          .add("hidden");
+          /* =================================================
+           RESET ANTI CHEAT
+        ================================================= */
 
+          violationCount = 0;
 
-        $("testCard")
-          .classList
-          .remove("hidden");
+          violations = [];
 
+          antiCheatSubmitting = false;
 
-        /*
-         * Start timer
-         */
+          fullscreenWasActive = false;
 
-        startTimer();
+          /* =================================================
+           START TIMER
+        ================================================= */
 
+          startTimer();
 
-        /*
-         * Scroll to top
-         */
+          /* =================================================
+           START ANTI CHEATING
+        ================================================= */
 
-        window.scrollTo({
-          top: 0,
-          behavior: "smooth"
-        });
+          startAntiCheating();
 
-      } catch (error) {
+          window.scrollTo({
+            top: 0,
 
-        console.error(
-          "Start test error:",
-          error
-        );
+            behavior: "smooth",
+          });
+        } catch (error) {
+          console.error("Start test error:", error);
 
+          showError(
+            error.message || "Unable to start the test. Please try again.",
+          );
 
-        showError(
-          error.message ||
-          "Unable to start the test. Please try again."
-        );
+          $("start").disabled = false;
 
+          $("start").innerHTML = `
 
-        $("start").disabled = false;
-
-        $("start").innerHTML = `
           <span>
             Start Test
           </span>
@@ -780,26 +717,21 @@
           <span class="arrow">
             →
           </span>
+
         `;
+        }
+      };
 
-      }
+      /* =====================================================
+       RENDER QUESTIONS
+    ====================================================== */
 
-    };
+      function renderQuestions() {
+        const quiz = $("quiz");
 
+        if (!questions.length) {
+          quiz.innerHTML = `
 
-    /*
-     * Render Questions
-     */
-
-    function renderQuestions() {
-
-      const quiz =
-        $("quiz");
-
-
-      if (!questions.length) {
-
-        quiz.innerHTML = `
           <div class="error-card">
 
             <div class="error-icon">
@@ -815,492 +747,653 @@
             </p>
 
           </div>
+
         `;
 
-        return;
+          return;
+        }
 
-      }
-
-
-      quiz.innerHTML =
-        questions
+        quiz.innerHTML = questions
           .map(function (question, index) {
+            const questionId = esc(question.id);
 
-            const questionId =
-              esc(question.id);
+            const questionText = esc(question.question);
 
-
-            const questionText =
-              esc(question.question);
-
-
-            const options =
-              Array.isArray(question.options)
-                ? question.options
-                : [];
-
+            const options = Array.isArray(question.options)
+              ? question.options
+              : [];
 
             return `
-              <article
-                class="question"
-                data-question="${questionId}"
-              >
 
-                <div class="question-header">
+                <article
+                  class="question"
+                  data-question="${questionId}"
+                >
 
-                  <span class="question-number">
-                    ${index + 1}
-                  </span>
+                  <div class="question-header">
 
-                  <span class="question-label">
-                    Question ${index + 1}
-                  </span>
+                    <span class="question-number">
 
-                </div>
+                      ${index + 1}
+
+                    </span>
+
+                    <span class="question-label">
+
+                      Question ${index + 1}
+
+                    </span>
+
+                  </div>
 
 
-                <h3>
-                  ${questionText}
-                </h3>
+                  <h3>
+
+                    ${questionText}
+
+                  </h3>
 
 
-                <div class="options-list">
+                  <div class="options-list">
 
-                  ${
-                    options
+                    ${options
                       .map(function (option, optionIndex) {
-
                         return `
-                          <label
-                            class="option"
-                          >
 
-                            <input
-                              type="radio"
-                              name="q_${questionId}"
-                              value="${optionIndex}"
-                            >
+                              <label
+                                class="option"
+                              >
 
-                            <span class="option-marker">
-                              ${
-                                String.fromCharCode(
-                                  65 + optionIndex
-                                )
-                              }
-                            </span>
+                                <input
+                                  type="radio"
+                                  name="q_${questionId}"
+                                  value="${optionIndex}"
+                                >
 
-                            <span class="option-text">
-                              ${esc(option)}
-                            </span>
+                                <span
+                                  class="option-marker"
+                                >
 
-                          </label>
-                        `;
+                                  ${String.fromCharCode(65 + optionIndex)}
 
+                                </span>
+
+                                <span
+                                  class="option-text"
+                                >
+
+                                  ${esc(option)}
+
+                                </span>
+
+                              </label>
+
+                            `;
                       })
-                      .join("")
-                  }
+                      .join("")}
 
-                </div>
+                  </div>
 
-              </article>
-            `;
+                </article>
 
+              `;
           })
           .join("");
 
-
-      /*
-       * Update progress when answers change
-       */
-
-      quiz
-        .querySelectorAll(
-          'input[type="radio"]'
-        )
-        .forEach(function (input) {
-
-          input.addEventListener(
-            "change",
-            updateQuestionProgress
-          );
-
+        quiz.querySelectorAll('input[type="radio"]').forEach(function (input) {
+          input.addEventListener("change", updateQuestionProgress);
         });
 
-
-      updateQuestionProgress();
-
-    }
-
-
-    /*
-     * Question progress
-     */
-
-    function updateQuestionProgress() {
-
-      if (!questions.length) {
-        return;
+        updateQuestionProgress();
       }
 
+      /* =====================================================
+       QUESTION PROGRESS
+    ====================================================== */
 
-      let answered = 0;
+      function updateQuestionProgress() {
+        if (!questions.length) {
+          return;
+        }
 
+        let answered = 0;
 
-      questions.forEach(
-        function (question) {
-
-          const selected =
-            document.querySelector(
-              `input[name="q_${question.id}"]:checked`
-            );
-
+        questions.forEach(function (question) {
+          const selected = document.querySelector(
+            `input[name="q_${question.id}"]:checked`,
+          );
 
           if (selected) {
             answered++;
           }
+        });
 
-        }
-      );
+        const percentage = Math.round((answered / questions.length) * 100);
 
-
-      const percentage =
-        Math.round(
-          (answered / questions.length) *
-          100
-        );
-
-
-      $("progressText").textContent =
-        `${percentage}%`;
-
-
-      /*
-       * This progress bar represents
-       * answered-question progress.
-       */
-
-      /*
-       * NOTE:
-       * Timer progress is handled separately
-       * below using the same #progress element.
-       */
-
-    }
-
-
-    /*
-     * Start Timer
-     */
-
-    function startTimer() {
-
-      tick();
-
-
-      timerHandle =
-        setInterval(
-          tick,
-          500
-        );
-
-
-      function tick() {
-
-        const left =
-          Math.max(
-            0,
-            endsAt - Date.now()
-          );
-
-
-        const seconds =
-          Math.floor(
-            left / 1000
-          );
-
-
-        const minutes =
-          Math.floor(
-            seconds / 60
-          );
-
-
-        const remainingSeconds =
-          seconds % 60;
-
-
-        $("timer").textContent =
-          `${String(minutes).padStart(2, "0")}:${String(
-            remainingSeconds
-          ).padStart(2, "0")}`;
-
-
-        /*
-         * Timer percentage
-         */
-
-        const elapsed =
-          Date.now() - startAt;
-
-
-        const timerPercentage =
-          durationMs > 0
-            ? Math.max(
-                0,
-                Math.min(
-                  100,
-                  (elapsed / durationMs) * 100
-                )
-              )
-            : 0;
-
-
-        $("progress").style.width =
-          timerPercentage + "%";
-
-
-        /*
-         * Change timer state near expiry
-         */
-
-        const timerBox =
-          document.querySelector(".timer");
-
-
-        if (left <= 60000) {
-
-          timerBox.classList.add(
-            "timer-critical"
-          );
-
-        } else {
-
-          timerBox.classList.remove(
-            "timer-critical"
-          );
-
-        }
-
-
-        /*
-         * Automatic submission
-         */
-
-        if (left <= 0) {
-
-          clearInterval(timerHandle);
-
-          submitTest("auto");
-
-        }
-
+        $("progressText").textContent = `${percentage}%`;
       }
 
-    }
+      /* =====================================================
+       TIMER
+    ====================================================== */
 
+      function startTimer() {
+        tick();
 
-    /*
-     * Submit button
-     */
+        timerHandle = setInterval(tick, 500);
 
-    $("submit").onclick =
-      function () {
+        function tick() {
+          const left = Math.max(0, endsAt - Date.now());
 
-        submitTest("manual");
+          const seconds = Math.floor(left / 1000);
 
-      };
+          const minutes = Math.floor(seconds / 60);
 
+          const remainingSeconds = seconds % 60;
 
-    /*
-     * Submit Test
-     */
+          $("timer").textContent = `${String(minutes).padStart(
+            2,
+            "0",
+          )}:${String(remainingSeconds).padStart(2, "0")}`;
 
-    async function submitTest(type) {
+          const elapsed = Date.now() - startAt;
 
-      if (
-        submitted ||
-        !sessionId
-      ) {
+          const timerPercentage =
+            durationMs > 0
+              ? Math.max(0, Math.min(100, (elapsed / durationMs) * 100))
+              : 0;
 
-        return;
+          $("progress").style.width = timerPercentage + "%";
 
-      }
+          const timerBox = document.querySelector(".timer");
 
-
-      submitted = true;
-
-
-      /*
-       * Stop timer
-       */
-
-      if (timerHandle) {
-
-        clearInterval(
-          timerHandle
-        );
-
-      }
-
-
-      /*
-       * Disable submit button
-       */
-
-      $("submit").disabled = true;
-
-
-      $("submit").innerHTML =
-        `
-          <span class="loading-spinner-small"></span>
-          Submitting...
-        `;
-
-
-      /*
-       * Collect answers
-       */
-
-      const answers = {};
-
-
-      questions.forEach(
-        function (question) {
-
-          const selected =
-            document.querySelector(
-              `input[name="q_${question.id}"]:checked`
-            );
-
-
-          if (selected) {
-
-            answers[question.id] =
-              Number(
-                selected.value
-              );
-
+          if (left <= 60000) {
+            timerBox.classList.add("timer-critical");
+          } else {
+            timerBox.classList.remove("timer-critical");
           }
 
+          /* -----------------------------------------------
+           TIME EXPIRED
+        ------------------------------------------------ */
+
+          if (left <= 0) {
+            clearInterval(timerHandle);
+
+            submitTest("auto");
+          }
         }
-      );
-
-
-      try {
-
-        const response =
-          await fetch(
-            "/api/tests/submit",
-            {
-              method: "POST",
-
-              headers: {
-                "Content-Type": "application/json"
-              },
-
-              body: JSON.stringify({
-                sessionId,
-                answers,
-                submissionType: type
-              })
-            }
-          );
-
-
-        let data;
-
-        try {
-
-          data = await response.json();
-
-        } catch {
-
-          throw new Error(
-            "Server returned an invalid response."
-          );
-
-        }
-
-
-        if (!response.ok) {
-
-          throw new Error(
-            data.message ||
-            "Unable to submit the test."
-          );
-
-        }
-
-
-        /*
-         * Result is intentionally NOT shown here.
-         */
-
-        location.href =
-          "/certificate.html?resultId=" + encodeURIComponent(data.resultId);
-
-
-      } catch (error) {
-
-        console.error(
-          "Submit test error:",
-          error
-        );
-
-
-        alert(
-          error.message ||
-          "Unable to submit the test."
-        );
-
-
-        submitted = false;
-
-
-        $("submit").disabled = false;
-
-
-        $("submit").innerHTML =
-          `
-            <span>
-              Submit Test
-            </span>
-
-            <span class="arrow">
-              →
-            </span>
-          `;
-
       }
 
-    }
+      /* =====================================================
+       SUBMIT BUTTON
+    ====================================================== */
 
+      $("submit").onclick = function () {
+        submitTest("manual");
+      };
 
-    /*
-     * Warn candidate if they try to leave
-     * during an active assessment.
-     */
+      /* =====================================================
+       RECORD VIOLATION
+    ====================================================== */
 
-    window.addEventListener(
-      "beforeunload",
-      function (event) {
+      function recordViolation(reason) {
+        if (!antiCheatActive || submitted || antiCheatSubmitting) {
+          return;
+        }
+
+        violationCount++;
+
+        violations.push({
+          reason: String(reason),
+
+          time: new Date().toISOString(),
+
+          pageVisibility: document.visibilityState,
+        });
+
+        /* -----------------------------------------------
+         KEEP LAST 20
+      ------------------------------------------------ */
+
+        if (violations.length > 20) {
+          violations = violations.slice(-20);
+        }
+
+        updateViolationNotice();
+
+        console.warn("Assessment violation:", reason, "Count:", violationCount);
+
+        /* -----------------------------------------------
+         THIRD VIOLATION
+      ------------------------------------------------ */
+
+        if (violationCount >= MAX_VIOLATIONS) {
+          antiCheatSubmitting = true;
+
+          setTimeout(function () {
+            submitTest("anti_cheating");
+          }, 300);
+        }
+      }
+
+      /* =====================================================
+       UPDATE VIOLATION NOTICE
+    ====================================================== */
+
+      function updateViolationNotice() {
+        const notice = $("antiCheatNotice");
+
+        const count = $("antiCheatCount");
+
+        const message = $("antiCheatMessage");
+
+        if (violationCount <= 0) {
+          notice.classList.remove("show");
+
+          return;
+        }
+
+        notice.classList.add("show");
+
+        count.textContent = violationCount;
+
+        if (violationCount >= MAX_VIOLATIONS) {
+          message.textContent =
+            "Maximum violations reached. Your test is being submitted automatically.";
+        } else {
+          message.textContent = `Assessment activity detected. ${
+            MAX_VIOLATIONS - violationCount
+          } violation(s) remaining before automatic submission.`;
+        }
+      }
+
+      /* =====================================================
+       START ANTI CHEATING
+    ====================================================== */
+
+      function startAntiCheating() {
+        if (antiCheatActive) {
+          return;
+        }
+
+        antiCheatActive = true;
+
+        /* -----------------------------------------------
+         TAB / WINDOW SWITCH
+      ------------------------------------------------ */
+
+        document.addEventListener("visibilitychange", handleVisibilityChange);
+
+        /* -----------------------------------------------
+         COPY
+      ------------------------------------------------ */
+
+        document.addEventListener("copy", handleCopy);
+
+        /* -----------------------------------------------
+         CUT
+      ------------------------------------------------ */
+
+        document.addEventListener("cut", handleCut);
+
+        /* -----------------------------------------------
+         PASTE
+      ------------------------------------------------ */
+
+        document.addEventListener("paste", handlePaste);
+
+        /* -----------------------------------------------
+         RIGHT CLICK
+      ------------------------------------------------ */
+
+        document.addEventListener("contextmenu", handleContextMenu);
+
+        /* -----------------------------------------------
+         KEYBOARD
+      ------------------------------------------------ */
+
+        document.addEventListener("keydown", handleKeyDown);
+
+        /* -----------------------------------------------
+         FULLSCREEN
+      ------------------------------------------------ */
+
+        document.addEventListener("fullscreenchange", handleFullscreenChange);
+      }
+
+      /* =====================================================
+       STOP ANTI CHEATING
+    ====================================================== */
+
+      function stopAntiCheating() {
+        antiCheatActive = false;
+
+        document.removeEventListener(
+          "visibilitychange",
+          handleVisibilityChange,
+        );
+
+        document.removeEventListener("copy", handleCopy);
+
+        document.removeEventListener("cut", handleCut);
+
+        document.removeEventListener("paste", handlePaste);
+
+        document.removeEventListener("contextmenu", handleContextMenu);
+
+        document.removeEventListener("keydown", handleKeyDown);
+
+        document.removeEventListener(
+          "fullscreenchange",
+          handleFullscreenChange,
+        );
+      }
+
+      /* =====================================================
+       TAB SWITCH
+    ====================================================== */
+
+      function handleVisibilityChange() {
+        if (document.visibilityState === "hidden") {
+          recordViolation("Tab or window switched");
+        }
+      }
+
+      /* =====================================================
+       COPY
+    ====================================================== */
+
+      function handleCopy(event) {
+        event.preventDefault();
+
+        recordViolation("Copy attempt");
+      }
+
+      /* =====================================================
+       CUT
+    ====================================================== */
+
+      function handleCut(event) {
+        event.preventDefault();
+
+        recordViolation("Cut attempt");
+      }
+
+      /* =====================================================
+       PASTE
+    ====================================================== */
+
+      function handlePaste(event) {
+        event.preventDefault();
+
+        recordViolation("Paste attempt");
+      }
+
+      /* =====================================================
+       RIGHT CLICK
+    ====================================================== */
+
+      function handleContextMenu(event) {
+        event.preventDefault();
+
+        recordViolation("Right-click attempt");
+      }
+
+      /* =====================================================
+       KEYBOARD SHORTCUTS
+    ====================================================== */
+
+      function handleKeyDown(event) {
+        const key = String(event.key || "").toLowerCase();
+
+        const ctrl = event.ctrlKey || event.metaKey;
+
+        const shift = event.shiftKey;
+
+        const blocked =
+          key === "f12" ||
+          (ctrl &&
+            (key === "c" ||
+              key === "v" ||
+              key === "x" ||
+              key === "u" ||
+              key === "s" ||
+              key === "p")) ||
+          (ctrl && shift && (key === "i" || key === "j" || key === "c"));
+
+        if (!blocked) {
+          return;
+        }
+
+        event.preventDefault();
+
+        event.stopPropagation();
+
+        let reason = "Restricted keyboard shortcut";
+
+        if (key === "f12") {
+          reason = "F12 developer tools attempt";
+        } else if (ctrl && key === "c") {
+          reason = "Ctrl+C copy attempt";
+        } else if (ctrl && key === "v") {
+          reason = "Ctrl+V paste attempt";
+        } else if (ctrl && key === "x") {
+          reason = "Ctrl+X cut attempt";
+        } else if (ctrl && key === "u") {
+          reason = "Ctrl+U source view attempt";
+        } else if (ctrl && key === "s") {
+          reason = "Ctrl+S save attempt";
+        } else if (ctrl && key === "p") {
+          reason = "Ctrl+P print attempt";
+        } else if (ctrl && shift && key === "i") {
+          reason = "Developer tools shortcut attempt";
+        } else if (ctrl && shift && key === "j") {
+          reason = "Developer console shortcut attempt";
+        } else if (ctrl && shift && key === "c") {
+          reason = "Element inspector shortcut attempt";
+        }
+
+        recordViolation(reason);
+      }
+
+      /* =====================================================
+       FULLSCREEN CHANGE
+    ====================================================== */
+
+      function handleFullscreenChange() {
+        if (!antiCheatActive || submitted) {
+          return;
+        }
+
+        if (document.fullscreenElement) {
+          fullscreenWasActive = true;
+
+          return;
+        }
+
+        if (fullscreenWasActive) {
+          fullscreenWasActive = false;
+
+          recordViolation("Fullscreen exited");
+        }
+      }
+
+      /* =====================================================
+       SUBMIT TEST
+    ====================================================== */
+
+      async function submitTest(type) {
+        if (submitted || !sessionId) {
+          return;
+        }
+
+        submitted = true;
+
+        stopAntiCheating();
+
+        if (timerHandle) {
+          clearInterval(timerHandle);
+        }
+
+        $("submit").disabled = true;
+
+        $("submit").innerHTML = `
+
+        <span class="loading-spinner-small"></span>
+
+        Submitting...
+
+      `;
+
+        /* =================================================
+         COLLECT ANSWERS
+      ================================================= */
+
+        const answers = {};
+
+        questions.forEach(function (question) {
+          const selected = document.querySelector(
+            `input[name="q_${question.id}"]:checked`,
+          );
+
+          if (selected) {
+            answers[question.id] = Number(selected.value);
+          }
+        });
+
+        /* =================================================
+         SUBMISSION TYPE
+      ================================================= */
+
+        let finalSubmissionType = String(type || "manual");
 
         if (
-          sessionId &&
-          !submitted
+          finalSubmissionType !== "manual" &&
+          finalSubmissionType !== "anti_cheating" &&
+          finalSubmissionType !== "auto"
         ) {
+          finalSubmissionType = "manual";
+        }
 
+        /* =================================================
+         TIMER HAS PRIORITY
+      ================================================= */
+
+        if (Date.now() >= endsAt) {
+          finalSubmissionType = "auto";
+        }
+
+        try {
+          const response = await fetch("/api/tests/submit", {
+            method: "POST",
+
+            headers: {
+              "Content-Type": "application/json",
+            },
+
+            body: JSON.stringify({
+              sessionId,
+
+              answers,
+
+              submissionType: finalSubmissionType,
+
+              violationCount,
+
+              violations,
+            }),
+          });
+
+          let data;
+
+          try {
+            data = await response.json();
+          } catch {
+            throw new Error("Server returned an invalid response.");
+          }
+
+          if (!response.ok) {
+            throw new Error(data.message || "Unable to submit the test.");
+          }
+
+          /* =================================================
+           SUCCESS
+        ================================================= */
+
+          sessionId = null;
+
+          showSubmissionSuccess(finalSubmissionType);
+        } catch (error) {
+          console.error("Submit test error:", error);
+
+          alert(error.message || "Unable to submit the test.");
+
+          submitted = false;
+
+          antiCheatSubmitting = false;
+
+          $("submit").disabled = false;
+
+          $("submit").innerHTML = `
+
+          <span>
+            Submit Test
+          </span>
+
+          <span class="arrow">
+            →
+          </span>
+
+        `;
+
+          startAntiCheating();
+        }
+      }
+
+      /* =====================================================
+       SHOW SUCCESS
+    ====================================================== */
+
+      function showSubmissionSuccess(submissionType) {
+        $("candidateCard").classList.add("hidden");
+
+        $("testCard").classList.add("hidden");
+
+        const success = $("submissionSuccess");
+
+        success.classList.add("show");
+
+        const typeText = $("submissionTypeText");
+
+        if (submissionType === "anti_cheating") {
+          typeText.textContent =
+            "The assessment was automatically submitted after the maximum number of assessment violations was reached.";
+        } else if (submissionType === "auto") {
+          typeText.textContent =
+            "The assessment was automatically submitted because the time limit expired.";
+        } else {
+          typeText.textContent = "Your answers have been securely recorded.";
+        }
+
+        window.scrollTo({
+          top: 0,
+
+          behavior: "smooth",
+        });
+      }
+
+      /* =====================================================
+       BEFORE UNLOAD
+    ====================================================== */
+
+      window.addEventListener("beforeunload", function (event) {
+        if (sessionId && !submitted) {
           event.preventDefault();
 
           event.returnValue = "";
-
         }
-
-      }
-    );
-
-  </script>
-
-</body>
-
+      });
+    </script>
+  </body>
 </html>
