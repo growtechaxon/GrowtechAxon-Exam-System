@@ -341,7 +341,7 @@ function buildResultPdf(result, res) {
     .fontSize(9)
     .fillColor(COLORS.muted)
     .text(
-      "EMAIL",
+      "CERTIFICATE ID",
       70,
       253
     );
@@ -353,7 +353,7 @@ function buildResultPdf(result, res) {
     .fillColor(COLORS.white)
     .text(
       safe(
-        result.email,
+        result.certificateId,
         "N/A"
       ),
       70,
@@ -753,7 +753,7 @@ function buildTestResultsPdf(
     },
 
     {
-      title: "EMAIL",
+      title: "CERTIFICATE ID",
       x: 240,
       width: 165
     },
@@ -925,7 +925,7 @@ function buildTestResultsPdf(
         .fillColor("#4A505A")
         .text(
           safe(
-            result.email,
+            result.certificateId,
             "N/A"
           ),
           240,

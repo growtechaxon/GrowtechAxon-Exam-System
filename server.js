@@ -52,6 +52,7 @@ app.use("/api/auth", require("./Backend/Routes/authRoutes"));
 app.use("/api", require("./Backend/Routes/testRoutes"));
 app.use("/api/admin", require("./Backend/Routes/adminRoutes"));
 app.use("/api", require("./Backend/Routes/certificateRoutes"));
+app.use("/api", require("./Backend/Routes/leaderboardRoutes"));
 
 /* =========================
    FRONTEND FALLBACK

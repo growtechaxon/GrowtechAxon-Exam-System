@@ -113,6 +113,20 @@
     grid-template-columns:1fr;
   }
 }
+
+.leaderboard-admin{margin-top:24px;}
+.lb-admin-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:16px;}
+.lb-admin-card{background:#020b1b;border:1px solid #ffffff12;border-radius:14px;padding:16px;}
+.lb-admin-top{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.lb-admin-photo{width:68px;height:68px;border-radius:50%;object-fit:cover;border:1px solid #f5c76b55;background:#0b1320;}
+.lb-admin-rank{color:#f5c76b;font-weight:800;font-size:12px;letter-spacing:.8px;}
+.lb-admin-name{color:#fff;font-weight:800;margin-top:3px;}
+.lb-admin-fields{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.lb-admin-fields .field{margin-bottom:0;}
+.lb-admin-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px;}
+.lb-admin-note{color:#94a3b8;font-size:12px;line-height:1.5;margin:0 0 16px;}
+@media(max-width:800px){.lb-admin-grid{grid-template-columns:1fr;}}
+@media(max-width:520px){.lb-admin-fields{grid-template-columns:1fr;}}
 </style>
 </head>
 
@@ -135,6 +149,10 @@ Results
 
 <a class="side-link" href="/admin/tests.html">
 Tests
+</a>
+
+<a class="side-link" href="/admin/dashboard.html#leaderboard">
+Leaderboard
 </a>
 
 <a class="side-link" href="/certificate.html">
@@ -240,6 +258,21 @@ Search
 </div>
 
 </div>
+
+
+<section class="card leaderboard-admin" id="leaderboard">
+  <div class="nav" style="margin-bottom:12px">
+    <div>
+      <div class="eyebrow">Top Performers</div>
+      <h2 style="margin:6px 0 0">Leaderboard Management</h2>
+    </div>
+    <button class="btn btn-ghost" type="button" onclick="loadLeaderboard()">Refresh</button>
+  </div>
+  <p class="lb-admin-note">Leaderboard data is automatic from passed results. Changes here only override the public display; original examination results are not changed.</p>
+  <div id="leaderboardAdminGrid" class="lb-admin-grid">
+    <div class="loading-card">Loading top performers...</div>
+  </div>
+</section>
 
 </main>
 
@@ -1975,11 +2008,101 @@ function escAttr(s){
 }
 
 
+
+
+/* =====================================================
+   TOP PERFORMERS / LEADERBOARD ADMIN
+===================================================== */
+
+async function loadLeaderboard(){
+  const grid = document.getElementById("leaderboardAdminGrid");
+  if(!grid) return;
+  grid.innerHTML = '<div class="loading-card">Loading top performers...</div>';
+  try{
+    const response = await api("/api/admin/leaderboard");
+    const data = await response.json();
+    if(!response.ok) throw new Error(data.message || "Unable to load leaderboard.");
+    const students = Array.isArray(data.students) ? data.students : [];
+    if(!students.length){
+      grid.innerHTML = '<div class="loading-card">No passed student results are available yet.</div>';
+      return;
+    }
+    grid.innerHTML = students.map((student,index)=>{
+      const photo = student.image?.data
+        ? `<img class="lb-admin-photo" src="${student.image.data}" alt="Student photo">`
+        : `<div class="lb-admin-photo" style="display:flex;align-items:center;justify-content:center;color:#f5c76b;font-size:24px;font-weight:800">${esc((student.name||"S").charAt(0).toUpperCase())}</div>`;
+      const statusOptions=["PASSED","FAILED","VERIFIED","FEATURED"].map(v=>`<option value="${v}" ${String(student.status||"").toUpperCase()===v?"selected":""}>${v}</option>`).join("");
+      return `<article class="lb-admin-card">
+        <div class="lb-admin-top">${photo}<div><div class="lb-admin-rank">CURRENT RANK ${esc(student.rank||index+1)}</div><div class="lb-admin-name">${esc(student.name||"Student")}</div><div class="muted" style="font-size:12px;margin-top:3px">${esc(student.studentKey)}</div></div></div>
+        <div class="lb-admin-fields">
+          <div class="field"><label>Name</label><input id="lb-name-${index}" value="${escAttr(student.name||"")}"></div>
+          <div class="field"><label>Rank</label><input id="lb-rank-${index}" type="number" min="1" value="${escAttr(student.rank||index+1)}"></div>
+          <div class="field"><label>Score</label><input id="lb-score-${index}" type="number" min="0" value="${escAttr(student.score??"")}"></div>
+          <div class="field"><label>Percentage</label><input id="lb-percentage-${index}" type="number" min="0" max="100" step="0.1" value="${escAttr(student.percentage??"")}"></div>
+          <div class="field"><label>Grade</label><input id="lb-grade-${index}" value="${escAttr(student.grade||"")}"></div>
+          <div class="field"><label>Status</label><select id="lb-status-${index}">${statusOptions}</select></div>
+          <div class="field" style="grid-column:1/-1"><label>Assessment / Test</label><input id="lb-test-${index}" value="${escAttr(student.testTitle||"")}"></div>
+          <div class="field" style="grid-column:1/-1"><label>Student Photo</label><input id="lb-photo-input-${index}" type="file" accept="image/png,image/jpeg,image/webp"></div>
+        </div>
+        <div class="lb-admin-actions">
+          <button class="btn btn-primary" type="button" onclick='saveLeaderboard(${JSON.stringify(student.studentKey)},${index})'>Save Changes</button>
+          <button class="btn btn-ghost" type="button" onclick='resetLeaderboard(${JSON.stringify(student.studentKey)})'>Reset Automatic Data</button>
+          ${student.image?.data?`<button class="btn btn-ghost" type="button" onclick='removeLeaderboardPhoto(${JSON.stringify(student.studentKey)})'>Remove Photo</button>`:""}
+        </div>
+      </article>`;
+    }).join("");
+  }catch(error){
+    console.error("Leaderboard admin load error:",error);
+    grid.innerHTML=`<div class="loading-card">${esc(error.message||"Unable to load leaderboard.")}</div>`;
+  }
+}
+
+function compressLeaderboardImage(file){
+  return new Promise((resolve,reject)=>{
+    const reader=new FileReader();
+    reader.onload=()=>{const img=new Image();img.onload=()=>{const max=900;const scale=Math.min(1,max/Math.max(img.width,img.height));const canvas=document.createElement("canvas");canvas.width=Math.max(1,Math.round(img.width*scale));canvas.height=Math.max(1,Math.round(img.height*scale));const ctx=canvas.getContext("2d");ctx.drawImage(img,0,0,canvas.width,canvas.height);resolve(canvas.toDataURL("image/jpeg",0.82));};img.onerror=()=>reject(new Error("Unable to read the selected image."));img.src=reader.result;};
+    reader.onerror=()=>reject(new Error("Unable to read the selected image."));reader.readAsDataURL(file);
+  });
+}
+
+async function saveLeaderboard(studentKey,index){
+  try{
+    const fileInput=document.getElementById(`lb-photo-input-${index}`);
+    const body={
+      name:document.getElementById(`lb-name-${index}`).value.trim(),
+      rank:document.getElementById(`lb-rank-${index}`).value,
+      score:document.getElementById(`lb-score-${index}`).value,
+      percentage:document.getElementById(`lb-percentage-${index}`).value,
+      grade:document.getElementById(`lb-grade-${index}`).value.trim(),
+      status:document.getElementById(`lb-status-${index}`).value,
+      testTitle:document.getElementById(`lb-test-${index}`).value.trim()
+    };
+    if(fileInput?.files?.[0]){body.imageData=await compressLeaderboardImage(fileInput.files[0]);body.imageMimeType="image/jpeg";}
+    const response=await api(`/api/admin/leaderboard/${encodeURIComponent(studentKey)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.message||"Unable to save leaderboard changes.");
+    alert("Top performer updated successfully.");
+    await loadLeaderboard();
+  }catch(error){console.error("Leaderboard save error:",error);alert(error.message||"Unable to save leaderboard changes.");}
+}
+
+async function removeLeaderboardPhoto(studentKey){
+  if(!confirm("Remove this student's leaderboard photo?")) return;
+  try{const response=await api(`/api/admin/leaderboard/${encodeURIComponent(studentKey)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({imageData:"",imageMimeType:""})});const data=await response.json();if(!response.ok)throw new Error(data.message||"Unable to remove photo.");await loadLeaderboard();}catch(error){alert(error.message||"Unable to remove photo.");}
+}
+
+async function resetLeaderboard(studentKey){
+  if(!confirm("Reset this student's leaderboard information to automatic result data?")) return;
+  try{const response=await api(`/api/admin/leaderboard/${encodeURIComponent(studentKey)}`,{method:"DELETE"});const data=await response.json();if(!response.ok)throw new Error(data.message||"Unable to reset leaderboard entry.");await loadLeaderboard();}catch(error){alert(error.message||"Unable to reset leaderboard entry.");}
+}
+
+
 /* =====================================================
    START
 ===================================================== */
 
 load();
+loadLeaderboard();
 
 </script>
 

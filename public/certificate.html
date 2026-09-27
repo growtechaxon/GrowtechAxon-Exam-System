@@ -676,7 +676,7 @@
       <h2>Certificate Verification</h2>
 
       <p style="color:#95a8bd;">
-        Enter Certificate ID and registered email.
+        Enter the Certificate ID shown on the certificate. No email is required for public verification.
       </p>
 
       <form id="certificateForm">
@@ -690,17 +690,6 @@
               id="certificateId"
               type="text"
               placeholder="GTA-2026-XXXXXX"
-              required
-            >
-          </div>
-
-          <div>
-            <label>Registered Email</label>
-
-            <input
-              id="certificateEmail"
-              type="email"
-              placeholder="Enter registered email"
               required
             >
           </div>
@@ -788,8 +777,23 @@
           </div>
 
           <div>
+            <small>Candidate Email</small>
+            <strong id="certEmail"></strong>
+          </div>
+
+          <div>
             <small>Authorized Signatory</small>
             <strong id="certSignatory"></strong>
+          </div>
+
+          <div>
+            <small>Signatory Designation</small>
+            <strong id="certSignatoryDesignation"></strong>
+          </div>
+
+          <div>
+            <small>Program Manager</small>
+            <strong id="certProgramManager"></strong>
           </div>
 
         </div>
@@ -1290,14 +1294,6 @@
           .trim()
           .toUpperCase();
 
-      const email =
-        document
-          .getElementById("certificateEmail")
-          .value
-          .trim()
-          .toLowerCase();
-
-
       const button =
         this.querySelector("button");
 
@@ -1311,9 +1307,7 @@
           await fetch(
             "/api/certificates/verify" +
             "?certificateId=" +
-            encodeURIComponent(certificateId) +
-            "&email=" +
-            encodeURIComponent(email)
+            encodeURIComponent(certificateId)
           );
 
 
@@ -1428,10 +1422,33 @@
 
 
     document
+      .getElementById("certEmail")
+      .textContent =
+        certificate.email || "—";
+
+
+    document
       .getElementById("certSignatory")
       .textContent =
         certificate.signatoryName ||
         "Growtech Axon";
+
+
+    document
+      .getElementById("certSignatoryDesignation")
+      .textContent =
+        certificate.signatoryDesignation || "—";
+
+
+    document
+      .getElementById("certProgramManager")
+      .textContent =
+        certificate.programManagerName
+          ? certificate.programManagerName +
+            (certificate.programManagerDesignation
+              ? " — " + certificate.programManagerDesignation
+              : "")
+          : "—";
 
 
     document
@@ -1501,11 +1518,6 @@
         .value =
           currentResult.certificateId;
 
-
-      document
-        .getElementById("certificateEmail")
-        .value =
-          currentResult.email;
 
     }
 

@@ -863,7 +863,16 @@ router.get(
 
 
           signatoryDesignation:
-            certificate.signatoryDesignation
+            certificate.signatoryDesignation,
+
+          programManagerName:
+            certificate.programManagerName || "",
+
+          programManagerDesignation:
+            certificate.programManagerDesignation || "",
+
+          resultId:
+            certificate.resultId || null
 
         }
 

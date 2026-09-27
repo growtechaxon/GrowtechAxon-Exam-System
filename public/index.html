@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8" />
+
     <meta name="viewport" content="width=device-width, initial-scale=1" />
 
     <meta
@@ -12,37 +13,249 @@
     <title>GrowtechAxon | Exam Portal</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com" />
+
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
     <link
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"
       rel="stylesheet"
     />
 
     <link rel="stylesheet" href="/assets/style.css" />
+
+    <style>
+      /* =========================================================
+       TOP PERFORMERS
+    ========================================================= */
+
+      .top-performers-section {
+        padding: 42px 0 18px;
+        background: linear-gradient(180deg, #020617 0%, #06101f 100%);
+      }
+
+      .top-performers-head {
+        display: flex;
+        align-items: end;
+        justify-content: space-between;
+        gap: 20px;
+        margin-bottom: 24px;
+      }
+
+      .top-performers-grid {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+      }
+
+      .performer-card {
+        position: relative;
+        padding: 22px;
+        border: 1px solid rgba(201, 164, 92, 0.22);
+        border-radius: 18px;
+
+        background: linear-gradient(180deg, #0a1322, #050b14);
+
+        text-align: center;
+        overflow: hidden;
+
+        box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+      }
+
+      .performer-card.featured {
+        transform: translateY(-6px);
+
+        border-color: rgba(231, 199, 122, 0.45);
+      }
+
+      .performer-medal {
+        font-size: 26px;
+        margin-bottom: 10px;
+      }
+
+      .performer-photo {
+        width: 92px;
+        height: 92px;
+
+        border-radius: 50%;
+
+        object-fit: cover;
+
+        border: 2px solid #c9a45c;
+
+        background: #111722;
+
+        margin: 0 auto 13px;
+
+        display: block;
+      }
+
+      .performer-photo-fallback {
+        display: flex;
+
+        align-items: center;
+        justify-content: center;
+
+        font-size: 30px;
+        font-weight: 800;
+
+        color: #e7c77a;
+      }
+
+      .performer-rank {
+        font-size: 11px;
+
+        letter-spacing: 1.4px;
+
+        color: #a9adb5;
+
+        text-transform: uppercase;
+      }
+
+      .performer-name {
+        font-size: 17px;
+
+        font-weight: 800;
+
+        color: #f5f1e8;
+
+        margin: 6px 0;
+
+        white-space: nowrap;
+
+        overflow: hidden;
+
+        text-overflow: ellipsis;
+      }
+
+      .performer-score {
+        font-size: 25px;
+
+        font-weight: 900;
+
+        color: #e7c77a;
+      }
+
+      .performer-meta {
+        display: flex;
+
+        justify-content: center;
+
+        gap: 8px;
+
+        flex-wrap: wrap;
+
+        margin-top: 8px;
+      }
+
+      .performer-chip {
+        font-size: 11px;
+
+        padding: 5px 9px;
+
+        border-radius: 999px;
+
+        border: 1px solid #ffffff14;
+
+        color: #cbd5e1;
+
+        background: #ffffff06;
+      }
+
+      .performer-empty {
+        grid-column: 1 / -1;
+
+        text-align: center;
+
+        padding: 28px;
+
+        border: 1px dashed #ffffff18;
+
+        border-radius: 16px;
+
+        color: #94a3b8;
+      }
+
+      .performer-error {
+        grid-column: 1 / -1;
+
+        text-align: center;
+
+        padding: 28px;
+
+        border: 1px solid rgba(248, 113, 113, 0.18);
+
+        border-radius: 16px;
+
+        color: #fca5a5;
+      }
+
+      /* =========================================================
+       TEST LOADING / EMPTY STATE
+    ========================================================= */
+
+      .tests-empty {
+        grid-column: 1 / -1;
+
+        text-align: center;
+
+        padding: 30px;
+
+        border: 1px dashed #ffffff18;
+
+        border-radius: 16px;
+
+        color: #94a3b8;
+      }
+
+      /* =========================================================
+       RESPONSIVE
+    ========================================================= */
+
+      @media (max-width: 900px) {
+        .top-performers-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+        }
+      }
+
+      @media (max-width: 520px) {
+        .top-performers-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .top-performers-head {
+          align-items: start;
+
+          flex-direction: column;
+        }
+      }
+    </style>
   </head>
 
   <body>
-    <!-- =========================
+    <!-- =======================================================
        HEADER
-  ========================== -->
+  ======================================================== -->
+
     <header class="topbar">
       <div class="container nav">
         <a class="brand" href="/" aria-label="GrowtechAxon Home">
           <img src="/assets/growtechaxon-logo.png" alt="GrowtechAxon Logo" />
 
-          <span> GROWTECH<span class="brand-accent">AXON</span> </span>
+          <span>
+            GROWTECH
+
+            <span class="brand-accent"> AXON </span>
+          </span>
         </a>
 
         <nav class="nav-actions" aria-label="Main navigation">
           <a class="nav-link" href="/"> Home </a>
 
-          <!-- ANSWER KEY -->
-          <a class="btn btn-ghost" href="certificate.html">
+          <a class="btn btn-ghost" href="/answer-key.html">
             <span>📖</span>
             Answer Key
           </a>
 
-          <!-- CERTIFICATE -->
           <a class="btn btn-ghost" href="/certificate.html">
             <span>🏆</span>
             Certificate Portal
@@ -53,6 +266,7 @@
             class="nav-link"
             style="display: none"
           ></span>
+
           <button
             id="studentLogout"
             class="btn btn-ghost"
@@ -65,22 +279,58 @@
       </div>
     </header>
 
-    <!-- =========================
+    <!-- =======================================================
        MAIN
-  ========================== -->
+  ======================================================== -->
+
     <main>
-      <!-- HERO -->
+      <!-- =====================================================
+         TOP PERFORMERS
+    ====================================================== -->
+
+      <section class="top-performers-section" id="top-performers">
+        <div class="container">
+          <div class="top-performers-head">
+            <div class="section-heading">
+              <div>
+                <span class="section-kicker"> TOP PERFORMERS </span>
+
+                <h2>Outstanding Students</h2>
+
+                <p>Automatically updated from verified assessment results.</p>
+              </div>
+            </div>
+
+            <span class="section-badge">
+              <span class="status-dot"></span>
+
+              Live Leaderboard
+            </span>
+          </div>
+
+          <div id="topPerformersGrid" class="top-performers-grid">
+            <div class="performer-empty">Loading top performers...</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- =====================================================
+         HERO
+    ====================================================== -->
+
       <section class="hero-section">
         <div class="container">
           <div class="hero">
             <div class="hero-content">
               <div class="eyebrow">
                 <span class="eyebrow-dot"></span>
+
                 PROFESSIONAL ASSESSMENT PLATFORM
               </div>
 
               <h1>
                 Test Your Skills.
+
                 <br />
 
                 <span class="gradient-text"> Earn Your Certificate. </span>
@@ -94,7 +344,8 @@
               <div class="hero-actions">
                 <a href="#tests" class="btn btn-primary btn-large">
                   Explore Tests
-                  <span class="arrow">→</span>
+
+                  <span class="arrow"> → </span>
                 </a>
 
                 <a href="/answer-key.html" class="btn btn-secondary btn-large">
@@ -108,23 +359,27 @@
 
               <div class="hero-trust">
                 <div class="trust-item">
-                  <span class="trust-icon">✓</span>
-                  <span>Professional Assessments</span>
+                  <span class="trust-icon"> ✓ </span>
+
+                  <span> Professional Assessments </span>
                 </div>
 
                 <div class="trust-item">
-                  <span class="trust-icon">✓</span>
-                  <span>Verified Certificates</span>
+                  <span class="trust-icon"> ✓ </span>
+
+                  <span> Verified Certificates </span>
                 </div>
 
                 <div class="trust-item">
-                  <span class="trust-icon">✓</span>
-                  <span>Secure Evaluation</span>
+                  <span class="trust-icon"> ✓ </span>
+
+                  <span> Secure Evaluation </span>
                 </div>
               </div>
             </div>
 
             <!-- HERO VISUAL -->
+
             <div class="hero-visual">
               <div class="hero-glow"></div>
 
@@ -138,6 +393,7 @@
 
                   <span class="live-badge">
                     <span></span>
+
                     LIVE
                   </span>
                 </div>
@@ -191,9 +447,10 @@
         </div>
       </section>
 
-      <!-- =========================
+      <!-- =====================================================
          FEATURES
-    ========================== -->
+    ====================================================== -->
+
       <section class="features-section">
         <div class="container">
           <div class="section-heading centered">
@@ -255,9 +512,10 @@
         </div>
       </section>
 
-      <!-- =========================
+      <!-- =====================================================
          TESTS
-    ========================== -->
+    ====================================================== -->
+
       <section id="tests" class="tests-section">
         <div class="container">
           <div class="section-heading">
@@ -288,9 +546,10 @@
         </div>
       </section>
 
-      <!-- =========================
+      <!-- =====================================================
          ANSWER KEY CTA
-    ========================== -->
+    ====================================================== -->
+
       <section class="certificate-cta-section">
         <div class="container">
           <div class="certificate-cta">
@@ -314,7 +573,8 @@
 
               <a href="/answer-key.html" class="btn btn-white btn-large">
                 Open Answer Key
-                <span class="arrow">→</span>
+
+                <span class="arrow"> → </span>
               </a>
             </div>
 
@@ -323,9 +583,10 @@
         </div>
       </section>
 
-      <!-- =========================
+      <!-- =====================================================
          CERTIFICATE CTA
-    ========================== -->
+    ====================================================== -->
+
       <section class="certificate-cta-section">
         <div class="container">
           <div class="certificate-cta">
@@ -349,7 +610,8 @@
 
               <a href="/certificate.html" class="btn btn-white btn-large">
                 Open Certificate Portal
-                <span class="arrow">→</span>
+
+                <span class="arrow"> → </span>
               </a>
             </div>
 
@@ -359,9 +621,10 @@
       </section>
     </main>
 
-    <!-- =========================
+    <!-- =======================================================
        FOOTER
-  ========================== -->
+  ======================================================== -->
+
     <footer class="footer">
       <div class="container">
         <div class="footer-main">
@@ -372,7 +635,11 @@
                 alt="GrowtechAxon Logo"
               />
 
-              <span> GROWTECH<span class="brand-accent">AXON</span> </span>
+              <span>
+                GROWTECH
+
+                <span class="brand-accent"> AXON </span>
+              </span>
             </a>
 
             <p>Digital Innovation. Smarter Growth.</p>
@@ -441,7 +708,10 @@
 
         <div class="footer-bottom">
           <span>
-            © <span id="currentYear"></span>
+            ©
+
+            <span id="currentYear"></span>
+
             GrowtechAxon. All rights reserved.
           </span>
 
@@ -450,94 +720,130 @@
       </div>
     </footer>
 
-    <!-- =========================
-       SCRIPT
-  ========================== -->
+    <!-- =======================================================
+       JAVASCRIPT
+  ======================================================== -->
+
     <script>
-      const studentToken = localStorage.getItem("growtechStudentToken");
+      /* =========================================================
+       SAFE HTML ESCAPE
+    ========================================================= */
 
-      async function loadStudentSession() {
-        if (!studentToken) {
-          location.replace(
-            "/auth.html?next=" + encodeURIComponent(location.href),
-          );
-          return null;
-        }
-
-        try {
-          const response = await fetch("/api/auth/me", {
-            headers: { Authorization: "Bearer " + studentToken },
-          });
-          const data = await response.json();
-
-          if (!response.ok || !data.student) {
-            localStorage.removeItem("growtechStudentToken");
-            location.replace(
-              "/auth.html?next=" + encodeURIComponent(location.href),
-            );
-            return null;
-          }
-
-          const welcome = document.getElementById("studentWelcome");
-          const logout = document.getElementById("studentLogout");
-          welcome.textContent = data.student.fullName;
-          welcome.style.display = "inline-flex";
-          logout.style.display = "inline-flex";
-          logout.onclick = () => {
-            localStorage.removeItem("growtechStudentToken");
-            location.href = "/auth.html";
-          };
-
-          return data.student;
-        } catch (error) {
-          console.error("Student session error:", error);
-          location.replace(
-            "/auth.html?next=" + encodeURIComponent(location.href),
-          );
-          return null;
-        }
+      function escapeHtml(value) {
+        return String(value === null || value === undefined ? "" : value)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#039;");
       }
 
-      loadStudentSession();
+      /* =========================================================
+       TOP PERFORMERS
+       
+       IMPORTANT:
+       There is NO slice(0,5)
+       and NO slice(0,7).
 
-      /*
-       * Load active tests
-       */
+       Backend sends every student
+       belonging to automatic Rank 1-5.
+    ========================================================= */
 
-      (async function loadTests() {
-        const testsContainer = document.getElementById("tests-grid");
+      async function loadTopPerformers() {
+        const grid = document.getElementById("topPerformersGrid");
+
+        if (!grid) {
+          return;
+        }
 
         try {
-          const response = await fetch("/api/tests");
+          const response = await fetch("/api/leaderboard", {
+            method: "GET",
 
-          if (!response.ok) {
-            throw new Error("Failed to load tests");
+            cache: "no-store",
+
+            headers: {
+              Accept: "application/json",
+            },
+          });
+
+          let data;
+
+          try {
+            data = await response.json();
+          } catch (jsonError) {
+            throw new Error("Invalid leaderboard response.");
           }
 
-          const tests = await response.json();
+          if (!response.ok || !data || data.success !== true) {
+            throw new Error(
+              data && data.message
+                ? data.message
+                : "Unable to load leaderboard.",
+            );
+          }
+
+          let students = Array.isArray(data.students) ? data.students : [];
 
           /*
-           * No active tests
+           * Safety filter.
+           *
+           * This filters by RANK,
+           * not by student count.
+           *
+           * Therefore:
+           *
+           * 3 students at Rank 1
+           * will ALL remain.
            */
+          students = students.filter(function (student) {
+            const rank = Number(student.rank);
 
-          if (!Array.isArray(tests) || tests.length === 0) {
-            testsContainer.innerHTML = `
+            return Number.isFinite(rank) && rank >= 1 && rank <= 5;
+          });
 
-            <div class="empty-card">
+          /*
+           * Sort by actual rank.
+           */
+          students.sort(function (a, b) {
+            const rankA = Number(a.rank || 999);
 
-              <div class="empty-icon">
-                📋
-              </div>
+            const rankB = Number(b.rank || 999);
 
-              <h3>
-                No Active Tests
-              </h3>
+            if (rankA !== rankB) {
+              return rankA - rankB;
+            }
 
-              <p>
-                There are currently no active assessments available.
-                Please check again later.
-              </p>
+            /*
+             * Same rank:
+             * higher percentage first.
+             */
+            const percentageA = Number(a.percentage || 0);
 
+            const percentageB = Number(b.percentage || 0);
+
+            if (percentageA !== percentageB) {
+              return percentageB - percentageA;
+            }
+
+            /*
+             * Stable alphabetical
+             * fallback.
+             */
+            return String(a.name || "").localeCompare(String(b.name || ""));
+          });
+
+          /*
+           * No students.
+           */
+          if (students.length === 0) {
+            grid.innerHTML = `
+
+            <div
+              class="performer-empty"
+            >
+              No verified top performer
+              results are available yet.
             </div>
 
           `;
@@ -546,174 +852,452 @@
           }
 
           /*
-           * Render tests
+           * Medal by ACTUAL rank.
+           *
+           * Therefore all three Rank 1
+           * students receive 🥇.
            */
+          const medals = {
+            1: "🥇",
 
-          testsContainer.innerHTML = tests
-            .map(function (test) {
-              const title = escapeHtml(test.title || "Untitled Assessment");
+            2: "🥈",
 
-              const description = escapeHtml(
-                test.description || "Professional skill assessment",
-              );
+            3: "🥉",
+          };
 
-              const questionCount = Number(test.questionCount) || 0;
+          /*
+           * Render EVERY student.
+           *
+           * NO slice.
+           */
+          grid.innerHTML = students
+            .map(function (student) {
+              const rank = Number(student.rank || 0);
 
-              const duration = Number(test.durationMinutes) || 0;
+              const percentage = Number(student.percentage || 0);
 
-              const passing = Number(test.passingPercentage) || 0;
+              const name = String(student.name || "Student").trim();
+
+              const grade = String(student.grade || "—").trim();
+
+              const status = String(student.status || "PASSED").trim();
+
+              /*
+               * Percentage:
+               *
+               * 100 -> 100%
+               * 98.3 -> 98.3%
+               * 95 -> 95%
+               */
+              const percentageText = Number.isInteger(percentage)
+                ? String(percentage)
+                : percentage.toFixed(1);
+
+              /*
+               * Photo HTML.
+               */
+              let photoHTML = "";
+
+              const photo = student.photo;
+
+              if (photo && typeof photo === "object" && photo.data) {
+                photoHTML = `
+
+                    <img
+                      class="performer-photo"
+                      src="${escapeHtml(photo.data)}"
+                      alt="${escapeHtml(name)}"
+                      loading="lazy"
+                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
+                    >
+
+                    <div
+                      class="performer-photo performer-photo-fallback"
+                      style="display:none"
+                    >
+                      ${escapeHtml(name.charAt(0).toUpperCase())}
+                    </div>
+
+                  `;
+              } else {
+                photoHTML = `
+
+                    <div
+                      class="performer-photo performer-photo-fallback"
+                    >
+                      ${escapeHtml(name.charAt(0).toUpperCase())}
+                    </div>
+
+                  `;
+              }
+
+              const medal = medals[rank] || "🏅";
 
               return `
 
-              <article class="card test-card">
+                  <article
+                    class="
+                      performer-card
+                      ${rank <= 3 ? "featured" : ""}
+                    "
+                  >
 
-                <div class="test-card-top">
-
-                  <span class="pill">
-                    ${questionCount} Questions
-                  </span>
-
-                  <span class="test-status">
-
-                    <span></span>
-
-                    Active
-
-                  </span>
-
-                </div>
+                    <div
+                      class="performer-medal"
+                      aria-label="Rank ${rank}"
+                    >
+                      ${medal}
+                    </div>
 
 
-                <div class="test-icon">
-                  📝
-                </div>
+                    ${photoHTML}
 
 
-                <h3>
-                  ${title}
-                </h3>
+                    <div
+                      class="performer-rank"
+                    >
+                      Rank ${rank}
+                    </div>
 
 
-                <p class="test-description">
-                  ${description}
-                </p>
+                    <div
+                      class="performer-name"
+                      title="${escapeHtml(name)}"
+                    >
+                      ${escapeHtml(name)}
+                    </div>
 
 
-                <div class="test-meta">
+                    <div
+                      class="performer-score"
+                    >
+                      ${percentageText}%
+                    </div>
 
-                  <div class="test-meta-item">
 
-                    <span>
-                      ⏱
-                    </span>
+                    <div
+                      class="performer-meta"
+                    >
 
-                    <div>
+                      <span
+                        class="performer-chip"
+                      >
+                        ${escapeHtml(grade)}
+                      </span>
 
-                      <small>
-                        Duration
-                      </small>
 
-                      <strong>
-                        ${duration} min
-                      </strong>
+                      <span
+                        class="performer-chip"
+                      >
+                        ${escapeHtml(status)}
+                      </span>
 
                     </div>
 
-                  </div>
+                  </article>
 
-
-                  <div class="test-meta-item">
-
-                    <span>
-                      🎯
-                    </span>
-
-                    <div>
-
-                      <small>
-                        Passing Score
-                      </small>
-
-                      <strong>
-                        ${passing}%
-                      </strong>
-
-                    </div>
-
-                  </div>
-
-                </div>
-
-
-                <a
-                  class="btn btn-primary test-start-btn"
-                  href="/test.html?test=${encodeURIComponent(test.id)}"
-                >
-                  Start Assessment
-                  <span class="arrow">→</span>
-                </a>
-
-              </article>
-
-            `;
+                `;
             })
             .join("");
         } catch (error) {
-          console.error("Unable to load tests:", error);
+          console.error("Top performers error:", error);
 
-          testsContainer.innerHTML = `
+          grid.innerHTML = `
 
-          <div class="error-card">
-
-            <div class="error-icon">
-              ⚠
-            </div>
-
-            <h3>
-              Unable to Load Assessments
-            </h3>
-
-            <p>
-              We couldn't load the available tests right now.
-              Please refresh the page and try again.
-            </p>
-
-            <button
-              type="button"
-              class="btn btn-primary"
-              onclick="window.location.reload()"
-            >
-              Try Again
-            </button>
-
+          <div
+            class="performer-error"
+          >
+            Top performer data is
+            temporarily unavailable.
           </div>
 
         `;
         }
-      })();
+      }
 
-      /*
-       * HTML escaping
-       */
+      /* =========================================================
+       LOAD AVAILABLE TESTS
 
-      function escapeHtml(value) {
-        return String(value).replace(/[&<>"']/g, function (character) {
-          return {
-            "&": "&amp;",
-            "<": "&lt;",
-            ">": "&gt;",
-            '"': "&quot;",
-            "'": "&#039;",
-          }[character];
+       The backend test endpoint is queried without
+       changing any test data.
+    ========================================================= */
+
+      async function loadTests() {
+        const grid = document.getElementById("tests-grid");
+
+        if (!grid) {
+          return;
+        }
+
+        try {
+          const response = await fetch("/api/tests", {
+            method: "GET",
+
+            cache: "no-store",
+
+            headers: {
+              Accept: "application/json",
+            },
+          });
+
+          if (!response.ok) {
+            throw new Error("Unable to load tests.");
+          }
+
+          const data = await response.json();
+
+          /*
+           * Support common API response formats.
+           */
+          let tests = [];
+
+          if (Array.isArray(data)) {
+            tests = data;
+          } else if (data && Array.isArray(data.tests)) {
+            tests = data.tests;
+          } else if (data && Array.isArray(data.data)) {
+            tests = data.data;
+          }
+
+          /*
+           * Only active tests.
+           *
+           * If API does not provide active/isActive,
+           * keep the test.
+           */
+          tests = tests.filter(function (test) {
+            if (test.active === false) {
+              return false;
+            }
+
+            if (test.isActive === false) {
+              return false;
+            }
+
+            return true;
+          });
+
+          if (tests.length === 0) {
+            grid.innerHTML = `
+
+            <div
+              class="tests-empty"
+            >
+              No active assessments are
+              available at the moment.
+            </div>
+
+          `;
+
+            return;
+          }
+
+          grid.innerHTML = tests
+            .map(function (test) {
+              const id = test._id || test.id || "";
+
+              const title = test.title || test.name || "Assessment";
+
+              const description =
+                test.description ||
+                "Professional skill assessment by GrowtechAxon.";
+
+              const questionCount =
+                test.questionCount ||
+                test.totalQuestions ||
+                (Array.isArray(test.questions) ? test.questions.length : 60);
+
+              const duration = test.durationMinutes || test.duration || 40;
+
+              return `
+
+                  <article
+                    class="test-card"
+                  >
+
+                    <div
+                      class="test-card-top"
+                    >
+
+                      <span
+                        class="test-badge"
+                      >
+                        ACTIVE
+                      </span>
+
+                    </div>
+
+
+                    <h3>
+                      ${escapeHtml(title)}
+                    </h3>
+
+
+                    <p>
+                      ${escapeHtml(description)}
+                    </p>
+
+
+                    <div
+                      class="test-meta"
+                    >
+
+                      <span>
+                        📝
+                        ${escapeHtml(questionCount)}
+                        Questions
+                      </span>
+
+
+                      <span>
+                        ⏱
+                        ${escapeHtml(duration)}
+                        Minutes
+                      </span>
+
+                    </div>
+
+
+                    <a
+                      href="/test.html?testId=${encodeURIComponent(id)}"
+                      class="btn btn-primary"
+                    >
+                      Start Test
+                      <span class="arrow">
+                        →
+                      </span>
+                    </a>
+
+                  </article>
+
+                `;
+            })
+            .join("");
+        } catch (error) {
+          console.error("Tests loading error:", error);
+
+          grid.innerHTML = `
+
+          <div
+            class="tests-empty"
+          >
+            Unable to load assessments
+            right now. Please try again
+            later.
+          </div>
+
+        `;
+        }
+      }
+
+      /* =========================================================
+       STUDENT SESSION
+    ========================================================= */
+
+      function loadStudentSession() {
+        const token = localStorage.getItem("growtechStudentToken");
+
+        const welcome = document.getElementById("studentWelcome");
+
+        const logout = document.getElementById("studentLogout");
+
+        if (!welcome || !logout) {
+          return;
+        }
+
+        /*
+         * Public homepage should remain
+         * accessible without login.
+         *
+         * If token exists, try to display
+         * the student session.
+         */
+        if (!token) {
+          welcome.style.display = "none";
+
+          logout.style.display = "none";
+
+          return;
+        }
+
+        /*
+         * Decode JWT payload safely.
+         */
+        try {
+          const parts = token.split(".");
+
+          if (parts.length !== 3) {
+            throw new Error("Invalid token");
+          }
+
+          const payload = JSON.parse(
+            atob(parts[1].replace(/-/g, "+").replace(/_/g, "/")),
+          );
+
+          const name =
+            payload.fullName || payload.name || payload.email || "Student";
+
+          welcome.textContent = "Hi, " + name;
+
+          welcome.style.display = "inline-flex";
+
+          logout.style.display = "inline-flex";
+        } catch (error) {
+          console.warn("Student session could not be read.", error);
+        }
+      }
+
+      /* =========================================================
+       LOGOUT
+    ========================================================= */
+
+      function setupStudentLogout() {
+        const logout = document.getElementById("studentLogout");
+
+        if (!logout) {
+          return;
+        }
+
+        logout.addEventListener("click", function () {
+          localStorage.removeItem("growtechStudentToken");
+
+          localStorage.removeItem("studentToken");
+
+          localStorage.removeItem("token");
+
+          window.location.reload();
         });
       }
 
-      /*
-       * Current year
-       */
+      /* =========================================================
+       CURRENT YEAR
+    ========================================================= */
 
-      document.getElementById("currentYear").textContent =
-        new Date().getFullYear();
+      function setCurrentYear() {
+        const year = document.getElementById("currentYear");
+
+        if (year) {
+          year.textContent = String(new Date().getFullYear());
+        }
+      }
+
+      /* =========================================================
+       PAGE INITIALIZATION
+       
+       Each function is called ONCE.
+    ========================================================= */
+
+      document.addEventListener("DOMContentLoaded", function () {
+        loadTopPerformers();
+
+        loadTests();
+
+        loadStudentSession();
+
+        setupStudentLogout();
+
+        setCurrentYear();
+      });
     </script>
   </body>
 </html>

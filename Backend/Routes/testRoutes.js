@@ -81,7 +81,8 @@ router.get("/tests", async (req, res) => {
       )
       .sort({
         createdAt: -1
-      });
+      })
+      .limit(1);
 
     res.json(
       tests.map((t) => ({
