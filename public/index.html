@@ -748,7 +748,6 @@
        Backend sends every student
        belonging to automatic Rank 1-5.
     ========================================================= */
-
       async function loadTopPerformers() {
         const grid = document.getElementById("topPerformersGrid");
 
@@ -786,25 +785,71 @@
           let students = Array.isArray(data.students) ? data.students : [];
 
           /*
-           * Safety filter.
+           * =====================================================
+           * SHOW RANK 1 TO RANK 6
+           *
+           * IMPORTANT:
            *
            * This filters by RANK,
-           * not by student count.
+           * NOT by number of students.
            *
            * Therefore:
            *
-           * 3 students at Rank 1
-           * will ALL remain.
+           * Rank 1 -> 2 students
+           * Rank 2 -> 1 student
+           * Rank 3 -> 1 student
+           * Rank 4 -> 1 student
+           * Rank 5 -> 1 student
+           * Rank 6 -> 1 student
+           *
+           * TOTAL = 7 STUDENTS
+           * =====================================================
            */
+
           students = students.filter(function (student) {
             const rank = Number(student.rank);
 
-            return Number.isFinite(rank) && rank >= 1 && rank <= 5;
+            return Number.isFinite(rank) && rank >= 1 && rank <= 6;
           });
 
           /*
-           * Sort by actual rank.
+           * =====================================================
+           * REMOVE DUPLICATE STUDENTS
+           *
+           * Same student + same rank + same percentage
+           * should appear only once.
+           * =====================================================
            */
+
+          const uniqueStudents = [];
+          const seenStudents = new Set();
+
+          students.forEach(function (student) {
+            const studentName = String(student.name || "")
+              .trim()
+              .toLowerCase();
+
+            const studentRank = Number(student.rank || 0);
+
+            const studentPercentage = Number(student.percentage || 0);
+
+            const duplicateKey =
+              studentName + "|" + studentRank + "|" + studentPercentage;
+
+            if (!seenStudents.has(duplicateKey)) {
+              seenStudents.add(duplicateKey);
+              uniqueStudents.push(student);
+            }
+          });
+
+          students = uniqueStudents;
+
+          /*
+           * =====================================================
+           * SORT BY ACTUAL RANK
+           * =====================================================
+           */
+
           students.sort(function (a, b) {
             const rankA = Number(a.rank || 999);
 
@@ -818,6 +863,7 @@
              * Same rank:
              * higher percentage first.
              */
+
             const percentageA = Number(a.percentage || 0);
 
             const percentageB = Number(b.percentage || 0);
@@ -827,49 +873,56 @@
             }
 
             /*
-             * Stable alphabetical
-             * fallback.
+             * Stable alphabetical fallback.
              */
+
             return String(a.name || "").localeCompare(String(b.name || ""));
           });
 
           /*
-           * No students.
+           * =====================================================
+           * NO STUDENTS
+           * =====================================================
            */
+
           if (students.length === 0) {
             grid.innerHTML = `
-
-            <div
-              class="performer-empty"
-            >
-              No verified top performer
-              results are available yet.
-            </div>
-
-          `;
+        <div
+          class="performer-empty"
+        >
+          No verified top performer
+          results are available yet.
+        </div>
+      `;
 
             return;
           }
 
           /*
-           * Medal by ACTUAL rank.
+           * =====================================================
+           * MEDALS
            *
-           * Therefore all three Rank 1
-           * students receive 🥇.
+           * Rank 1 = Gold
+           * Rank 2 = Silver
+           * Rank 3 = Bronze
+           * Rank 4-6 = Medal
+           * =====================================================
            */
+
           const medals = {
             1: "🥇",
-
             2: "🥈",
-
             3: "🥉",
           };
 
           /*
-           * Render EVERY student.
+           * =====================================================
+           * RENDER EVERY STUDENT
            *
-           * NO slice.
+           * NO slice()
+           * =====================================================
            */
+
           grid.innerHTML = students
             .map(function (student) {
               const rank = Number(student.rank || 0);
@@ -883,135 +936,174 @@
               const status = String(student.status || "PASSED").trim();
 
               /*
-               * Percentage:
+               * Percentage formatting
                *
-               * 100 -> 100%
+               * 100  -> 100%
                * 98.3 -> 98.3%
-               * 95 -> 95%
+               * 95   -> 95%
+               * 81.7 -> 81.7%
                */
+
               const percentageText = Number.isInteger(percentage)
                 ? String(percentage)
                 : percentage.toFixed(1);
 
               /*
-               * Photo HTML.
+               * =================================================
+               * PHOTO
+               * =================================================
                */
+
               let photoHTML = "";
 
               const photo = student.photo;
 
               if (photo && typeof photo === "object" && photo.data) {
                 photoHTML = `
+              <img
+                class="performer-photo"
+                src="${escapeHtml(photo.data)}"
+                alt="${escapeHtml(name)}"
+                loading="lazy"
+                onerror="
+                  this.style.display='none';
+                  this.nextElementSibling.style.display='flex';
+                "
+              >
 
-                    <img
-                      class="performer-photo"
-                      src="${escapeHtml(photo.data)}"
-                      alt="${escapeHtml(name)}"
-                      loading="lazy"
-                      onerror="this.style.display='none';this.nextElementSibling.style.display='flex';"
-                    >
-
-                    <div
-                      class="performer-photo performer-photo-fallback"
-                      style="display:none"
-                    >
-                      ${escapeHtml(name.charAt(0).toUpperCase())}
-                    </div>
-
-                  `;
+              <div
+                class="
+                  performer-photo
+                  performer-photo-fallback
+                "
+                style="display:none"
+              >
+                ${escapeHtml(name.charAt(0).toUpperCase())}
+              </div>
+            `;
               } else {
                 photoHTML = `
-
-                    <div
-                      class="performer-photo performer-photo-fallback"
-                    >
-                      ${escapeHtml(name.charAt(0).toUpperCase())}
-                    </div>
-
-                  `;
+              <div
+                class="
+                  performer-photo
+                  performer-photo-fallback
+                "
+              >
+                ${escapeHtml(name.charAt(0).toUpperCase())}
+              </div>
+            `;
               }
+
+              /*
+               * Rank 1-3 medal
+               * Rank 4-6 normal medal
+               */
 
               const medal = medals[rank] || "🏅";
 
+              /*
+               * =================================================
+               * CARD
+               * =================================================
+               */
+
               return `
+            <article
+              class="
+                performer-card
+                ${rank <= 3 ? "featured" : ""}
+              "
+            >
 
-                  <article
-                    class="
-                      performer-card
-                      ${rank <= 3 ? "featured" : ""}
-                    "
-                  >
-
-                    <div
-                      class="performer-medal"
-                      aria-label="Rank ${rank}"
-                    >
-                      ${medal}
-                    </div>
-
-
-                    ${photoHTML}
+              <div
+                class="performer-medal"
+                aria-label="Rank ${rank}"
+              >
+                ${medal}
+              </div>
 
 
-                    <div
-                      class="performer-rank"
-                    >
-                      Rank ${rank}
-                    </div>
+              ${photoHTML}
 
 
-                    <div
-                      class="performer-name"
-                      title="${escapeHtml(name)}"
-                    >
-                      ${escapeHtml(name)}
-                    </div>
+              <div
+                class="performer-rank"
+              >
+                Rank ${rank}
+              </div>
 
 
-                    <div
-                      class="performer-score"
-                    >
-                      ${percentageText}%
-                    </div>
+              <div
+                class="performer-name"
+                title="${escapeHtml(name)}"
+              >
+                ${escapeHtml(name)}
+              </div>
 
 
-                    <div
-                      class="performer-meta"
-                    >
-
-                      <span
-                        class="performer-chip"
-                      >
-                        ${escapeHtml(grade)}
-                      </span>
+              <div
+                class="performer-score"
+              >
+                ${percentageText}%
+              </div>
 
 
-                      <span
-                        class="performer-chip"
-                      >
-                        ${escapeHtml(status)}
-                      </span>
+              <div
+                class="performer-meta"
+              >
 
-                    </div>
+                <span
+                  class="performer-chip"
+                >
+                  ${escapeHtml(grade)}
+                </span>
 
-                  </article>
 
-                `;
+                <span
+                  class="performer-chip"
+                >
+                  ${escapeHtml(status)}
+                </span>
+
+              </div>
+
+            </article>
+          `;
             })
             .join("");
+
+          /*
+           * =====================================================
+           * DEBUG
+           *
+           * Browser console में total और names दिखेंगे.
+           * =====================================================
+           */
+
+          console.log("Top Performers:", students.length);
+
+          console.table(
+            students.map(function (student) {
+              return {
+                name: student.name,
+
+                rank: student.rank,
+
+                percentage: student.percentage,
+              };
+            }),
+          );
         } catch (error) {
           console.error("Top performers error:", error);
 
           grid.innerHTML = `
-
-          <div
-            class="performer-error"
-          >
-            Top performer data is
-            temporarily unavailable.
-          </div>
-
-        `;
+      <div
+        class="performer-error"
+      >
+        Top performer data is
+        temporarily unavailable.
+      </div>
+    `;
         }
       }
 
