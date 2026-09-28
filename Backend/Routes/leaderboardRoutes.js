@@ -8,8 +8,9 @@ const { gradeFromPercentage } = require("../Utils/pdf");
 
 const router = express.Router();
 
+
 /* =========================================================
-   HELPERS
+   HELPER: NORMALIZE NUMBER
 ========================================================= */
 
 function normalizeNumber(value, fallback = null) {
@@ -32,26 +33,22 @@ function normalizeNumber(value, fallback = null) {
 /* =========================================================
    DENSE RANKING
 
-   Example:
-
-   100     -> Rank 1
-   100     -> Rank 1
-   100     -> Rank 1
-   98.3    -> Rank 2
-   95      -> Rank 3
-   91.7    -> Rank 4
-   83.3    -> Rank 5
-   81.7    -> Rank 6
-
-   IMPORTANT:
    Same percentage = same rank.
 
-   Rank is NOT student count.
+   Example:
+
+   100%  -> Rank 1
+   100%  -> Rank 1
+   98.3% -> Rank 2
+   95%   -> Rank 3
+   91.7% -> Rank 4
+   83.3% -> Rank 5
+   81.7% -> Rank 6
 ========================================================= */
 
 function applyDenseRanking(rows) {
   let previousPercentage = null;
-  let rank = 0;
+  let currentRank = 0;
 
   for (const row of rows) {
     const percentage = Number(
@@ -62,11 +59,11 @@ function applyDenseRanking(rows) {
       previousPercentage === null ||
       percentage !== previousPercentage
     ) {
-      rank += 1;
+      currentRank += 1;
       previousPercentage = percentage;
     }
 
-    row.autoRank = rank;
+    row.autoRank = currentRank;
   }
 
   return rows;
@@ -74,23 +71,21 @@ function applyDenseRanking(rows) {
 
 
 /* =========================================================
-   FIND LATEST C PROGRAMMING TEST
-
-   User requirement:
-   Leaderboard should use C Programming assessment,
-   not an old HTML/CSS/other assessment.
+   GET LATEST C PROGRAMMING TEST
 ========================================================= */
 
 async function getLatestCProgrammingTest() {
   const test = await Test.findOne({
     title: {
-      $regex: /c\s*programming/i,
-    },
+      $regex: /c\s*programming/i
+    }
   })
     .sort({
-      createdAt: -1,
+      createdAt: -1
     })
-    .select("_id title createdAt")
+    .select(
+      "_id title createdAt"
+    )
     .lean();
 
   return test;
@@ -98,24 +93,22 @@ async function getLatestCProgrammingTest() {
 
 
 /* =========================================================
-   GET C PROGRAMMING LEADERBOARD
+   GET AUTOMATIC LEADERBOARD
 
    IMPORTANT:
-   We do NOT limit the number of students.
 
-   We calculate ALL ranks first.
+   Admin-edited percentage is applied BEFORE
+   ranking is calculated.
 
-   Then we return EVERY student whose automatic
-   rank is 1, 2, 3, 4 or 5.
+   This means:
 
-   Example:
-   Rank 1 has 3 students
-   Rank 2 has 1
-   Rank 3 has 1
-   Rank 4 has 1
-   Rank 5 has 1
-
-   Total = 7 students.
+   Original Himanshu Maurya result
+          ↓
+   Admin percentage = 81.7%
+          ↓
+   Ranking calculation
+          ↓
+   Rank 6
 ========================================================= */
 
 async function getAutomaticTopRows() {
@@ -131,20 +124,20 @@ async function getAutomaticTopRows() {
   }
 
 
-  /*
-   * Get all PASSED results belonging
-   * to the latest C Programming test.
-   */
+  /* -------------------------------------------------------
+     GET RESULTS
+  ------------------------------------------------------- */
+
   const results =
     await TestResult.find({
       testId: latestTest._id,
-      passed: true,
+      passed: true
     })
       .sort({
         percentage: -1,
         score: -1,
         submittedAt: -1,
-        createdAt: -1,
+        createdAt: -1
       })
       .lean();
 
@@ -154,29 +147,78 @@ async function getAutomaticTopRows() {
   }
 
 
-  /*
-   * Keep best result for each student.
-   *
-   * IMPORTANT:
-   * Prefer candidateName when available.
-   *
-   * This prevents different students from
-   * disappearing just because their email
-   * field is missing or duplicated.
-   */
+  /* -------------------------------------------------------
+     GET ALL LEADERBOARD PROFILES
+
+     We need these BEFORE ranking because
+     admin-edited percentage must affect rank.
+  ------------------------------------------------------- */
+
+  const resultStudentKeys =
+    results.map(
+      (result) => {
+        const name =
+          String(
+            result.candidateName || ""
+          )
+            .trim()
+            .toLowerCase();
+
+        const email =
+          String(
+            result.email || ""
+          )
+            .trim()
+            .toLowerCase();
+
+        return (
+          name ||
+          email ||
+          String(result._id)
+        );
+      }
+    );
+
+
+  const profiles =
+    await LeaderboardProfile.find({
+      studentKey: {
+        $in: resultStudentKeys
+      }
+    }).lean();
+
+
+  const profileMap =
+    new Map(
+      profiles.map(
+        (profile) => [
+          String(
+            profile.studentKey
+          )
+            .trim()
+            .toLowerCase(),
+
+          profile
+        ]
+      )
+    );
+
+
+  /* -------------------------------------------------------
+     BEST RESULT FOR EACH STUDENT
+  ------------------------------------------------------- */
+
   const bestByStudent =
     new Map();
 
 
   for (const result of results) {
-
     const candidateName =
       String(
         result.candidateName || ""
       )
         .trim()
         .toLowerCase();
-
 
     const email =
       String(
@@ -185,17 +227,30 @@ async function getAutomaticTopRows() {
         .trim()
         .toLowerCase();
 
-
-    /*
-     * Student identity:
-     *
-     * candidate name first.
-     * email only when name unavailable.
-     */
     const studentKey =
       candidateName ||
       email ||
       String(result._id);
+
+
+    /*
+     * If admin has hidden this student,
+     * do not put them into leaderboard.
+     *
+     * IMPORTANT:
+     * We are NOT deleting TestResult.
+     */
+    const profile =
+      profileMap.get(
+        studentKey
+      );
+
+    if (
+      profile &&
+      profile.hidden === true
+    ) {
+      continue;
+    }
 
 
     const existing =
@@ -205,7 +260,6 @@ async function getAutomaticTopRows() {
 
 
     if (!existing) {
-
       bestByStudent.set(
         studentKey,
         result
@@ -220,21 +274,16 @@ async function getAutomaticTopRows() {
         result.percentage || 0
       );
 
-
     const oldPercentage =
       Number(
         existing.percentage || 0
       );
 
 
-    /*
-     * Keep the best percentage.
-     */
     if (
       newPercentage >
       oldPercentage
     ) {
-
       bestByStudent.set(
         studentKey,
         result
@@ -244,17 +293,12 @@ async function getAutomaticTopRows() {
     }
 
 
-    /*
-     * Same percentage:
-     * keep higher score.
-     */
     if (
       newPercentage ===
         oldPercentage &&
       Number(result.score || 0) >
         Number(existing.score || 0)
     ) {
-
       bestByStudent.set(
         studentKey,
         result
@@ -263,57 +307,136 @@ async function getAutomaticTopRows() {
   }
 
 
-  /*
-   * Convert database results
-   * into leaderboard rows.
-   */
+  /* -------------------------------------------------------
+     BUILD EFFECTIVE LEADERBOARD ROWS
+
+     ADMIN OVERRIDE IS APPLIED HERE.
+
+     Example:
+
+     Himanshu Maurya
+     Original percentage = 100%
+     Admin percentage    = 81.7%
+
+     Effective percentage = 81.7%
+  ------------------------------------------------------- */
+
   const rows =
     Array.from(
       bestByStudent.entries()
     )
       .map(
         ([studentKey, result]) => {
-
-          const percentage =
-            Number(
-              result.percentage || 0
+          const profile =
+            profileMap.get(
+              studentKey
             );
 
 
-          return {
+          /*
+           * ADMIN PERCENTAGE
+           */
+          const percentage =
+            profile &&
+            profile.percentage !== null &&
+            profile.percentage !== undefined
+              ? Number(
+                  profile.percentage
+                )
+              : Number(
+                  result.percentage || 0
+                );
 
+
+          /*
+           * ADMIN SCORE
+           */
+          const score =
+            profile &&
+            profile.score !== null &&
+            profile.score !== undefined
+              ? Number(
+                  profile.score
+                )
+              : Number(
+                  result.score || 0
+                );
+
+
+          /*
+           * ADMIN NAME
+           */
+          const name =
+            profile &&
+            profile.name
+              ? profile.name
+              : (
+                  result.candidateName ||
+                  "Student"
+                );
+
+
+          /*
+           * ADMIN GRADE
+           */
+          const grade =
+            profile &&
+            profile.grade
+              ? profile.grade
+              : (
+                  result.grade ||
+                  gradeFromPercentage(
+                    percentage
+                  )
+                );
+
+
+          /*
+           * ADMIN STATUS
+           */
+          const status =
+            profile &&
+            profile.status
+              ? profile.status
+              : (
+                  result.passed
+                    ? "PASSED"
+                    : "FAILED"
+                );
+
+
+          /*
+           * ADMIN TEST TITLE
+           */
+          const testTitle =
+            profile &&
+            profile.testTitle
+              ? profile.testTitle
+              : (
+                  result.testTitle ||
+                  latestTest.title ||
+                  "C Programming Assessment"
+                );
+
+
+          return {
             studentKey,
 
             resultId:
               result.resultId ||
               String(result._id),
 
-            name:
-              result.candidateName ||
-              "Student",
+            name,
 
-            score:
-              Number(
-                result.score || 0
-              ),
+            score,
 
             percentage,
 
-            grade:
-              result.grade ||
-              gradeFromPercentage(
-                percentage
-              ),
+            grade,
 
-            status:
-              result.passed
-                ? "PASSED"
-                : "FAILED",
+            status,
 
-            testTitle:
-              result.testTitle ||
-              latestTest.title ||
-              "C Programming Assessment",
+            testTitle,
 
             submittedAt:
               result.submittedAt ||
@@ -322,97 +445,118 @@ async function getAutomaticTopRows() {
 
             autoRank: null,
 
-            /*
-             * Admin profile data
-             * will be merged later.
-             */
-            imageData: "",
+            imageData:
+              profile &&
+              profile.imageData
+                ? profile.imageData
+                : "",
 
-            imageMimeType: "",
+            imageMimeType:
+              profile &&
+              profile.imageMimeType
+                ? profile.imageMimeType
+                : "",
 
-            updatedByAdmin: false,
+            updatedByAdmin:
+              profile &&
+              profile.updatedByAdmin === true,
+
+            hidden: false
           };
-        }
-      )
-      .sort(
-        (a, b) => {
-
-          /*
-           * Percentage decides ranking.
-           */
-          if (
-            b.percentage !==
-            a.percentage
-          ) {
-            return (
-              b.percentage -
-              a.percentage
-            );
-          }
-
-
-          /*
-           * Same percentage:
-           * score decides display order.
-           *
-           * IMPORTANT:
-           * score does NOT create a new rank.
-           */
-          if (
-            b.score !==
-            a.score
-          ) {
-            return (
-              b.score -
-              a.score
-            );
-          }
-
-
-          /*
-           * Same percentage + same score:
-           * name keeps ordering stable.
-           */
-          return String(
-            a.name || ""
-          ).localeCompare(
-            String(
-              b.name || ""
-            )
-          );
         }
       );
 
 
-  /*
-   * Apply dense ranking.
-   */
+  /* -------------------------------------------------------
+     SORT USING EFFECTIVE PERCENTAGE
+  ------------------------------------------------------- */
+
+  rows.sort(
+    (a, b) => {
+      if (
+        b.percentage !==
+        a.percentage
+      ) {
+        return (
+          b.percentage -
+          a.percentage
+        );
+      }
+
+
+      if (
+        b.score !==
+        a.score
+      ) {
+        return (
+          b.score -
+          a.score
+        );
+      }
+
+
+      return String(
+        a.name || ""
+      ).localeCompare(
+        String(
+          b.name || ""
+        )
+      );
+    }
+  );
+
+
+  /* -------------------------------------------------------
+     APPLY DENSE RANKING
+
+     NOW ranking uses admin-edited percentage.
+  ------------------------------------------------------- */
+
   applyDenseRanking(rows);
 
 
-  /*
-   * ONLY NOW filter Rank 1-5.
-   *
-   * No slice.
-   *
-   * No "first 5 students".
-   *
-   * No "first 7 students".
-   */
-  return rows.filter(
-    (row) =>
-      Number(row.autoRank) >= 1 &&
-      Number(row.autoRank) <= 5
-  );
+  /* -------------------------------------------------------
+     ONLY RANK 1 TO RANK 6
+
+     IMPORTANT:
+
+     This is NOT slice(0, 6).
+
+     Rank 1 can have multiple students.
+
+     Example:
+
+     Rank 1 = 2 students
+
+     So Rank 1 through Rank 6
+     can contain 7 total students.
+  ------------------------------------------------------- */
+
+  const topRows =
+    rows.filter(
+      (row) =>
+        Number(
+          row.autoRank
+        ) >= 1 &&
+        Number(
+          row.autoRank
+        ) <= 6
+    );
+
+
+  return topRows;
 }
 
 
 /* =========================================================
-   MERGE ADMIN PROFILE DATA
+   MERGE PROFILE DATA
+
+   Ranking is NOT changed here.
+
+   autoRank remains authoritative.
 ========================================================= */
 
 async function mergeProfiles(rows) {
-
   if (!rows.length) {
     return rows;
   }
@@ -428,8 +572,8 @@ async function mergeProfiles(rows) {
   const profiles =
     await LeaderboardProfile.find({
       studentKey: {
-        $in: keys,
-      },
+        $in: keys
+      }
     }).lean();
 
 
@@ -437,8 +581,13 @@ async function mergeProfiles(rows) {
     new Map(
       profiles.map(
         (profile) => [
-          profile.studentKey,
-          profile,
+          String(
+            profile.studentKey
+          )
+            .trim()
+            .toLowerCase(),
+
+          profile
         ]
       )
     );
@@ -446,50 +595,31 @@ async function mergeProfiles(rows) {
 
   return rows.map(
     (row) => {
-
       const profile =
         profileMap.get(
-          row.studentKey
+          String(
+            row.studentKey
+          )
+            .trim()
+            .toLowerCase()
         );
 
 
-      /*
-       * No admin profile.
-       */
       if (!profile) {
-
         return {
           ...row,
 
-          /*
-           * AUTOMATIC rank remains
-           * the public rank.
-           */
           rank:
             row.autoRank,
 
-          image: null,
+          hidden: false,
+
+          image: null
         };
       }
 
 
-      /*
-       * Admin may edit display values.
-       *
-       * Automatic ranking remains
-       * based on original result percentage.
-       */
-      const displayPercentage =
-        profile.percentage === null ||
-        profile.percentage === undefined
-          ? row.percentage
-          : Number(
-              profile.percentage
-            );
-
-
       return {
-
         ...row,
 
         name:
@@ -505,7 +635,12 @@ async function mergeProfiles(rows) {
               ),
 
         percentage:
-          displayPercentage,
+          profile.percentage === null ||
+          profile.percentage === undefined
+            ? row.percentage
+            : Number(
+                profile.percentage
+              ),
 
         grade:
           profile.grade ||
@@ -520,15 +655,17 @@ async function mergeProfiles(rows) {
           row.testTitle,
 
         /*
-         * VERY IMPORTANT:
+         * IMPORTANT:
+         * Never use manually stored rank here.
          *
-         * Public rank is ALWAYS automatic rank.
-         *
-         * Old manual rank values cannot hide
-         * a Rank 1-5 student.
+         * Rank is calculated automatically
+         * from the effective percentage.
          */
         rank:
           row.autoRank,
+
+        hidden:
+          profile.hidden === true,
 
         image:
           profile.imageData
@@ -538,15 +675,96 @@ async function mergeProfiles(rows) {
 
                 mimeType:
                   profile.imageMimeType ||
-                  "image/jpeg",
+                  "image/jpeg"
               }
             : null,
 
         updatedByAdmin:
-          profile.updatedByAdmin === true,
+          profile.updatedByAdmin === true
       };
     }
   );
+}
+
+
+/* =========================================================
+   REMOVE HIDDEN STUDENTS
+========================================================= */
+
+function removeHiddenStudents(rows) {
+  return rows.filter(
+    (student) =>
+      student.hidden !== true
+  );
+}
+
+
+/* =========================================================
+   FINAL SORT
+========================================================= */
+
+function sortLeaderboard(rows) {
+  rows.sort(
+    (a, b) => {
+      const rankA =
+        Number(
+          a.autoRank ||
+          a.rank ||
+          999
+        );
+
+      const rankB =
+        Number(
+          b.autoRank ||
+          b.rank ||
+          999
+        );
+
+
+      if (
+        rankA !== rankB
+      ) {
+        return (
+          rankA -
+          rankB
+        );
+      }
+
+
+      const percentageA =
+        Number(
+          a.percentage || 0
+        );
+
+      const percentageB =
+        Number(
+          b.percentage || 0
+        );
+
+
+      if (
+        percentageA !==
+        percentageB
+      ) {
+        return (
+          percentageB -
+          percentageA
+        );
+      }
+
+
+      return String(
+        a.name || ""
+      ).localeCompare(
+        String(
+          b.name || ""
+        )
+      );
+    }
+  );
+
+
+  return rows;
 }
 
 
@@ -557,103 +775,67 @@ async function mergeProfiles(rows) {
 router.get(
   "/leaderboard",
   async (req, res) => {
-
     try {
-
       const automaticRows =
         await getAutomaticTopRows();
 
 
-      const mergedRows =
+      let mergedRows =
         await mergeProfiles(
           automaticRows
         );
 
 
       /*
-       * Sort ONLY by automatic rank.
-       *
-       * This guarantees:
-       *
-       * all Rank 1 students
-       * then all Rank 2 students
-       * then all Rank 3 students
-       * then all Rank 4 students
-       * then all Rank 5 students
+       * Remove hidden students.
        */
-      mergedRows.sort(
-        (a, b) => {
-
-          const rankA =
-            Number(
-              a.autoRank || 999
-            );
-
-          const rankB =
-            Number(
-              b.autoRank || 999
-            );
+      mergedRows =
+        removeHiddenStudents(
+          mergedRows
+        );
 
 
-          if (
-            rankA !== rankB
-          ) {
-            return (
-              rankA -
-              rankB
-            );
-          }
-
-
-          return (
-            Number(
-              b.percentage || 0
-            ) -
-            Number(
-              a.percentage || 0
-            )
-          );
-        }
+      /*
+       * Sort final result.
+       */
+      sortLeaderboard(
+        mergedRows
       );
 
 
       /*
-       * Convert response.
+       * Public leaderboard.
        *
-       * IMPORTANT:
-       * There is NO slice().
+       * Rank is always automatic.
        */
       const students =
         mergedRows.map(
           (student) => {
-
             const {
               image,
+              hidden,
               ...row
             } = student;
 
 
             return {
-
               ...row,
 
-              /*
-               * Always send automatic rank.
-               */
               rank:
                 Number(
-                  student.autoRank
+                  student.autoRank ||
+                  student.rank
                 ),
 
               photo:
-                image || null,
+                image || null
             };
           }
         );
 
 
       console.log(
-        "Leaderboard students:",
+        "PUBLIC LEADERBOARD:",
         students.map(
           (student) => ({
             name:
@@ -663,24 +845,21 @@ router.get(
               student.percentage,
 
             rank:
-              student.rank,
+              student.rank
           })
         )
       );
 
 
       res.json({
-
         success: true,
 
         title:
           "Top Performers",
 
-        students,
+        students
       });
-
     } catch (error) {
-
       console.error(
         "Leaderboard public error:",
         error
@@ -688,11 +867,10 @@ router.get(
 
 
       res.status(500).json({
-
         success: false,
 
         message:
-          "Unable to load leaderboard.",
+          "Unable to load leaderboard."
       });
     }
   }
@@ -707,66 +885,78 @@ router.get(
   "/admin/leaderboard",
   adminAuth,
   async (req, res) => {
-
     try {
-
-      const rows =
+      const automaticRows =
         await getAutomaticTopRows();
 
 
-      const merged =
+      let mergedRows =
         await mergeProfiles(
-          rows
+          automaticRows
         );
 
 
-      merged.sort(
-        (a, b) => {
-
-          const rankA =
-            Number(
-              a.autoRank || 999
-            );
-
-          const rankB =
-            Number(
-              b.autoRank || 999
-            );
+      /*
+       * Remove hidden students.
+       */
+      mergedRows =
+        removeHiddenStudents(
+          mergedRows
+        );
 
 
-          if (
-            rankA !== rankB
-          ) {
-            return (
-              rankA -
-              rankB
-            );
+      /*
+       * Sort final leaderboard.
+       */
+      sortLeaderboard(
+        mergedRows
+      );
+
+
+      const students =
+        mergedRows.map(
+          (student) => {
+            const {
+              hidden,
+              ...row
+            } = student;
+
+            return {
+              ...row,
+
+              rank:
+                Number(
+                  student.autoRank ||
+                  student.rank
+                )
+            };
           }
+        );
 
 
-          return (
-            Number(
-              b.percentage || 0
-            ) -
-            Number(
-              a.percentage || 0
-            )
-          );
-        }
+      console.log(
+        "ADMIN LEADERBOARD:",
+        students.map(
+          (student) => ({
+            name:
+              student.name,
+
+            percentage:
+              student.percentage,
+
+            rank:
+              student.rank
+          })
+        )
       );
 
 
       res.json({
-
         success: true,
 
-        students:
-          merged,
-
+        students
       });
-
     } catch (error) {
-
       console.error(
         "Leaderboard admin GET error:",
         error
@@ -774,11 +964,10 @@ router.get(
 
 
       res.status(500).json({
-
         success: false,
 
         message:
-          "Unable to load leaderboard.",
+          "Unable to load leaderboard."
       });
     }
   }
@@ -786,16 +975,14 @@ router.get(
 
 
 /* =========================================================
-   ADMIN UPDATE
+   ADMIN UPDATE LEADERBOARD PROFILE
 ========================================================= */
 
 router.put(
   "/admin/leaderboard/:studentKey",
   adminAuth,
   async (req, res) => {
-
     try {
-
       const studentKey =
         decodeURIComponent(
           req.params.studentKey ||
@@ -806,73 +993,52 @@ router.put(
 
 
       if (!studentKey) {
-
         return res.status(400).json({
-
           success: false,
 
           message:
-            "Student key is required.",
+            "Student key is required."
         });
       }
 
 
       const allowedFields = [
-
         "name",
-
         "score",
-
         "percentage",
-
         "grade",
-
         "status",
-
         "testTitle",
-
         "rank",
-
         "imageData",
-
         "imageMimeType",
-
+        "hidden"
       ];
 
 
       const data = {
-
-        updatedByAdmin:
-          true,
-
+        updatedByAdmin: true
       };
 
 
       for (
-        const field
-        of allowedFields
+        const field of allowedFields
       ) {
-
         if (
           req.body[field] !==
           undefined
         ) {
-
           data[field] =
             req.body[field];
-
         }
       }
 
 
-      /*
-       * NAME
-       */
+      /* NAME */
       if (
         data.name !==
         undefined
       ) {
-
         data.name =
           String(
             data.name
@@ -882,14 +1048,11 @@ router.put(
       }
 
 
-      /*
-       * GRADE
-       */
+      /* GRADE */
       if (
         data.grade !==
         undefined
       ) {
-
         data.grade =
           String(
             data.grade
@@ -899,14 +1062,11 @@ router.put(
       }
 
 
-      /*
-       * STATUS
-       */
+      /* STATUS */
       if (
         data.status !==
         undefined
       ) {
-
         data.status =
           String(
             data.status
@@ -916,14 +1076,11 @@ router.put(
       }
 
 
-      /*
-       * TEST TITLE
-       */
+      /* TEST TITLE */
       if (
         data.testTitle !==
         undefined
       ) {
-
         data.testTitle =
           String(
             data.testTitle
@@ -933,22 +1090,18 @@ router.put(
       }
 
 
-      /*
-       * NUMBERS
-       */
+      /* NUMBER FIELDS */
       for (
         const field of [
           "score",
           "percentage",
-          "rank",
+          "rank"
         ]
       ) {
-
         if (
           data[field] !==
           undefined
         ) {
-
           data[field] =
             normalizeNumber(
               data[field]
@@ -959,24 +1112,19 @@ router.put(
             data[field] ===
             null
           ) {
-
             delete data[field];
-
           }
         }
       }
 
 
-      /*
-       * PERCENTAGE
-       */
+      /* PERCENTAGE LIMIT */
       if (
         data.percentage !==
           undefined &&
         data.percentage !==
           null
       ) {
-
         data.percentage =
           Math.max(
             0,
@@ -989,10 +1137,9 @@ router.put(
 
 
       /*
-       * RANK
-       *
-       * Kept for admin compatibility,
-       * but public automatic rank is authoritative.
+       * Manual rank is stored for admin
+       * compatibility, but automatic ranking
+       * remains authoritative.
        */
       if (
         data.rank !==
@@ -1000,7 +1147,6 @@ router.put(
         data.rank !==
           null
       ) {
-
         data.rank =
           Math.max(
             1,
@@ -1014,25 +1160,30 @@ router.put(
       }
 
 
-      /*
-       * IMAGE
-       */
+      /* HIDDEN */
+      if (
+        data.hidden !==
+        undefined
+      ) {
+        data.hidden =
+          data.hidden === true ||
+          data.hidden === "true";
+      }
+
+
+      /* IMAGE */
       if (
         data.imageData
       ) {
-
         if (
           typeof data.imageData !==
-            "string"
+          "string"
         ) {
-
           return res.status(400).json({
-
             success: false,
 
             message:
-              "Invalid student photo.",
-
+              "Invalid student photo."
           });
         }
 
@@ -1041,34 +1192,25 @@ router.put(
           data.imageData.length >
           1600000
         ) {
-
           return res.status(400).json({
-
             success: false,
 
             message:
-              "Student photo is too large. Please upload a smaller image.",
-
+              "Student photo is too large. Please upload a smaller image."
           });
         }
 
 
-        /*
-         * Correct image validation.
-         */
         if (
           !/^data:image\/(jpeg|jpg|png|webp);base64,/i.test(
             data.imageData
           )
         ) {
-
           return res.status(400).json({
-
             success: false,
 
             message:
-              "Only JPG, PNG or WebP images are supported.",
-
+              "Only JPG, PNG or WebP images are supported."
           });
         }
       }
@@ -1076,9 +1218,8 @@ router.put(
 
       const profile =
         await LeaderboardProfile.findOneAndUpdate(
-
           {
-            studentKey,
+            studentKey
           },
 
           {
@@ -1086,8 +1227,8 @@ router.put(
               data,
 
             $setOnInsert: {
-              studentKey,
-            },
+              studentKey
+            }
           },
 
           {
@@ -1096,21 +1237,17 @@ router.put(
             upsert: true,
 
             runValidators:
-              true,
+              true
           }
         ).lean();
 
 
       res.json({
-
         success: true,
 
-        profile,
-
+        profile
       });
-
     } catch (error) {
-
       console.error(
         "Leaderboard admin PUT error:",
         error
@@ -1118,11 +1255,10 @@ router.put(
 
 
       res.status(500).json({
-
         success: false,
 
         message:
-          "Unable to save leaderboard changes.",
+          "Unable to save leaderboard changes."
       });
     }
   }
@@ -1130,16 +1266,14 @@ router.put(
 
 
 /* =========================================================
-   RESET ADMIN OVERRIDE
+   RESET LEADERBOARD OVERRIDE
 ========================================================= */
 
 router.delete(
   "/admin/leaderboard/:studentKey",
   adminAuth,
   async (req, res) => {
-
     try {
-
       const studentKey =
         decodeURIComponent(
           req.params.studentKey ||
@@ -1150,23 +1284,17 @@ router.delete(
 
 
       await LeaderboardProfile.deleteOne({
-
-        studentKey,
-
+        studentKey
       });
 
 
       res.json({
-
         success: true,
 
         message:
-          "Leaderboard override reset.",
-
+          "Leaderboard override reset."
       });
-
     } catch (error) {
-
       console.error(
         "Leaderboard reset error:",
         error
@@ -1174,12 +1302,10 @@ router.delete(
 
 
       res.status(500).json({
-
         success: false,
 
         message:
-          "Unable to reset leaderboard entry.",
-
+          "Unable to reset leaderboard entry."
       });
     }
   }
