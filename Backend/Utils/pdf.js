@@ -3,6 +3,7 @@
 const PDFDocument = require("pdfkit");
 const fs = require("fs");
 const path = require("path");
+const QRCode = require("qrcode");
 
 /*
 |--------------------------------------------------------------------------
@@ -1928,159 +1929,51 @@ function drawAryanSignature(
 
 
 /* ------------------------------------------------------------------------
-   Signature section
+   Single founder signature section
 ------------------------------------------------------------------------ */
 
-function drawCertificateSignatures(
-  doc,
-  certificate
-) {
+function drawCertificateSignatures(doc, certificate) {
+  const y = 420;
+  const centerX = 300;
+  const signaturePath = getSignaturePath("ram-signature.png");
 
-  const y = 425;
-
-
-  /* ================================================================
-     LEFT SIGNATURE - RAM
-  ================================================================= */
-
-  drawRamSignature(
-    doc,
-    112,
-    y
-  );
-
-
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(7)
-    .fillColor(
-      COLORS.ivory
-    )
-    .text(
-      "RAM BHAROSA PRASAD",
-      95,
-      y + 42,
-      {
-        width: 150,
+  if (fs.existsSync(signaturePath)) {
+    doc.image(signaturePath, centerX + 60, y, {
+      fit: [120, 38],
+      align: "center",
+      valign: "center"
+    });
+  } else {
+    doc.font("Times-Italic")
+      .fontSize(19)
+      .fillColor(COLORS.ivory)
+      .text("Rambharosa Prasad", centerX + 35, y + 6, {
+        width: 170,
         align: "center"
-      }
-    );
+      });
+  }
 
+  doc.font("Helvetica-Bold")
+    .fontSize(8)
+    .fillColor(COLORS.ivory)
+    .text("RAMBHAROSA PRASAD", centerX, y + 40, {
+      width: 240,
+      align: "center"
+    });
 
-  doc
-    .font("Helvetica")
-    .fontSize(6)
-    .fillColor(
-      COLORS.silver
-    )
-    .text(
-      "FOUNDER",
-      95,
-      y + 54,
-      {
-        width: 150,
-        align: "center",
-        characterSpacing: 1
-      }
-    );
+  doc.font("Helvetica")
+    .fontSize(6.5)
+    .fillColor(COLORS.silver)
+    .text("FOUNDER • GROWTECH AXON", centerX, y + 53, {
+      width: 240,
+      align: "center",
+      characterSpacing: 0.7
+    });
 
-
-  doc
-    .moveTo(
-      95,
-      y + 69
-    )
-    .lineTo(
-      245,
-      y + 69
-    )
-    .lineWidth(0.5)
-    .stroke(
-      COLORS.certDarkGold
-    );
-
-
-  /* ================================================================
-     RIGHT SIGNATURE - ARYAN
-  ================================================================= */
-
-  drawAryanSignature(
-    doc,
-    595,
-    y
-  );
-
-
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(7)
-    .fillColor(
-      COLORS.ivory
-    )
-    .text(
-      "SATYA NISHAD",
-      580,
-      y + 42,
-      {
-        width: 145,
-        align: "center"
-      }
-    );
-
-
-  doc
-    .font("Helvetica")
-    .fontSize(6)
-    .fillColor(
-      COLORS.silver
-    )
-    .text(
-      "PROGRAM MANAGER",
-      580,
-      y + 54,
-      {
-        width: 145,
-        align: "center",
-        characterSpacing: 0.8
-      }
-    );
-
-
-  doc
-    .moveTo(
-      580,
-      y + 69
-    )
-    .lineTo(
-      725,
-      y + 69
-    )
-    .lineWidth(0.5)
-    .stroke(
-      COLORS.certDarkGold
-    );
-
-
-  /* ================================================================
-     CENTER LABEL
-  ================================================================= */
-
-  doc
-    .font("Helvetica")
-    .fontSize(5.5)
-    .fillColor(
-      COLORS.certMuted
-    )
-    .text(
-      "AUTHORIZED SIGNATORIES",
-      300,
-      y + 58,
-      {
-        width: 240,
-        align: "center",
-        characterSpacing: 1
-      }
-    );
+  doc.moveTo(centerX + 20, y + 68)
+    .lineTo(centerX + 220, y + 68)
+    .lineWidth(0.6)
+    .stroke(COLORS.certDarkGold);
 }
 
 
@@ -2088,132 +1981,20 @@ function drawCertificateSignatures(
    Official Growtech Axon seal
 ------------------------------------------------------------------------ */
 
-function drawOfficialSeal(
-  doc
-) {
+function drawOfficialSeal(doc) {
+  const sealPath = path.join(
+    __dirname,
+    "../../public/assets/growtech-axon-seal.png"
+  );
 
-  const x = 421;
-  const y = 465;
-
-
-  doc.save();
-
-
-  doc
-    .circle(
-      x,
-      y,
-      34
-    )
-    .lineWidth(1)
-    .stroke(
-      COLORS.champagne
-    );
-
-
-  doc
-    .circle(
-      x,
-      y,
-      28
-    )
-    .lineWidth(0.6)
-    .stroke(
-      COLORS.certDarkGold
-    );
-
-
-  /* GA center */
-
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(13)
-    .fillColor(
-      COLORS.softGold
-    )
-    .text(
-      "GA",
-      x - 16,
-      y - 9,
-      {
-        width: 32,
-        align: "center"
-      }
-    );
-
-
-  doc
-    .font("Helvetica-Bold")
-    .fontSize(4.5)
-    .fillColor(
-      COLORS.ivory
-    )
-    .text(
-      "GROWTECH",
-      x - 25,
-      y + 7,
-      {
-        width: 50,
-        align: "center",
-        characterSpacing: 0.6
-      }
-    );
-
-
-  doc
-    .font("Helvetica")
-    .fontSize(4)
-    .fillColor(
-      COLORS.silver
-    )
-    .text(
-      "AXON • OFFICIAL",
-      x - 25,
-      y + 14,
-      {
-        width: 50,
-        align: "center",
-        characterSpacing: 0.4
-      }
-    );
-
-
-  /* Small dots */
-
-  for (
-    let i = 0;
-    i < 8;
-    i++
-  ) {
-
-    const angle =
-      (Math.PI * 2 * i) /
-      8;
-
-    const dx =
-      x +
-      Math.cos(angle) *
-        22;
-
-    const dy =
-      y +
-      Math.sin(angle) *
-        22;
-
-
-    doc
-      .circle(
-        dx,
-        dy,
-        1
-      )
-      .fill(
-        COLORS.champagne
-      );
+  // Exactly one company seal is placed on each certificate.
+  if (fs.existsSync(sealPath)) {
+    doc.image(sealPath, 635, 414, {
+      fit: [100, 100],
+      align: "center",
+      valign: "center"
+    });
   }
-
-
-  doc.restore();
 }
 
 
@@ -2383,97 +2164,155 @@ function drawCertificateFooter(
    Certificate PDF
 ------------------------------------------------------------------------ */
 
-function buildCertificatePdf(
-  certificate,
-  res
-) {
-
-  const certificateId =
-    safe(
-      certificate.certificateId,
-      certificate._id ||
-        "certificate"
-    );
-
-
+function buildCertificatePdf(certificate, res) {
+  const certificateId = safe(certificate.certificateId, certificate._id || "certificate");
   const doc = new PDFDocument({
     size: "A4",
     layout: "landscape",
     margin: 0,
-
     info: {
-      Title:
-        `Growtech Axon Certificate - ${certificateId}`,
-
-      Author:
-        "Growtech Axon",
-
-      Subject:
-        "Certificate of Achievement",
-
-      Keywords:
-        "Growtech Axon, Certificate, Achievement, Verification"
+      Title: `Growtech Axon - Certificate of Completion - ${certificateId}`,
+      Author: "Growtech Axon",
+      Subject: "Company-issued course/assessment completion certificate",
+      Keywords: "Growtech Axon, Certificate, Verification"
     }
   });
 
-
-  res.setHeader(
-    "Content-Type",
-    "application/pdf"
-  );
-
-
-  res.setHeader(
-    "Content-Disposition",
-    `attachment; filename="GrowtechAxon-Certificate-${certificateId}.pdf"`
-  );
-
-
+  res.setHeader("Content-Type", "application/pdf");
+  res.setHeader("Content-Disposition", `attachment; filename="GrowtechAxon-Certificate-${certificateId}.pdf"`);
   doc.pipe(res);
 
+  const w = doc.page.width;
+  const h = doc.page.height;
+  const navy = "#071D3B";
+  const navy2 = "#0A2A50";
+  const gold = "#D6A332";
+  const paleGold = "#EBD59A";
+  const ink = "#0B2345";
+  const muted = "#52637A";
+  const assets = path.join(__dirname, "../../public/assets");
+  const logoPath = path.join(assets, "growtech-axon-circular-logo.png");
+  const sealPath = path.join(assets, "growtech-axon-seal.png");
+  const signaturePath = path.join(assets, "ram-signature-transparent.png");
 
-  /* Premium certificate */
+  // Premium white / navy / gold certificate with softly rounded double frame.
+  doc.rect(0, 0, w, h).fill("#FFFEFA");
+  doc.save().lineWidth(1.4).strokeColor(gold).roundedRect(8, 8, w - 16, h - 16, 10).stroke();
+  doc.lineWidth(0.65).strokeColor("#D8C28A").roundedRect(15, 15, w - 30, h - 30, 7).stroke().restore();
 
-  drawCertificateBackground(doc);
+  // Navy upper-left brand panel; circular GA logo sits inside it.
+  doc.save();
+  doc.moveTo(8, 8).lineTo(232, 8).lineTo(164, 104).lineTo(8, 145).closePath().fill(navy);
+  doc.moveTo(8, 8).lineTo(232, 8).lineTo(218, 26).lineTo(8, 83).closePath().fill(navy2);
+  doc.moveTo(8, 145).lineTo(164, 104).lineWidth(4).strokeColor(gold).stroke();
+  doc.restore();
 
-  drawBackgroundTexture(doc);
+  if (fs.existsSync(logoPath)) {
+    doc.image(logoPath, 29, 18, { fit: [76, 76], align: "center", valign: "center" });
+  } else if (fs.existsSync(path.join(assets, "growtechaxon-logo.png"))) {
+    doc.image(path.join(assets, "growtechaxon-logo.png"), 27, 20, { fit: [78, 68], align: "center", valign: "center" });
+  }
+  doc.font("Helvetica-Bold").fontSize(10.5).fillColor("#FFFFFF").text("GROWTECH AXON", 18, 96, { width: 145, align: "center", characterSpacing: 0.4 });
+  doc.font("Helvetica").fontSize(5.6).fillColor("#FFFFFF").text("Digital Technology • Learning • Innovation", 16, 110, { width: 150, align: "center" });
 
-  drawPremiumBorder(doc);
+  // Certificate ID and QR code are real certificate-specific verification data.
+  doc.font("Helvetica-Bold").fontSize(8).fillColor(navy).text("CERTIFICATE ID", w - 230, 26, { width: 130, align: "right", characterSpacing: 0.5 });
+  doc.font("Helvetica").fontSize(8.2).fillColor(ink).text(certificateId, w - 230, 40, { width: 130, align: "right" });
+  doc.font("Helvetica-Bold").fontSize(7.6).fillColor(navy).text("ISSUE DATE", w - 230, 56, { width: 130, align: "right", characterSpacing: 0.4 });
+  doc.font("Helvetica").fontSize(8.2).fillColor(ink).text(formatDate(certificate.issueDate || certificate.createdAt || new Date()), w - 230, 68, { width: 130, align: "right" });
+  const verifyBase = (process.env.PUBLIC_BASE_URL || "https://growtechaxon.in").replace(/\/+$/, "");
+  const verifyUrl = `${verifyBase}/verify.html?cid=${encodeURIComponent(certificateId)}`;
+  try {
+    const qr = QRCode.create(verifyUrl, { errorCorrectionLevel: "M" });
+    const qrSize = 48;
+    const qrX = w - 76;
+    const qrY = 24;
+    const moduleCount = qr.modules.size;
+    const cell = qrSize / moduleCount;
+    doc.save().fillColor("#FFFFFF").roundedRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8, 4).fill();
+    doc.lineWidth(1).strokeColor(gold).roundedRect(qrX - 4, qrY - 4, qrSize + 8, qrSize + 8, 4).stroke();
+    doc.fillColor("#000000");
+    for (let r = 0; r < moduleCount; r++) {
+      for (let c = 0; c < moduleCount; c++) {
+        if (qr.modules.get(r, c)) doc.rect(qrX + c * cell, qrY + r * cell, cell + 0.1, cell + 0.1).fill();
+      }
+    }
+    doc.restore();
+    doc.font("Helvetica-Bold").fontSize(6.1).fillColor(navy).text("SCAN TO VERIFY", qrX - 8, qrY + qrSize + 5, { width: qrSize + 16, align: "center" });
+  } catch (e) {
+    doc.font("Helvetica").fontSize(6.3).fillColor(muted).text("Verify at growtechaxon.in/verify.html", w - 190, 72, { width: 130, align: "center" });
+  }
 
-  drawCornerDecoration(doc);
+  // Reference-style title, name, course and supporting line.
+  doc.font("Times-Bold").fontSize(22).fillColor(navy).text("CERTIFICATE OF", 185, 43, { width: w - 280, align: "center", characterSpacing: 1.3 });
+  doc.font("Times-Bold").fontSize(39).fillColor(navy).text("COMPLETION", 180, 64, { width: w - 270, align: "center", characterSpacing: 0.7 });
+  const lineY = 112;
+  doc.moveTo(270, lineY).lineTo(388, lineY).lineWidth(0.9).strokeColor(gold).stroke();
+  doc.moveTo(455, lineY).lineTo(573, lineY).lineWidth(0.9).strokeColor(gold).stroke();
+  doc.save().fillColor(gold).moveTo(431, lineY - 5).lineTo(436, lineY).lineTo(431, lineY + 5).lineTo(426, lineY).closePath().fill().restore();
+  doc.font("Helvetica").fontSize(8.7).fillColor(navy2).text("THIS CERTIFICATE IS PROUDLY PRESENTED TO", 70, 126, { width: w - 140, align: "center", characterSpacing: 1.4 });
 
-  drawCertificateBrand(doc);
+  const candidateName = safe(certificate.candidateName, "Student Name");
+  doc.font("Times-Italic").fontSize(candidateName.length > 34 ? 22 : 29).fillColor(navy).text(candidateName, 75, 148, { width: w - 150, align: "center", ellipsis: true });
+  doc.moveTo(222, 186).lineTo(620, 186).lineWidth(0.8).strokeColor(gold).stroke();
+  doc.save().fillColor(gold).moveTo(421, 181).lineTo(426, 186).lineTo(421, 191).lineTo(416, 186).closePath().fill().restore();
+  doc.font("Helvetica").fontSize(9).fillColor(navy2).text("has successfully completed the", 70, 196, { width: w - 140, align: "center" });
+  const testTitle = safe(certificate.testTitle, "Course / Assessment");
+  doc.font("Times-Bold").fontSize(testTitle.length > 48 ? 15 : 19).fillColor(navy).text(testTitle, 65, 214, { width: w - 130, align: "center", ellipsis: true });
+  doc.font("Helvetica").fontSize(8.4).fillColor(ink).text("organized by Growtech Axon, in recognition of dedication, effort and commitment to learning.", 90, 240, { width: w - 180, align: "center" });
 
-  drawCertificateTitle(doc);
+  // Four compact information groups matching the supplied reference layout.
+  const grade = safe(certificate.grade, gradeFromPercentage(Number(certificate.percentage || 0)));
+  const duration = safe(certificate.courseDuration || certificate.duration, "As per course record");
+  const mode = safe(certificate.mode, "Online Assessment");
+  const skills = safe(certificate.skillsCovered, "As per course syllabus");
+  const infoY = 278;
+  const items = [
+    { x: 92, w: 150, label: "COURSE DURATION", value: duration },
+    { x: 278, w: 105, label: "MODE", value: mode },
+    { x: 418, w: 190, label: "KEY SKILLS COVERED", value: skills },
+    { x: 645, w: 105, label: "GRADE", value: grade }
+  ];
+  // Small navy circular icon badges with gold outline; one symbol per info group.
+  const symbols = ["C", "ON", "</>", "A+"];
+  items.forEach((item, i) => {
+    const cx = item.x - 19;
+    const cy = infoY + 17;
+    doc.save().fillColor(navy).circle(cx, cy, 17).fill();
+    doc.lineWidth(1).strokeColor(gold).circle(cx, cy, 17).stroke();
+    doc.font("Helvetica-Bold").fontSize(i === 2 ? 8 : 12).fillColor(paleGold).text(symbols[i], cx - 13, cy - 5, { width: 26, align: "center" });
+    doc.restore();
+    doc.font("Helvetica-Bold").fontSize(7.2).fillColor(navy).text(item.label, item.x, infoY, { width: item.w, align: "left", characterSpacing: 0.2 });
+    doc.font("Helvetica").fontSize(i === 2 ? 7.1 : 8.2).fillColor(ink).text(item.value, item.x, infoY + 14, { width: item.w, height: 32, align: "left", ellipsis: true, lineBreak: true });
+    if (i < items.length - 1) {
+      const dividerX = item.x + item.w + 9;
+      doc.moveTo(dividerX, infoY - 2).lineTo(dividerX, infoY + 39).lineWidth(0.7).strokeColor(gold).stroke();
+    }
+  });
 
-  drawCertificateRecipient(
-    doc,
-    certificate
-  );
+  doc.font("Times-Italic").fontSize(12).fillColor(navy).text("We wish you a bright future in your tech journey!", 90, 342, { width: w - 180, align: "center" });
 
-  drawCertificateAchievement(
-    doc,
-    certificate
-  );
+  // Exactly one Founder signature and one company seal.
+  const founderX = 110;
+  if (fs.existsSync(signaturePath)) {
+    doc.image(signaturePath, founderX + 6, 388, { fit: [138, 32], align: "center", valign: "center" });
+  } else {
+    doc.font("Times-Italic").fontSize(16).fillColor(navy).text("Rambharosa Prasad", founderX, 391, { width: 150, align: "center" });
+  }
+  doc.moveTo(founderX, 422).lineTo(founderX + 160, 422).lineWidth(0.7).strokeColor(gold).stroke();
+  doc.font("Helvetica-Bold").fontSize(8).fillColor(navy).text("RAMBHAROSA PRASAD", founderX - 10, 428, { width: 180, align: "center", characterSpacing: 0.4 });
+  doc.font("Helvetica").fontSize(7).fillColor(muted).text("FOUNDER", founderX - 10, 440, { width: 180, align: "center", characterSpacing: 0.7 });
 
-  drawCertificateSignatures(
-    doc,
-    certificate
-  );
+  if (fs.existsSync(sealPath)) {
+    doc.image(sealPath, 565, 397, { fit: [78, 78], align: "center", valign: "center" });
+  }
 
-  drawOfficialSeal(doc);
-
-  drawCertificateMeta(
-    doc,
-    certificate
-  );
-
-  drawCertificateFooter(doc);
-
-
+  doc.moveTo(42, 477).lineTo(w - 42, 477).lineWidth(0.8).strokeColor(gold).stroke();
+  doc.font("Helvetica").fontSize(6.7).fillColor(muted).text("This certificate can be verified through the Growtech Axon certificate verification portal.", 55, 486, { width: w - 110, align: "center" });
+  doc.font("Helvetica-Bold").fontSize(8).fillColor(navy).text("www.growtechaxon.in", 55, 499, { width: w - 110, align: "center", characterSpacing: 1 });
+  doc.font("Helvetica-Bold").fontSize(7).fillColor(navy).text("LEARN • BUILD • GROW", 55, 512, { width: w - 110, align: "center", characterSpacing: 1.2 });
   doc.end();
 }
-
 
 /* ========================================================================
    EXPORTS

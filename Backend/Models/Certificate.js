@@ -65,12 +65,12 @@ const certificateSchema = new mongoose.Schema(
 
     programManagerName: {
       type: String,
-      default: "ARYAN"
+      default: ""
     },
 
     programManagerDesignation: {
       type: String,
-      default: "PROGRAM MANAGER"
+      default: ""
     }
   },
   {

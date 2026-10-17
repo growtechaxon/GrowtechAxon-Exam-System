@@ -87,3 +87,17 @@ A passed candidate receives a unique certificate ID in the database. The candida
 - `/` — authenticated exam portal
 - `/certificate.html` — result, question-wise answer review and certificate portal
 - `/admin/login.html` — admin login
+
+## 7-Day AI Course Assessment
+
+When the server connects to MongoDB, it creates or updates an active **7-Day AI Course Assessment** containing 30 multiple-choice questions covering AI fundamentals, prompt writing, generative AI, machine learning, responsible use, privacy, and verification. The assessment duration is 30 minutes. Its passing threshold follows `CERTIFICATE_PASS_PERCENTAGE` (default 50%).
+
+The student tests endpoint returns all currently available active tests, including the AI assessment. The assessment seed runs on server startup after a successful database connection.
+
+## Certificate branding
+
+The PDF certificate uses the single image asset at `public/assets/growtech-axon-seal.png` and the founder signature asset at `public/assets/ram-signature.png`. Replace those files with approved brand assets if you need a different seal/signature; keep the same filenames. The certificate signatory is Rambharosa Prasad, Founder. This is a company-issued course certificate, not a government certificate or accreditation.
+
+## Environment setup
+
+Copy `.env.example` to `.env` and fill in your own database connection and secrets. Do not commit or share `.env` files. If credentials were exposed in a shared archive, rotate them before deployment.

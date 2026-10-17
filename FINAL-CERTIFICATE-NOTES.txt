@@ -1,0 +1,17 @@
+Growtech Axon certificate update
+
+Changed files:
+- public/certificate.html: premium certificate preview, rounded double border, circular GA logo badge, reference-style details and Founder-only section.
+- Backend/Utils/pdf.js: matching A4 landscape PDF, circular GA logo badge, certificate ID, issue date, QR verification, course duration/mode/skills/grade, Founder Rambharosa Prasad and exactly one company seal.
+- public/assets/growtech-axon-circular-logo.png: circular logo badge derived from the provided Growtech Axon branding/reference.
+
+Validation performed:
+- Node syntax checks for project JavaScript files.
+- Inline JavaScript syntax check for public/certificate.html.
+- HTML ID check: no duplicate IDs and no getElementById references missing from the page.
+- Sample certificate PDF generated successfully and rendered to PNG for visual inspection.
+
+Important:
+- Live MongoDB, student login, test submission, and end-to-end certificate verification were not tested in this environment.
+- Course duration and skills display database-provided values when available; otherwise safe placeholders are shown.
+- This is a private company course/assessment certificate, not a government-issued certificate. Government logos are not included.

@@ -81,8 +81,7 @@ router.get("/tests", async (req, res) => {
       )
       .sort({
         createdAt: -1
-      })
-      .limit(1);
+      });
 
     res.json(
       tests.map((t) => ({
@@ -898,24 +897,14 @@ router.post(
                 "valid",
 
               signatoryName:
-                process.env
-                  .CERTIFICATE_FOUNDER_NAME ||
-                "RAM BHAROSA PRASAD",
+                process.env.CERTIFICATE_FOUNDER_NAME ||
+                "Rambharosa Prasad",
 
               signatoryDesignation:
                 process.env
                   .CERTIFICATE_FOUNDER_DESIGNATION ||
                 "FOUNDER",
 
-              programManagerName:
-                process.env
-                  .CERTIFICATE_PROGRAM_MANAGER_NAME ||
-                "ARYAN",
-
-              programManagerDesignation:
-                process.env
-                  .CERTIFICATE_PROGRAM_MANAGER_DESIGNATION ||
-                "PROGRAM MANAGER"
 
             });
 

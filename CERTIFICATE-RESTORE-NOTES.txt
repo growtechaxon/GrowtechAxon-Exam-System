@@ -1,0 +1,10 @@
+Growtech Axon certificate restoration notes
+
+- Restores the navy-and-gold / ivory Certificate of Completion PDF layout from the supplied reference design.
+- Keeps the standalone public verify.html portal and its ?cid= auto-fill + auto-verification behavior.
+- QR now points to https://growtechaxon-exam-system.onrender.com/verify.html?cid=<CertificateID> by default.
+- QR is rendered as a high-resolution PNG with a quiet zone to improve phone-camera scanning.
+- Set PUBLIC_BASE_URL in Render to https://growtechaxon-exam-system.onrender.com if it is not already set.
+- After deployment, generate a NEW certificate PDF; existing PDFs retain their original embedded QR.
+
+Checks performed: ZIP structure, JavaScript syntax, and source-level URL/auto-verification checks. Live Render/database end-to-end behavior has not been tested from this environment.

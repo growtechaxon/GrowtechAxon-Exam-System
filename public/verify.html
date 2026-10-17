@@ -724,6 +724,14 @@
       }
     );
 
+    // QR codes on issued certificates open this page with ?cid=... .
+    const params = new URLSearchParams(window.location.search);
+    const linkedCertificateId = (params.get("cid") || "").trim().toUpperCase();
+    if (linkedCertificateId) {
+      $("cid").value = linkedCertificateId;
+      verifyCertificate();
+    }
+
   </script>
 
 </body>

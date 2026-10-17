@@ -476,14 +476,12 @@ router.post(
           status: "valid",
 
           signatoryName:
-            process.env
-              .CERTIFICATE_SIGNATORY_NAME ||
-            "Growtech Axon",
+            process.env.CERTIFICATE_FOUNDER_NAME ||
+            "Rambharosa Prasad",
 
           signatoryDesignation:
-            process.env
-              .CERTIFICATE_SIGNATORY_DESIGNATION ||
-            "Authorized Signatory"
+            process.env.CERTIFICATE_FOUNDER_DESIGNATION ||
+            "FOUNDER"
         });
 
       result.certificateId =

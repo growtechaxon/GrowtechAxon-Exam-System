@@ -8,6 +8,7 @@ const path = require("path");
 const Test = require("./Backend/Models/Test");
 const { defaultQuestions } = require("./Backend/Data/questions");
 const { cProgrammingQuestions } = require("./Backend/Data/cQuestions");
+const { aiCourseQuestions } = require("./Backend/Data/aiCourseQuestions");
 
 const app = express();
 
@@ -89,6 +90,28 @@ async function seed() {
     });
 
     console.log("Default demo test seeded.");
+  }
+
+  // Keep the 7-day introductory AI course assessment available after each startup.
+  // Upsert by title so deployment does not create duplicate tests.
+  const aiTest = await Test.findOne({ title: "7-Day AI Course Assessment" });
+  const aiTestData = {
+    title: "7-Day AI Course Assessment",
+    description: "Final assessment for the 7-day introductory AI course: AI fundamentals, prompting, generative AI, machine learning, responsible use, privacy, and verification.",
+    durationMinutes: 30,
+    passingPercentage: Number(process.env.CERTIFICATE_PASS_PERCENTAGE || 50),
+    certificateEnabled: true,
+    active: true,
+    questions: aiCourseQuestions
+  };
+
+  if (!aiTest) {
+    await Test.create(aiTestData);
+    console.log("7-Day AI Course Assessment seeded with 30 questions.");
+  } else {
+    Object.assign(aiTest, aiTestData);
+    await aiTest.save();
+    console.log("7-Day AI Course Assessment updated with 30 questions.");
   }
 
   // Keep the C Programming assessment at the requested 60 questions / 40 minutes.
