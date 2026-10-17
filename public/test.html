@@ -407,7 +407,8 @@
        TEST STATE
     ====================================================== */
 
-      const testId = new URLSearchParams(location.search).get("test");
+      const testParams = new URLSearchParams(location.search);
+      const testId = testParams.get("testId") || testParams.get("test");
 
       let sessionId = null;
 
