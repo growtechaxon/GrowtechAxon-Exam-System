@@ -228,6 +228,104 @@
           flex-direction: column;
         }
       }
+
+
+      /* Compact, accessible mobile navigation */
+      .mobile-menu-toggle {
+        display: none;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        min-height: 42px;
+        padding: 9px 13px;
+        border: 1px solid rgba(231, 199, 122, 0.45);
+        border-radius: 12px;
+        color: #f8fafc;
+        background: rgba(15, 23, 42, 0.94);
+        font: inherit;
+        font-size: 14px;
+        font-weight: 700;
+        cursor: pointer;
+      }
+
+      .mobile-menu-toggle:focus-visible,
+      .nav-actions a:focus-visible,
+      .nav-actions button:focus-visible {
+        outline: 3px solid #e7c77a;
+        outline-offset: 3px;
+      }
+
+      .menu-toggle-icon {
+        font-size: 20px;
+        line-height: 1;
+      }
+
+      @media (max-width: 700px) {
+        .nav {
+          position: relative;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+
+        .brand {
+          min-width: 0;
+          flex: 1 1 auto;
+        }
+
+        .mobile-menu-toggle {
+          display: inline-flex;
+          flex: 0 0 auto;
+        }
+
+        .nav-actions {
+          display: none;
+          order: 3;
+          flex: 0 0 100%;
+          width: 100%;
+          padding: 12px;
+          margin-top: 2px;
+          flex-direction: column;
+          align-items: stretch;
+          gap: 9px;
+          border: 1px solid rgba(231, 199, 122, 0.25);
+          border-radius: 14px;
+          background: #071326;
+          box-shadow: 0 18px 35px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-actions.is-open {
+          display: flex;
+        }
+
+        .nav-actions .nav-link,
+        .nav-actions .btn,
+        .nav-actions #studentWelcome {
+          display: flex;
+          width: 100%;
+          min-height: 44px;
+          box-sizing: border-box;
+          align-items: center;
+          justify-content: flex-start;
+          padding: 11px 13px;
+          border-radius: 10px;
+          font-size: 14px;
+          text-align: left;
+        }
+
+        .nav-actions #studentWelcome[style*="display: none"] {
+          display: none !important;
+        }
+
+        .nav-actions #studentLogout[style*="display: none"] {
+          display: none !important;
+        }
+      }
+
+      @media (prefers-reduced-motion: no-preference) {
+        .nav-actions {
+          transition: opacity 160ms ease;
+        }
+      }
     </style>
   </head>
 
@@ -248,7 +346,19 @@
           </span>
         </a>
 
-        <nav class="nav-actions" aria-label="Main navigation">
+        <button
+          class="mobile-menu-toggle"
+          id="mobileMenuToggle"
+          type="button"
+          aria-label="Open navigation menu"
+          aria-controls="mainNavigation"
+          aria-expanded="false"
+        >
+          <span class="menu-toggle-icon" aria-hidden="true">☰</span>
+          <span class="menu-toggle-label">Menu</span>
+        </button>
+
+        <nav class="nav-actions" id="mainNavigation" aria-label="Main navigation">
           <a class="nav-link" href="/"> Home </a>
 
           <a class="btn btn-ghost" href="/certificate.html">
@@ -1396,5 +1506,49 @@
         setCurrentYear();
       });
     </script>
-  </body>
+  
+    <script>
+      (() => {
+        const toggle = document.getElementById("mobileMenuToggle");
+        const navigation = document.getElementById("mainNavigation");
+        if (!toggle || !navigation) return;
+
+        const closeMenu = () => {
+          navigation.classList.remove("is-open");
+          toggle.setAttribute("aria-expanded", "false");
+          toggle.setAttribute("aria-label", "Open navigation menu");
+          const icon = toggle.querySelector(".menu-toggle-icon");
+          if (icon) icon.textContent = "☰";
+        };
+
+        toggle.addEventListener("click", () => {
+          const isOpen = navigation.classList.toggle("is-open");
+          toggle.setAttribute("aria-expanded", String(isOpen));
+          toggle.setAttribute("aria-label", isOpen ? "Close navigation menu" : "Open navigation menu");
+          const icon = toggle.querySelector(".menu-toggle-icon");
+          if (icon) icon.textContent = isOpen ? "✕" : "☰";
+        });
+
+        navigation.addEventListener("click", (event) => {
+          if (event.target.closest("a")) closeMenu();
+        });
+
+        document.addEventListener("click", (event) => {
+          if (!navigation.contains(event.target) && !toggle.contains(event.target)) closeMenu();
+        });
+
+        document.addEventListener("keydown", (event) => {
+          if (event.key === "Escape") {
+            closeMenu();
+            toggle.focus();
+          }
+        });
+
+        window.addEventListener("resize", () => {
+          if (window.innerWidth > 700) closeMenu();
+        });
+      })();
+    </script>
+
+</body>
 </html>

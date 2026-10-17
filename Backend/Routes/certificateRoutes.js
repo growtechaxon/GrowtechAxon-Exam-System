@@ -996,7 +996,7 @@ router.get(
       // BUILD PDF
       // =================================================
 
-      buildCertificatePdf(
+      await buildCertificatePdf(
         certificate,
         res
       );
