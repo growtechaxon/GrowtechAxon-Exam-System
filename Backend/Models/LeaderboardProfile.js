@@ -11,6 +11,23 @@ const leaderboardProfileSchema = new mongoose.Schema(
       lowercase: true
     },
 
+    testId: {
+      type: String,
+      default: ""
+    },
+
+    email: {
+      type: String,
+      default: "",
+      lowercase: true,
+      trim: true
+    },
+
+    showOnLeaderboard: {
+      type: Boolean,
+      default: null
+    },
+
     name: {
       type: String,
       default: ""

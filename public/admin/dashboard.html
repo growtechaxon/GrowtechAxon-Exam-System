@@ -268,7 +268,12 @@ Search
     </div>
     <button class="btn btn-ghost" type="button" onclick="loadLeaderboard()">Refresh</button>
   </div>
-  <p class="lb-admin-note">Leaderboard data is automatic from passed results. Changes here only override the public display; original examination results are not changed.</p>
+  <p class="lb-admin-note">Manage students and visibility separately for each test. Equal scores share the same dense rank (1, 2, 2, 3). Failed students are never shown publicly. Rank 1–5 are visible by default; Rank 6+ students need Show on Leaderboard enabled.</p>
+  <div class="lb-admin-fields" style="margin-bottom:14px;max-width:900px">
+    <div class="field"><label for="lb-admin-test-filter">Students to manage</label><select id="lb-admin-test-filter" onchange="loadLeaderboard()"><option value="all" selected>All Tests (show all students)</option><option value="latest">Latest Test</option></select></div>
+    <div class="field"><label for="lb-public-test-select">Public leaderboard display</label><select id="lb-public-test-select"><option value="latest">Latest Test</option><option value="all">All Tests</option></select></div>
+  </div>
+  <div style="margin-bottom:16px"><button class="btn btn-primary" type="button" onclick="saveLeaderboardDisplay()">Save Public Display</button><span id="lb-settings-status" class="muted" style="margin-left:10px"></span></div>
   <div id="leaderboardAdminGrid" class="lb-admin-grid">
     <div class="loading-card">Loading top performers...</div>
   </div>
@@ -901,6 +906,42 @@ async function view(id){
    RENDER RESULT
 ===================================================== */
 
+let currentResultLeaderboardEntry = null;
+
+async function loadResultLeaderboardVisibility(result){
+  const box=document.getElementById("resultLeaderboardVisibility");
+  if(!box) return;
+  const testId=String(result.testId && result.testId._id ? result.testId._id : (result.testId || ""));
+  const email=String(result.email||"").trim().toLowerCase();
+  if(!testId || !email){box.innerHTML='<small>Public Leaderboard Visibility</small><strong>Could not identify this test/student. Use Leaderboard Management below.</strong>';return;}
+  try{
+    const response=await api(`/api/admin/leaderboard?testId=${encodeURIComponent(testId)}`);
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.message||"Unable to load student visibility.");
+    const student=(Array.isArray(data.students)?data.students:[]).find(x=>String(x.email||"").toLowerCase()===email);
+    const studentKey=student?.studentKey || `${testId}::${email}`;
+    const passed=student ? student.passed===true : result.passed===true;
+    const visible=student ? (student.hasVisibilityOverride ? student.showOnLeaderboard===true : (passed && Number(student.rank)<=5)) : false;
+    currentResultLeaderboardEntry={studentKey,testId,email,passed};
+    box.innerHTML=`<small>Public Leaderboard Visibility</small><label style="display:flex;align-items:center;gap:10px;margin-top:8px"><input id="result-show-on-leaderboard" type="checkbox" style="width:auto" ${visible?'checked':''} ${passed?'':'disabled'} onchange="document.getElementById('result-lb-toggle-label').textContent=this.checked?'ON':'OFF'"><strong id="result-lb-toggle-label">${visible?'ON':'OFF'}</strong></label><div class="muted" style="font-size:12px;margin-top:8px">This setting applies only to this student in this test. ${passed?'Save to apply the change.':'Failed students cannot appear publicly.'}</div><button class="btn btn-primary" type="button" style="margin-top:10px" onclick="saveResultLeaderboardVisibility()" ${passed?'':'disabled'}>Save Leaderboard Setting</button><span id="result-lb-save-status" class="muted" style="margin-left:10px"></span>`;
+  }catch(error){box.innerHTML=`<small>Public Leaderboard Visibility</small><strong>${esc(error.message||"Unable to load visibility setting.")}</strong>`;}
+}
+
+async function saveResultLeaderboardVisibility(){
+  const entry=currentResultLeaderboardEntry;
+  const checkbox=document.getElementById("result-show-on-leaderboard");
+  const status=document.getElementById("result-lb-save-status");
+  if(!entry||!checkbox||!status) return;
+  if(!entry.passed){status.textContent="Failed students cannot be shown.";return;}
+  try{
+    const response=await api(`/api/admin/leaderboard/${encodeURIComponent(entry.studentKey)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({showOnLeaderboard:checkbox.checked})});
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.message||"Unable to save leaderboard setting.");
+    status.textContent="Saved.";
+    await loadLeaderboard();
+  }catch(error){status.textContent=error.message||"Save failed.";}
+}
+
 function renderResult(result,certificate){
 
   let certificateHtml = "";
@@ -1048,6 +1089,11 @@ function renderResult(result,certificate){
 
     <div class="result-detail">
 
+
+      <div class="detail-box" id="resultLeaderboardVisibility" style="grid-column:1/-1">
+        <small>Public Leaderboard Visibility</small>
+        <strong>Loading student visibility…</strong>
+      </div>
 
       <div class="detail-box">
 
@@ -1267,6 +1313,8 @@ function renderResult(result,certificate){
 
   document.getElementById("modal")
     .classList.add("show");
+
+  loadResultLeaderboardVisibility(result);
 
 }
 
@@ -2017,37 +2065,48 @@ function escAttr(s){
 async function loadLeaderboard(){
   const grid = document.getElementById("leaderboardAdminGrid");
   if(!grid) return;
-  grid.innerHTML = '<div class="loading-card">Loading top performers...</div>';
+  grid.innerHTML = '<div class="loading-card">Loading leaderboard...</div>';
   try{
-    const response = await api("/api/admin/leaderboard");
+    const testsResponse = await api("/api/admin/leaderboard/tests");
+    const testsData = await testsResponse.json();
+    if(!testsResponse.ok) throw new Error(testsData.message || "Unable to load tests.");
+    const tests = Array.isArray(testsData.tests) ? testsData.tests : [];
+    const filter = document.getElementById("lb-admin-test-filter");
+    const publicSelect = document.getElementById("lb-public-test-select");
+    const previousFilter = filter.value || "all";
+    filter.innerHTML = '<option value="latest">Latest Test</option><option value="all">All Tests</option>' + tests.map(t=>`<option value="${escAttr(String(t._id))}">${esc(t.title||"Untitled Test")}</option>`).join("");
+    filter.value = [...filter.options].some(o=>o.value===previousFilter) ? previousFilter : "all";
+    const settings = testsData.settings || {};
+    publicSelect.innerHTML = '<option value="latest">Latest Test</option><option value="all">All Tests</option>' + tests.map(t=>`<option value="${escAttr(String(t._id))}">${esc(t.title||"Untitled Test")}</option>`).join("");
+    publicSelect.value = settings.showAllTests ? "all" : (settings.selectedTestId && settings.selectedTestId !== "latest" ? settings.selectedTestId : "latest");
+    const response = await api(`/api/admin/leaderboard?testId=${encodeURIComponent(filter.value)}`);
     const data = await response.json();
     if(!response.ok) throw new Error(data.message || "Unable to load leaderboard.");
     const students = Array.isArray(data.students) ? data.students : [];
-    if(!students.length){
-      grid.innerHTML = '<div class="loading-card">No passed student results are available yet.</div>';
-      return;
-    }
+    if(!students.length){grid.innerHTML='<div class="loading-card">No student results found for this test.</div>';return;}
     grid.innerHTML = students.map((student,index)=>{
+      const safeKey = JSON.stringify(student.studentKey);
       const photo = student.image?.data
-        ? `<img class="lb-admin-photo" src="${student.image.data}" alt="Student photo">`
+        ? `<img class="lb-admin-photo" src="${student.image.data}" alt="Student photo" onerror="this.style.display='none'">`
         : `<div class="lb-admin-photo" style="display:flex;align-items:center;justify-content:center;color:#f5c76b;font-size:24px;font-weight:800">${esc((student.name||"S").charAt(0).toUpperCase())}</div>`;
       const statusOptions=["PASSED","FAILED","VERIFIED","FEATURED"].map(v=>`<option value="${v}" ${String(student.status||"").toUpperCase()===v?"selected":""}>${v}</option>`).join("");
+      const visible = student.hasVisibilityOverride ? student.showOnLeaderboard : (student.passed && Number(student.rank)<=5);
+      const disabled = !student.passed ? "disabled" : "";
       return `<article class="lb-admin-card">
-        <div class="lb-admin-top">${photo}<div><div class="lb-admin-rank">CURRENT RANK ${esc(student.rank||index+1)}</div><div class="lb-admin-name">${esc(student.name||"Student")}</div><div class="muted" style="font-size:12px;margin-top:3px">${esc(student.studentKey)}</div></div></div>
+        <div class="lb-admin-top">${photo}<div><div class="lb-admin-rank">${student.rank ? `CURRENT RANK ${esc(student.rank)}` : 'FAILED / UNRANKED'}</div><div class="lb-admin-name">${esc(student.name||"Student")}</div><div class="muted" style="font-size:12px;margin-top:3px">${esc(student.email||student.studentKey)}</div><div class="muted" style="font-size:12px;margin-top:3px">${esc(student.testTitle||"")}</div></div></div>
         <div class="lb-admin-fields">
           <div class="field"><label>Name</label><input id="lb-name-${index}" value="${escAttr(student.name||"")}"></div>
-          <div class="field"><label>Rank</label><input id="lb-rank-${index}" type="number" min="1" value="${escAttr(student.rank||index+1)}"></div>
           <div class="field"><label>Score</label><input id="lb-score-${index}" type="number" min="0" value="${escAttr(student.score??"")}"></div>
           <div class="field"><label>Percentage</label><input id="lb-percentage-${index}" type="number" min="0" max="100" step="0.1" value="${escAttr(student.percentage??"")}"></div>
           <div class="field"><label>Grade</label><input id="lb-grade-${index}" value="${escAttr(student.grade||"")}"></div>
           <div class="field"><label>Status</label><select id="lb-status-${index}">${statusOptions}</select></div>
-          <div class="field" style="grid-column:1/-1"><label>Assessment / Test</label><input id="lb-test-${index}" value="${escAttr(student.testTitle||"")}"></div>
-          <div class="field" style="grid-column:1/-1"><label>Student Photo</label><input id="lb-photo-input-${index}" type="file" accept="image/png,image/jpeg,image/webp"></div>
+          <div class="field"><label>Show on Leaderboard</label><label style="display:flex;align-items:center;gap:8px;margin-top:8px"><input id="lb-show-${index}" type="checkbox" style="width:auto" ${visible?'checked':''} ${disabled} onchange="this.nextElementSibling.textContent=this.checked?'ON':'OFF'"> <span>${visible?'ON':'OFF'}</span></label>${!student.passed?'<small class="muted">Failed results cannot be shown.</small>':''}</div>
+          <div class="field" style="grid-column:1/-1"><label>Student Photo (this test + student only)</label><input id="lb-photo-input-${index}" type="file" accept="image/png,image/jpeg,image/webp"></div>
         </div>
         <div class="lb-admin-actions">
-          <button class="btn btn-primary" type="button" onclick='saveLeaderboard(${JSON.stringify(student.studentKey)},${index})'>Save Changes</button>
-          <button class="btn btn-ghost" type="button" onclick='resetLeaderboard(${JSON.stringify(student.studentKey)})'>Reset Automatic Data</button>
-          ${student.image?.data?`<button class="btn btn-ghost" type="button" onclick='removeLeaderboardPhoto(${JSON.stringify(student.studentKey)})'>Remove Photo</button>`:""}
+          <button class="btn btn-primary" type="button" onclick='saveLeaderboard(${safeKey},${index})'>Save Changes</button>
+          <button class="btn btn-ghost" type="button" onclick='resetLeaderboard(${safeKey})'>Reset Overrides</button>
+          ${student.image?.data?`<button class="btn btn-ghost" type="button" onclick='removeLeaderboardPhoto(${safeKey})'>Remove Photo</button>`:""}
         </div>
       </article>`;
     }).join("");
@@ -2055,6 +2114,18 @@ async function loadLeaderboard(){
     console.error("Leaderboard admin load error:",error);
     grid.innerHTML=`<div class="loading-card">${esc(error.message||"Unable to load leaderboard.")}</div>`;
   }
+}
+
+async function saveLeaderboardDisplay(){
+  const select=document.getElementById("lb-public-test-select");
+  const status=document.getElementById("lb-settings-status");
+  const value=select.value;
+  try{
+    const response=await api("/api/admin/leaderboard/settings",{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify({showAllTests:value==="all",selectedTestId:value==="all"?"all":value})});
+    const data=await response.json();
+    if(!response.ok) throw new Error(data.message||"Unable to save public display.");
+    status.textContent="Saved. Public leaderboard will use this selection.";
+  }catch(error){status.textContent=error.message||"Save failed.";}
 }
 
 function compressLeaderboardImage(file){
@@ -2070,12 +2141,11 @@ async function saveLeaderboard(studentKey,index){
     const fileInput=document.getElementById(`lb-photo-input-${index}`);
     const body={
       name:document.getElementById(`lb-name-${index}`).value.trim(),
-      rank:document.getElementById(`lb-rank-${index}`).value,
       score:document.getElementById(`lb-score-${index}`).value,
       percentage:document.getElementById(`lb-percentage-${index}`).value,
       grade:document.getElementById(`lb-grade-${index}`).value.trim(),
       status:document.getElementById(`lb-status-${index}`).value,
-      testTitle:document.getElementById(`lb-test-${index}`).value.trim()
+      showOnLeaderboard:document.getElementById(`lb-show-${index}`).checked
     };
     if(fileInput?.files?.[0]){body.imageData=await compressLeaderboardImage(fileInput.files[0]);body.imageMimeType="image/jpeg";}
     const response=await api(`/api/admin/leaderboard/${encodeURIComponent(studentKey)}`,{method:"PUT",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)});

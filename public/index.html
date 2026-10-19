@@ -41,10 +41,21 @@
         margin-bottom: 24px;
       }
 
+      /* The leaderboard now renders one full-width wrapper containing the
+         title, six rank cards and optional older-test rows. Treat this element
+         as a full-width section, not as a grid of its internal children. */
       .top-performers-grid {
-        display: grid;
-        grid-template-columns: repeat(4, minmax(0, 1fr));
-        gap: 16px;
+        display: block;
+        width: 100%;
+        min-width: 0;
+      }
+      .top-performers-grid > *,
+      .top-performers-grid .leaderboard-current-test,
+      .top-performers-grid .older-leaderboards {
+        width: 100%;
+        max-width: 100%;
+        min-width: 0;
+        box-sizing: border-box;
       }
 
       .performer-card {
@@ -211,17 +222,7 @@
        RESPONSIVE
     ========================================================= */
 
-      @media (max-width: 900px) {
-        .top-performers-grid {
-          grid-template-columns: repeat(2, minmax(0, 1fr));
-        }
-      }
-
       @media (max-width: 520px) {
-        .top-performers-grid {
-          grid-template-columns: 1fr;
-        }
-
         .top-performers-head {
           align-items: start;
 
@@ -346,6 +347,7 @@
           </span>
         </a>
 
+        <a class="mobile-login-quick" href="/auth.html" aria-label="Student Login and Registration">Login / Register</a>
         <button
           class="mobile-menu-toggle"
           id="mobileMenuToggle"
@@ -403,6 +405,43 @@
          TOP PERFORMERS
     ====================================================== -->
 
+      <!-- =====================================================
+         CERTIFICATE CTA
+    ====================================================== -->
+
+      <section class="certificate-cta-section">
+        <div class="container">
+          <div class="certificate-cta">
+            <div
+              class="certificate-decoration certificate-decoration-one"
+            ></div>
+
+            <div
+              class="certificate-decoration certificate-decoration-two"
+            ></div>
+
+            <div class="certificate-cta-content">
+              <span class="section-kicker light"> CERTIFICATE PORTAL </span>
+
+              <h2>Already completed your assessment?</h2>
+
+              <p>
+                Access or verify your GrowtechAxon certificate using the
+                dedicated certificate portal.
+              </p>
+
+              <a href="/certificate.html" class="btn btn-white btn-large">
+                Open Certificate Portal
+
+                <span class="arrow"> → </span>
+              </a>
+            </div>
+
+            <div class="certificate-icon-large">🏆</div>
+          </div>
+        </div>
+      </section>
+
       <section class="top-performers-section" id="top-performers">
         <div class="container">
           <div class="top-performers-head">
@@ -428,6 +467,42 @@
           </div>
         </div>
       </section>
+
+      <!-- =====================================================
+         TESTS
+    ====================================================== -->
+
+      <section id="tests" class="tests-section">
+        <div class="container">
+          <div class="section-heading">
+            <div>
+              <span class="section-kicker"> AVAILABLE ASSESSMENTS </span>
+
+              <h2>Choose your test</h2>
+
+              <p>
+                Select an active assessment and start demonstrating your skills.
+              </p>
+            </div>
+
+            <div class="section-badge">
+              <span class="status-dot"></span>
+
+              Active Tests
+            </div>
+          </div>
+
+          <div id="tests-grid" class="grid tests-grid">
+            <div class="loading-card">
+              <div class="loading-spinner"></div>
+
+              <span> Loading available assessments... </span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
 
       <!-- =====================================================
          HERO
@@ -628,40 +703,6 @@
       </section>
 
       <!-- =====================================================
-         TESTS
-    ====================================================== -->
-
-      <section id="tests" class="tests-section">
-        <div class="container">
-          <div class="section-heading">
-            <div>
-              <span class="section-kicker"> AVAILABLE ASSESSMENTS </span>
-
-              <h2>Choose your test</h2>
-
-              <p>
-                Select an active assessment and start demonstrating your skills.
-              </p>
-            </div>
-
-            <div class="section-badge">
-              <span class="status-dot"></span>
-
-              Active Tests
-            </div>
-          </div>
-
-          <div id="tests-grid" class="grid tests-grid">
-            <div class="loading-card">
-              <div class="loading-spinner"></div>
-
-              <span> Loading available assessments... </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- =====================================================
          ANSWER KEY CTA
     ====================================================== -->
 
@@ -698,42 +739,7 @@
         </div>
       </section>
 
-      <!-- =====================================================
-         CERTIFICATE CTA
-    ====================================================== -->
 
-      <section class="certificate-cta-section">
-        <div class="container">
-          <div class="certificate-cta">
-            <div
-              class="certificate-decoration certificate-decoration-one"
-            ></div>
-
-            <div
-              class="certificate-decoration certificate-decoration-two"
-            ></div>
-
-            <div class="certificate-cta-content">
-              <span class="section-kicker light"> CERTIFICATE PORTAL </span>
-
-              <h2>Already completed your assessment?</h2>
-
-              <p>
-                Access or verify your GrowtechAxon certificate using the
-                dedicated certificate portal.
-              </p>
-
-              <a href="/certificate.html" class="btn btn-white btn-large">
-                Open Certificate Portal
-
-                <span class="arrow"> → </span>
-              </a>
-            </div>
-
-            <div class="certificate-icon-large">🏆</div>
-          </div>
-        </div>
-      </section>
     </main>
 
     <!-- =======================================================
@@ -865,369 +871,66 @@
     ========================================================= */
       async function loadTopPerformers() {
         const grid = document.getElementById("topPerformersGrid");
-
-        if (!grid) {
-          return;
-        }
-
+        if (!grid) return;
         try {
-          const response = await fetch("/api/leaderboard", {
-            method: "GET",
-
-            cache: "no-store",
-
-            headers: {
-              Accept: "application/json",
-            },
-          });
-
-          let data;
-
-          try {
-            data = await response.json();
-          } catch (jsonError) {
-            throw new Error("Invalid leaderboard response.");
-          }
-
-          if (!response.ok || !data || data.success !== true) {
-            throw new Error(
-              data && data.message
-                ? data.message
-                : "Unable to load leaderboard.",
-            );
-          }
-
-          let students = Array.isArray(data.students) ? data.students : [];
-
-          /*
-           * =====================================================
-           * SHOW RANK 1 TO RANK 6
-           *
-           * IMPORTANT:
-           *
-           * This filters by RANK,
-           * NOT by number of students.
-           *
-           * Therefore:
-           *
-           * Rank 1 -> 2 students
-           * Rank 2 -> 1 student
-           * Rank 3 -> 1 student
-           * Rank 4 -> 1 student
-           * Rank 5 -> 1 student
-           * Rank 6 -> 1 student
-           *
-           * TOTAL = 7 STUDENTS
-           * =====================================================
-           */
-
-          students = students.filter(function (student) {
-            const rank = Number(student.rank);
-
-            return Number.isFinite(rank) && rank >= 1 && rank <= 6;
-          });
-
-          /*
-           * =====================================================
-           * REMOVE DUPLICATE STUDENTS
-           *
-           * Same student + same rank + same percentage
-           * should appear only once.
-           * =====================================================
-           */
-
-          const uniqueStudents = [];
-          const seenStudents = new Set();
-
-          students.forEach(function (student) {
-            const studentName = String(student.name || "")
-              .trim()
-              .toLowerCase();
-
-            const studentRank = Number(student.rank || 0);
-
-            const studentPercentage = Number(student.percentage || 0);
-
-            const duplicateKey =
-              studentName + "|" + studentRank + "|" + studentPercentage;
-
-            if (!seenStudents.has(duplicateKey)) {
-              seenStudents.add(duplicateKey);
-              uniqueStudents.push(student);
-            }
-          });
-
-          students = uniqueStudents;
-
-          /*
-           * =====================================================
-           * SORT BY ACTUAL RANK
-           * =====================================================
-           */
-
-          students.sort(function (a, b) {
-            const rankA = Number(a.rank || 999);
-
-            const rankB = Number(b.rank || 999);
-
-            if (rankA !== rankB) {
-              return rankA - rankB;
-            }
-
-            /*
-             * Same rank:
-             * higher percentage first.
-             */
-
-            const percentageA = Number(a.percentage || 0);
-
-            const percentageB = Number(b.percentage || 0);
-
-            if (percentageA !== percentageB) {
-              return percentageB - percentageA;
-            }
-
-            /*
-             * Stable alphabetical fallback.
-             */
-
-            return String(a.name || "").localeCompare(String(b.name || ""));
-          });
-
-          /*
-           * =====================================================
-           * NO STUDENTS
-           * =====================================================
-           */
-
-          if (students.length === 0) {
-            grid.innerHTML = `
-        <div
-          class="performer-empty"
-        >
-          No verified top performer
-          results are available yet.
-        </div>
-      `;
-
-            return;
-          }
-
-          /*
-           * =====================================================
-           * MEDALS
-           *
-           * Rank 1 = Gold
-           * Rank 2 = Silver
-           * Rank 3 = Bronze
-           * Rank 4-6 = Medal
-           * =====================================================
-           */
-
-          const medals = {
-            1: "🥇",
-            2: "🥈",
-            3: "🥉",
-          };
-
-          /*
-           * =====================================================
-           * RENDER EVERY STUDENT
-           *
-           * NO slice()
-           * =====================================================
-           */
-
-          grid.innerHTML = students
-            .map(function (student) {
-              const rank = Number(student.rank || 0);
-
-              const percentage = Number(student.percentage || 0);
-
+          const response = await fetch("/api/leaderboard", { method: "GET", cache: "no-store", headers: { Accept: "application/json" } });
+          const data = await response.json();
+          if (!response.ok || !data || data.success !== true) throw new Error(data?.message || "Unable to load leaderboard.");
+          const groups = Array.isArray(data.tests) ? data.tests : [];
+          const latest = groups.find(g => g.isLatestTest) || groups[0] || { testTitle: "No assessment results yet", students: [], isLatestTest: false };
+          const latestStudents = (latest.students || []).filter(s => s.passed !== false && String(s.status || "PASSED").toUpperCase() !== "FAILED");
+          const escape = escapeHtml;
+          const rankGroups = [1,2,3,4,5,"6+"];
+          const rankPanels = [];
+          const rankHTML = rankGroups.map(rankLabel => {
+            const items = latestStudents.filter(s => rankLabel === "6+" ? Number(s.rank) >= 6 : Number(s.rank) === rankLabel);
+            const displayRank = rankLabel === "6+" ? "Rank 6+" : `Rank ${rankLabel}`;
+            const itemCards = items.map(student => {
+              const rank = Number(student.rank || 0), percentage = Number(student.percentage || 0);
+              const percentageText = Number.isInteger(percentage) ? String(percentage) : percentage.toFixed(1);
               const name = String(student.name || "Student").trim();
-
-              const grade = String(student.grade || "—").trim();
-
-              const status = String(student.status || "PASSED").trim();
-
-              /*
-               * Percentage formatting
-               *
-               * 100  -> 100%
-               * 98.3 -> 98.3%
-               * 95   -> 95%
-               * 81.7 -> 81.7%
-               */
-
-              const percentageText = Number.isInteger(percentage)
-                ? String(percentage)
-                : percentage.toFixed(1);
-
-              /*
-               * =================================================
-               * PHOTO
-               * =================================================
-               */
-
-              let photoHTML = "";
-
-              const photo = student.photo;
-
-              if (photo && typeof photo === "object" && photo.data) {
-                photoHTML = `
-              <img
-                class="performer-photo"
-                src="${escapeHtml(photo.data)}"
-                alt="${escapeHtml(name)}"
-                loading="lazy"
-                onerror="
-                  this.style.display='none';
-                  this.nextElementSibling.style.display='flex';
-                "
-              >
-
-              <div
-                class="
-                  performer-photo
-                  performer-photo-fallback
-                "
-                style="display:none"
-              >
-                ${escapeHtml(name.charAt(0).toUpperCase())}
-              </div>
-            `;
-              } else {
-                photoHTML = `
-              <div
-                class="
-                  performer-photo
-                  performer-photo-fallback
-                "
-              >
-                ${escapeHtml(name.charAt(0).toUpperCase())}
-              </div>
-            `;
-              }
-
-              /*
-               * Rank 1-3 medal
-               * Rank 4-6 normal medal
-               */
-
-              const medal = medals[rank] || "🏅";
-
-              /*
-               * =================================================
-               * CARD
-               * =================================================
-               */
-
-              return `
-            <article
-              class="
-                performer-card
-                ${rank <= 3 ? "featured" : ""}
-              "
-            >
-
-              <div
-                class="performer-medal"
-                aria-label="Rank ${rank}"
-              >
-                ${medal}
-              </div>
-
-
-              ${photoHTML}
-
-
-              <div
-                class="performer-rank"
-              >
-                Rank ${rank}
-              </div>
-
-
-              <div
-                class="performer-name"
-                title="${escapeHtml(name)}"
-              >
-                ${escapeHtml(name)}
-              </div>
-
-
-              <div
-                class="performer-score"
-              >
-                ${percentageText}%
-              </div>
-
-
-              <div
-                class="performer-meta"
-              >
-
-                <span
-                  class="performer-chip"
-                >
-                  ${escapeHtml(grade)}
-                </span>
-
-
-                <span
-                  class="performer-chip"
-                >
-                  ${escapeHtml(status)}
-                </span>
-
-              </div>
-
-            </article>
-          `;
-            })
-            .join("");
-
-          /*
-           * =====================================================
-           * DEBUG
-           *
-           * Browser console में total और names दिखेंगे.
-           * =====================================================
-           */
-
-          console.log("Top Performers:", students.length);
-
-          console.table(
-            students.map(function (student) {
-              return {
-                name: student.name,
-
-                rank: student.rank,
-
-                percentage: student.percentage,
-              };
-            }),
-          );
+              const rawPhoto = student.photo && (student.photo.data || student.photo.url || student.photo.src);
+              // Accept only actual image data/URLs; do not interpret arbitrary text as a photo URL.
+              const photoData = typeof rawPhoto === "string" && (/^data:image\//i.test(rawPhoto) || /^https?:\/\//i.test(rawPhoto) || rawPhoto.startsWith("/")) ? rawPhoto : "";
+              const photo = photoData
+                ? `<img class="performer-photo" src="${escape(photoData)}" alt="${escape(name)}" loading="lazy" onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"><div class="performer-photo performer-photo-fallback" style="display:none">${escape(name.charAt(0).toUpperCase())}</div>`
+                : `<div class="performer-photo performer-photo-fallback">${escape(name.charAt(0).toUpperCase())}</div>`;
+              return `<article class="performer-card ${rank <= 3 ? "featured" : ""}"><div class="performer-medal">${({1:"🥇",2:"🥈",3:"🥉"})[rank] || "🏅"}</div>${photo}<div class="performer-rank">Rank ${rank}</div><div class="performer-name" title="${escape(name)}">${escape(name)}</div><div class="performer-score">${percentageText}%</div><div class="performer-meta"><span class="performer-chip">${escape(student.grade || "—")}</span><span class="performer-chip">${escape(student.status || "PASSED")}</span></div></article>`;
+            }).join("");
+            const panelId = `rank-panel-${rankLabel === "6+" ? "6plus" : rankLabel}`;
+            rankPanels.push(`<section class="rank-card-panel" id="${panelId}" data-rank-panel="${rankLabel}" hidden><h3>${displayRank} Students</h3><p class="rank-panel-count">${items.length} student${items.length===1?"":"s"}</p><div class="leaderboard-rank-students">${itemCards || '<p class="leaderboard-rank-empty">No students in this rank group.</p>'}</div></section>`);
+            return `<section class="leaderboard-rank-group"><button class="rank-card-toggle" type="button" aria-expanded="false" aria-controls="${panelId}" onclick="toggleLeaderboardRank(this)"><span class="rank-card-title">${displayRank}</span><span class="rank-card-count">${items.length} student${items.length===1?"":"s"}</span><span class="rank-card-chevron" aria-hidden="true">＋</span></button></section>`;
+          }).join("");
+          const olderGroups = groups.filter(g => g !== latest && Array.isArray(g.students) && g.students.length);
+          const olderHTML = olderGroups.length ? `<section class="older-leaderboards"><h3>Other Tests</h3>${olderGroups.map(group => `<div class="older-test-group"><h4>${escape(group.testTitle || "Assessment")}</h4><div class="older-student-list">${group.students.filter(s=>s.passed!==false && String(s.status||"PASSED").toUpperCase()!=="FAILED").map(student=>`<div class="older-student-row"><span class="older-student-rank">#${Number(student.rank)||"—"}</span><span class="older-student-name">${escape(student.name||"Student")}</span><span class="older-student-score">${Number(student.percentage||0)}%</span></div>`).join("")}</div></div>`).join("")}</section>` : "";
+          grid.innerHTML = `<div class="leaderboard-current-test"><div class="leaderboard-test-title"><span class="section-kicker">${latest.isLatestTest ? "LATEST TEST" : "SELECTED TEST"}</span><h3>${escape(latest.testTitle || "Latest Assessment")}</h3><p>Equal scores receive the same rank. Rank 6+ students appear only when enabled by an administrator. Click a rank card to view its students.</p></div><div class="rank-card-grid">${rankHTML}</div>${rankPanels.join("")}</div>${olderHTML}`;
+          console.log("Leaderboard loaded", {tests:groups.length, students:groups.reduce((n,g)=>n+(g.students||[]).length,0)});
         } catch (error) {
           console.error("Top performers error:", error);
-
-          grid.innerHTML = `
-      <div
-        class="performer-error"
-      >
-        Top performer data is
-        temporarily unavailable.
-      </div>
-    `;
+          grid.innerHTML = '<div class="performer-error">Leaderboard is temporarily unavailable. Please try again later.</div>';
         }
       }
 
-      /* =========================================================
-       LOAD AVAILABLE TESTS
-
-       The backend test endpoint is queried without
-       changing any test data.
-    ========================================================= */
+      function toggleLeaderboardRank(button) {
+        const panelId = button.getAttribute("aria-controls");
+        const panel = panelId ? document.getElementById(panelId) : null;
+        if (!panel) return;
+        const wasExpanded = button.getAttribute("aria-expanded") === "true";
+        document.querySelectorAll(".rank-card-toggle").forEach(otherButton => {
+          const otherPanel = document.getElementById(otherButton.getAttribute("aria-controls"));
+          otherButton.setAttribute("aria-expanded", "false");
+          const otherIcon = otherButton.querySelector(".rank-card-chevron");
+          if (otherIcon) otherIcon.textContent = "＋";
+          if (otherPanel) otherPanel.hidden = true;
+        });
+        if (!wasExpanded) {
+          button.setAttribute("aria-expanded", "true");
+          panel.hidden = false;
+          const icon = button.querySelector(".rank-card-chevron");
+          if (icon) icon.textContent = "−";
+          panel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+        }
+      }
 
       async function loadTests() {
         const grid = document.getElementById("tests-grid");

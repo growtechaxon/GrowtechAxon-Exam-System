@@ -2207,40 +2207,9 @@ async function buildCertificatePdf(certificate, res) {
   doc.moveTo(8, 141).lineTo(165, 104).lineTo(178, 88).lineWidth(4).strokeColor(gold).stroke();
   doc.restore();
 
-  // Circular company logo for the downloaded certificate PDF.
   if (fs.existsSync(logoPath)) {
-    const logoSize = 66;
-    const logoX = 60;
-    const logoY = 18;
-
-    doc.save();
-
-    // Clip the logo to a perfect circle.
-    doc.circle(
-      logoX + logoSize / 2,
-      logoY + logoSize / 2,
-      logoSize / 2
-    ).clip();
-
-    doc.image(logoPath, logoX, logoY, {
-      fit: [logoSize, logoSize],
-      align: "center",
-      valign: "center"
-    });
-
-    doc.restore();
-
-    // Thin gold circular outline.
-    doc.circle(
-      logoX + logoSize / 2,
-      logoY + logoSize / 2,
-      logoSize / 2
-    )
-      .lineWidth(1.2)
-      .strokeColor(gold)
-      .stroke();
+    doc.image(logoPath, 48, 18, { fit: [90, 66], align: "center", valign: "center" });
   }
-
   doc.font("Helvetica-Bold").fontSize(13).fillColor("#FFFFFF").text("GROWTECH", 28, 74, { width: 135, align: "center" });
   doc.font("Helvetica-Bold").fontSize(13).fillColor("#1EA7E1").text("AXON", 28, 88, { width: 135, align: "center" });
   doc.font("Helvetica").fontSize(5.8).fillColor("#FFFFFF").text("Digital Technology • Learning • Innovation", 19, 105, { width: 155, align: "center" });

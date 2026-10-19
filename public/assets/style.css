@@ -3303,3 +3303,63 @@ a {
     color: #111;
   }
 }
+/* Leaderboard rank groups: all tied students remain visible in their shared rank. */
+.leaderboard-current-test{display:flex;flex-direction:column;gap:18px;width:100%;}
+.leaderboard-test-title{padding:18px 20px;border:1px solid rgba(201,165,58,.28);border-radius:16px;background:linear-gradient(135deg,rgba(8,29,55,.95),rgba(6,18,37,.92));}
+.leaderboard-test-title h3{margin:6px 0;color:#f3d98a;font-size:clamp(20px,3vw,28px);}
+.leaderboard-test-title p{margin:5px 0 0;color:#9eafc3;font-size:13px;line-height:1.6;}
+.leaderboard-rank-group{border:1px solid rgba(201,165,58,.2);border-radius:16px;padding:14px;background:rgba(5,18,35,.62);}
+.leaderboard-rank-heading{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#f3d98a;font-weight:800;margin-bottom:12px;}
+.leaderboard-rank-heading span{font-size:12px;color:#9eafc3;font-weight:600;}
+.leaderboard-rank-students{display:grid;grid-template-columns:repeat(auto-fit,minmax(185px,1fr));gap:12px;}
+.leaderboard-rank-students .performer-card{min-width:0;margin:0;}
+.leaderboard-rank-empty{color:#8292a7;font-size:13px;margin:8px 0;}
+.older-leaderboards{margin-top:28px;border-top:1px solid rgba(201,165,58,.25);padding-top:20px;}
+.older-leaderboards>h3{color:#f3d98a;margin:0 0 14px;}
+.older-test-group{margin-bottom:16px;padding:14px;border:1px solid rgba(255,255,255,.1);border-radius:14px;background:rgba(4,15,30,.55);}
+.older-test-group h4{margin:0 0 10px;color:#d7e0eb;}
+.older-student-list{display:flex;flex-direction:column;gap:6px;}
+.older-student-row{display:grid;grid-template-columns:54px minmax(0,1fr) 70px;align-items:center;gap:10px;padding:9px 11px;border-radius:8px;background:rgba(255,255,255,.035);font-size:13px;}
+.older-student-rank{color:#f3d98a;font-weight:800;}.older-student-name{overflow-wrap:anywhere;color:#e7edf5;}.older-student-score{text-align:right;color:#b8d9ff;font-weight:800;}
+.mobile-login-quick{display:none;}
+@media(max-width:800px){.topbar .nav{gap:8px;}.leaderboard-rank-students{grid-template-columns:repeat(auto-fit,minmax(145px,1fr));}.leaderboard-rank-group{padding:10px;}}
+@media(max-width:700px){.mobile-login-quick{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;padding:9px 11px;border-radius:9px;background:#2563eb;color:#fff;text-decoration:none;font-size:12px;font-weight:800;margin-left:auto;margin-right:8px;}}
+@media(max-width:420px){.mobile-login-quick{font-size:11px;padding:8px 9px;}.older-student-row{grid-template-columns:42px minmax(0,1fr) 55px;padding:8px;font-size:12px;}.leaderboard-rank-students{grid-template-columns:1fr;}}
+.rank-six-list{display:flex;flex-direction:column;gap:6px;width:100%;}.rank-six-row{display:grid;grid-template-columns:55px minmax(0,1fr) 70px;gap:10px;align-items:center;padding:9px 11px;border-radius:8px;background:rgba(255,255,255,.035);font-size:13px;}.rank-six-rank{color:#f3d995;font-weight:800}.rank-six-name{overflow-wrap:anywhere;color:#e7edf5}.rank-six-score{text-align:right;color:#b8d9ff;font-weight:800}
+
+
+/* Six compact leaderboard rank cards; student lists stay collapsed until clicked. */
+.rank-card-toggle{display:flex;width:100%;min-height:78px;align-items:center;gap:12px;text-align:left;border:0;border-radius:12px;background:linear-gradient(135deg,rgba(201,164,92,.12),rgba(5,18,35,.92));color:#f5f1e8;padding:17px;cursor:pointer;font:inherit;}
+.rank-card-toggle:hover,.rank-card-toggle:focus-visible{border-color:rgba(231,199,122,.65);outline:2px solid rgba(231,199,122,.5);outline-offset:2px;}
+.rank-card-title{font-weight:850;font-size:17px;flex:1;}
+.rank-card-count{font-size:12px;color:#a9adb5;white-space:nowrap;}
+.rank-card-chevron{font-size:22px;line-height:1;color:#e7c77a;font-weight:800;}
+.rank-card-panel{padding:12px 2px 2px;}
+.rank-card-panel[hidden]{display:none!important;}
+.leaderboard-rank-group{padding:0;overflow:hidden;}
+.leaderboard-rank-students{padding:2px;}
+@media(max-width:520px){.rank-card-toggle{min-height:66px;padding:13px;gap:8px}.rank-card-title{font-size:15px}.rank-card-count{font-size:11px}}
+
+.rank-card-grid{display:grid;width:100%;min-width:0;box-sizing:border-box;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;align-items:stretch;}
+.rank-card-grid .leaderboard-rank-group{min-width:0;width:100%;box-sizing:border-box;align-self:stretch;}
+@media(max-width:900px){.rank-card-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}}
+@media(max-width:520px){.rank-card-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}.rank-card-toggle{align-items:flex-start;flex-wrap:wrap}.rank-card-title{flex-basis:100%}.rank-card-count{white-space:normal}.leaderboard-rank-students{grid-template-columns:1fr;}}
+
+/* Full-width responsive leaderboard containers and student card grid. */
+#topPerformersGrid{display:block!important;width:100%;max-width:100%;min-width:0;box-sizing:border-box;}
+#topPerformersGrid .leaderboard-current-test,#topPerformersGrid .older-leaderboards{width:100%;max-width:100%;min-width:0;box-sizing:border-box;}
+#topPerformersGrid .leaderboard-rank-students{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,220px),1fr));gap:14px;width:100%;box-sizing:border-box;}
+#topPerformersGrid .performer-card{width:100%;min-width:0;box-sizing:border-box;}
+@media(max-width:520px){.rank-card-grid{grid-template-columns:repeat(2,minmax(0,1fr));}.rank-card-toggle{min-width:0;overflow-wrap:anywhere;}#topPerformersGrid .leaderboard-rank-students{grid-template-columns:1fr;}}
+
+/* Keep the six rank selectors compact; render the selected rank's students in a separate full-width grid below. */
+#topPerformersGrid .rank-card-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));width:100%;gap:16px;align-items:stretch;}
+#topPerformersGrid .rank-card-grid .leaderboard-rank-group{min-width:0;width:100%;}
+#topPerformersGrid .rank-card-panel{display:block;width:100%;max-width:100%;box-sizing:border-box;margin-top:18px;padding:20px;border:1px solid rgba(201,164,92,.25);border-radius:16px;background:rgba(5,18,35,.62);}
+#topPerformersGrid .rank-card-panel[hidden]{display:none!important;}
+#topPerformersGrid .rank-card-panel h3{margin:0 0 4px;color:#f3d98a;font-size:22px;}
+#topPerformersGrid .rank-panel-count{margin:0 0 16px;color:#9eafc3;font-size:13px;}
+#topPerformersGrid .rank-card-panel .leaderboard-rank-students{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,230px),1fr));gap:16px;width:100%;align-items:stretch;}
+#topPerformersGrid .rank-card-panel .performer-card{width:100%;height:100%;box-sizing:border-box;transform:none;}
+@media(max-width:900px){#topPerformersGrid .rank-card-grid{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:520px){#topPerformersGrid .rank-card-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}#topPerformersGrid .rank-card-panel{padding:12px;}#topPerformersGrid .rank-card-panel .leaderboard-rank-students{grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;}#topPerformersGrid .rank-card-panel .performer-card{padding:12px;}#topPerformersGrid .rank-card-panel .performer-photo{width:64px;height:64px;}}
